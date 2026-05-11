@@ -3,119 +3,243 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>28-Day Calendar</title>
+<title>Lifetime Calendar – by Baidoo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body.theme-warm{
+  --bg1:#fdebd8;--bg2:#fdf0e0;--bg3:#fce8d5;--bg4:#f9e4d0;--bg5:#fdeee0;
+  --orb1a:#f0a080;--orb1b:#e87040;--orb2a:#fddbc0;--orb2b:#f4a878;--orb3a:#ffe0cc;--orb3b:#f8c0a0;
+  --card-bg:rgba(255,252,248,.55);--card-border:rgba(255,255,255,.65);--card-shadow:rgba(200,130,80,.14);
+  --stat-bg:rgba(255,255,255,.35);--stat-border:rgba(255,200,160,.35);
+  --input-bg:rgba(255,255,255,.5);--input-border:rgba(255,200,160,.5);
+  --sel-bg:rgba(255,255,255,.42);--sel-border:rgba(255,200,160,.4);
+  --nav-bg:rgba(255,255,255,.4);--nav-border:rgba(255,200,160,.45);
+  --day-bg:rgba(255,255,255,.28);--day-border:rgba(255,210,180,.3);
+  --day-hover:rgba(255,255,255,.55);--day-hover-border:rgba(240,169,138,.5);
+  --text-dark:#3a2a1e;--text-mid:#7a5a44;--text-soft:#b0907a;
+  --btn-grad:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.85));
+  --btn-border:rgba(255,200,160,.6);--btn-shadow:rgba(220,110,50,.25);
+  --print-btn-grad:linear-gradient(135deg,rgba(150,180,240,.85),rgba(100,140,220,.8));
+  --print-btn-border:rgba(160,190,255,.5);--print-btn-shadow:rgba(80,120,200,.2);
+  --theme-btn-active:rgba(255,255,255,.6);--dow-color:#b0907a;--empty-bg:transparent;
+  --msg-bg:rgba(255,248,240,.95);--msg-border:rgba(240,169,138,.4);--msg-accent:#e8843a;
+}
+body.theme-light{
+  --bg1:#f5f8ff;--bg2:#eef3ff;--bg3:#f0f5ff;--bg4:#e8effe;--bg5:#f2f7ff;
+  --orb1a:#a8c4ff;--orb1b:#6a9ef0;--orb2a:#c4d8ff;--orb2b:#90b8f8;--orb3a:#d0e4ff;--orb3b:#b0ccff;
+  --card-bg:rgba(255,255,255,.75);--card-border:rgba(180,210,255,.6);--card-shadow:rgba(80,130,220,.1);
+  --stat-bg:rgba(240,246,255,.7);--stat-border:rgba(160,200,255,.4);
+  --input-bg:rgba(240,246,255,.8);--input-border:rgba(160,200,255,.5);
+  --sel-bg:rgba(240,246,255,.7);--sel-border:rgba(160,200,255,.4);
+  --nav-bg:rgba(220,235,255,.6);--nav-border:rgba(160,200,255,.5);
+  --day-bg:rgba(235,245,255,.6);--day-border:rgba(170,210,255,.35);
+  --day-hover:rgba(210,230,255,.8);--day-hover-border:rgba(120,170,240,.5);
+  --text-dark:#1a2a4a;--text-mid:#3a5080;--text-soft:#6a8ab0;
+  --btn-grad:linear-gradient(135deg,rgba(100,150,240,.9),rgba(60,110,220,.85));
+  --btn-border:rgba(120,170,255,.6);--btn-shadow:rgba(60,110,220,.25);
+  --print-btn-grad:linear-gradient(135deg,rgba(100,200,160,.85),rgba(60,170,120,.8));
+  --print-btn-border:rgba(100,200,160,.5);--print-btn-shadow:rgba(40,150,100,.2);
+  --theme-btn-active:rgba(255,255,255,.8);--dow-color:#6a8ab0;--empty-bg:rgba(240,246,255,.2);
+  --msg-bg:rgba(240,248,255,.97);--msg-border:rgba(120,170,255,.4);--msg-accent:#3a7ae8;
+}
+body.theme-dark{
+  --bg1:#0f1117;--bg2:#141720;--bg3:#111520;--bg4:#0d1018;--bg5:#121620;
+  --orb1a:#2a1a4a;--orb1b:#1a0a3a;--orb2a:#1a2a4a;--orb2b:#0a1a3a;--orb3a:#2a1a3a;--orb3b:#1a0a2a;
+  --card-bg:rgba(30,35,55,.75);--card-border:rgba(80,90,140,.4);--card-shadow:rgba(0,0,0,.4);
+  --stat-bg:rgba(40,45,70,.6);--stat-border:rgba(80,90,140,.3);
+  --input-bg:rgba(40,45,70,.7);--input-border:rgba(100,110,160,.4);
+  --sel-bg:rgba(40,45,70,.6);--sel-border:rgba(80,90,140,.35);
+  --nav-bg:rgba(50,55,85,.6);--nav-border:rgba(100,110,160,.4);
+  --day-bg:rgba(40,45,70,.5);--day-border:rgba(80,90,140,.25);
+  --day-hover:rgba(60,68,105,.7);--day-hover-border:rgba(120,130,200,.4);
+  --text-dark:#e0e4f4;--text-mid:#a0a8cc;--text-soft:#6a72a0;
+  --btn-grad:linear-gradient(135deg,rgba(100,80,180,.9),rgba(70,50,160,.85));
+  --btn-border:rgba(120,100,200,.5);--btn-shadow:rgba(80,60,180,.3);
+  --print-btn-grad:linear-gradient(135deg,rgba(60,160,130,.85),rgba(40,130,100,.8));
+  --print-btn-border:rgba(80,180,150,.4);--print-btn-shadow:rgba(40,140,110,.25);
+  --theme-btn-active:rgba(255,255,255,.15);--dow-color:#6a72a0;--empty-bg:transparent;
+  --msg-bg:rgba(25,28,48,.97);--msg-border:rgba(100,80,200,.4);--msg-accent:#a080f0;
+}
 :root{
-  --peach:#f0a98a;--amber:#e8843a;--text-dark:#3a2a1e;--text-mid:#7a5a44;--text-soft:#b0907a;
-  --fs-sm:clamp(11px,1.8vw,14px);
-  --fs-xs:clamp(9px,1.3vw,12px);
-  --fs-lg:clamp(15px,2.5vw,20px);
-  --fs-xl:clamp(18px,3.5vw,26px);
-  --fs-day:clamp(12px,2.2vw,17px);
-  --fs-greg:clamp(7px,1vw,9px);
-  --radius-card:clamp(14px,3vw,26px);
-  --pad-card:clamp(0.9rem,3vw,1.75rem);
-  --gap-grid:clamp(2px,0.6vw,5px);
+  --fs-sm:clamp(11px,1.8vw,14px);--fs-xs:clamp(9px,1.3vw,12px);
+  --fs-xl:clamp(18px,3.5vw,26px);--fs-day:clamp(12px,2.2vw,17px);--fs-greg:clamp(7px,1vw,9px);
+  --radius-card:clamp(14px,3vw,26px);--pad-card:clamp(0.9rem,3vw,1.75rem);--gap-grid:clamp(2px,0.6vw,5px);
 }
-html,body{min-height:100%;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);}
-body{
-  background:linear-gradient(135deg,#fdebd8 0%,#fdf0e0 25%,#fce8d5 50%,#f9e4d0 75%,#fdeee0 100%);
-  background-attachment:fixed;
-  overflow-x:hidden;
-}
-.orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.35;pointer-events:none;animation:drift 12s ease-in-out infinite alternate;z-index:0;}
-.orb1{width:clamp(140px,35vw,320px);height:clamp(140px,35vw,320px);background:radial-gradient(circle,#f0a080,#e87040);top:-80px;left:-80px;}
-.orb2{width:clamp(110px,28vw,260px);height:clamp(110px,28vw,260px);background:radial-gradient(circle,#fddbc0,#f4a878);bottom:-60px;right:-60px;animation-delay:-4s;}
-.orb3{width:clamp(80px,18vw,180px);height:clamp(80px,18vw,180px);background:radial-gradient(circle,#ffe0cc,#f8c0a0);top:40%;left:60%;animation-delay:-8s;}
+html,body{min-height:100%;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+body{transition:background .4s;}
+body.theme-warm{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
+body.theme-light{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
+body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
+.orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;animation:drift 12s ease-in-out infinite alternate;z-index:0;}
+.orb1{width:clamp(140px,35vw,320px);height:clamp(140px,35vw,320px);background:radial-gradient(circle,var(--orb1a),var(--orb1b));top:-80px;left:-80px;}
+.orb2{width:clamp(110px,28vw,260px);height:clamp(110px,28vw,260px);background:radial-gradient(circle,var(--orb2a),var(--orb2b));bottom:-60px;right:-60px;animation-delay:-4s;}
+.orb3{width:clamp(80px,18vw,180px);height:clamp(80px,18vw,180px);background:radial-gradient(circle,var(--orb3a),var(--orb3b));top:40%;left:60%;animation-delay:-8s;}
 @keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(30px,20px) scale(1.08);}}
 .app{position:relative;z-index:1;min-height:100vh;padding:clamp(0.75rem,3vw,2rem) clamp(0.6rem,3vw,1rem);}
-/* Header */
-.page-header{text-align:center;margin-bottom:clamp(0.75rem,2vw,1.5rem);}
-.page-title{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,38px);font-weight:400;color:var(--text-dark);letter-spacing:-0.02em;}
-.page-sub{font-size:var(--fs-xs);color:var(--text-soft);margin-top:4px;font-style:italic;}
-/* Cards */
-.glass-card{
-  background:rgba(255,252,248,.55);
-  backdrop-filter:blur(24px) saturate(1.4);
-  -webkit-backdrop-filter:blur(24px) saturate(1.4);
-  border:1px solid rgba(255,255,255,.65);
-  border-radius:var(--radius-card);
-  padding:var(--pad-card);
-  max-width:700px;margin:0 auto clamp(0.6rem,2vw,1.25rem);
-  box-shadow:0 8px 40px rgba(200,130,80,.14),inset 0 1px 0 rgba(255,255,255,.8);
-}
-/* Setup */
+.theme-bar{display:flex;justify-content:center;gap:8px;margin-bottom:clamp(0.6rem,2vw,1rem);}
+.theme-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;border:1px solid var(--card-border);background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:var(--fs-xs);color:var(--text-mid);transition:all .2s;font-weight:500;}
+.theme-btn:hover{background:var(--theme-btn-active);}
+.theme-btn.active{background:var(--theme-btn-active);border-color:var(--nav-border);color:var(--text-dark);box-shadow:0 2px 12px var(--card-shadow);}
+.theme-dot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.4);}
+.app-title-wrap{text-align:center;margin-bottom:clamp(0.5rem,1.5vw,1rem);}
+.app-title{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,42px);font-weight:400;color:var(--text-dark);letter-spacing:-0.02em;line-height:1.1;}
+.app-title em{font-style:italic;color:var(--text-soft);}
+.app-tagline{font-size:var(--fs-xs);color:var(--text-soft);margin-top:5px;letter-spacing:.06em;text-transform:uppercase;}
+.glass-card{background:var(--card-bg);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);max-width:700px;margin:0 auto clamp(0.6rem,2vw,1.25rem);box-shadow:0 8px 40px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.15);transition:background .3s,border .3s,box-shadow .3s;}
 .setup-title{font-family:'Playfair Display',serif;font-size:var(--fs-xs);font-style:italic;color:var(--text-soft);margin-bottom:.75rem;letter-spacing:.04em;}
 .setup-fields{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
 .field-group{display:flex;flex-direction:column;gap:3px;flex:1;min-width:clamp(80px,18vw,115px);}
 .field-group label{font-size:var(--fs-xs);font-weight:500;color:var(--text-soft);letter-spacing:.07em;text-transform:uppercase;}
-.field-group input{background:rgba(255,255,255,.5);border:1px solid rgba(255,200,160,.5);border-radius:10px;padding:clamp(5px,1.2vw,8px) clamp(7px,1.5vw,12px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;transition:all .2s;width:100%;}
-.field-group input:focus{background:rgba(255,255,255,.75);border-color:var(--peach);box-shadow:0 0 0 3px rgba(240,169,138,.18);}
-.apply-btn{background:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.85));border:1px solid rgba(255,200,160,.6);border-radius:12px;padding:clamp(6px,1.2vw,9px) clamp(12px,2.5vw,20px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(220,110,50,.25),inset 0 1px 0 rgba(255,255,255,.3);transition:all .2s;white-space:nowrap;align-self:flex-end;}
-.apply-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(220,110,50,.35);}
-.apply-btn:active{transform:scale(.97);}
-.err{font-size:var(--fs-xs);color:#c05030;margin-top:6px;display:none;}
-/* Nav */
+.field-group input{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:clamp(5px,1.2vw,8px) clamp(7px,1.5vw,12px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;transition:all .2s;width:100%;}
+.field-group input:focus{border-color:var(--nav-border);box-shadow:0 0 0 3px var(--card-shadow);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:8px;}
+.apply-btn,.print-btn{border-radius:12px;padding:clamp(6px,1.2vw,9px) clamp(12px,2.5vw,20px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;border:1px solid;}
+.apply-btn{background:var(--btn-grad);border-color:var(--btn-border);box-shadow:0 4px 16px var(--btn-shadow),inset 0 1px 0 rgba(255,255,255,.3);}
+.print-btn{background:var(--print-btn-grad);border-color:var(--print-btn-border);box-shadow:0 4px 16px var(--print-btn-shadow),inset 0 1px 0 rgba(255,255,255,.3);}
+.apply-btn:hover,.print-btn:hover{transform:translateY(-1px);}
+.apply-btn:active,.print-btn:active{transform:scale(.97);}
+.err{font-size:var(--fs-xs);color:#e05030;margin-top:6px;display:none;}
 .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(0.6rem,2vw,1.1rem);}
-.nav-glass{background:rgba(255,255,255,.4);border:1px solid rgba(255,200,160,.45);border-radius:50%;width:clamp(30px,6vw,40px);height:clamp(30px,6vw,40px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-mid);font-size:clamp(14px,2.5vw,18px);box-shadow:0 2px 10px rgba(200,130,80,.12),inset 0 1px 0 rgba(255,255,255,.7);user-select:none;}
-.nav-glass:hover{background:rgba(255,255,255,.65);transform:scale(1.08);}
-.cal-heading-main{font-family:'Playfair Display',serif;font-size:var(--fs-xl);font-weight:400;color:var(--text-dark);letter-spacing:-0.01em;text-align:center;}
+.nav-glass{background:var(--nav-bg);border:1px solid var(--nav-border);border-radius:50%;width:clamp(30px,6vw,40px);height:clamp(30px,6vw,40px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-mid);font-size:clamp(14px,2.5vw,18px);box-shadow:0 2px 10px var(--card-shadow);user-select:none;}
+.nav-glass:hover{background:var(--day-hover);transform:scale(1.08);}
+.cal-heading-main{font-family:'Playfair Display',serif;font-size:var(--fs-xl);font-weight:400;color:var(--text-dark);text-align:center;}
 .cal-heading-sub{font-size:var(--fs-xs);color:var(--text-soft);margin-top:2px;text-align:center;}
 .sel-row{display:flex;gap:8px;margin-bottom:clamp(0.6rem,2vw,1.1rem);justify-content:center;}
-.sel-pill{background:rgba(255,255,255,.42);border:1px solid rgba(255,200,160,.4);border-radius:20px;padding:clamp(4px,1vw,6px) clamp(10px,2vw,16px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);cursor:pointer;outline:none;transition:all .2s;appearance:none;-webkit-appearance:none;text-align:center;}
-.sel-pill:focus{border-color:var(--peach);background:rgba(255,255,255,.65);}
-/* Stats */
+.sel-pill{background:var(--sel-bg);border:1px solid var(--sel-border);border-radius:20px;padding:clamp(4px,1vw,6px) clamp(10px,2vw,16px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;text-align:center;transition:all .2s;}
+.sel-pill:focus{border-color:var(--nav-border);}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(clamp(85px,22vw,140px),1fr));gap:clamp(5px,1.2vw,9px);margin-bottom:clamp(0.6rem,2vw,1.1rem);}
-.stat-pill{background:rgba(255,255,255,.35);border:1px solid rgba(255,200,160,.35);border-radius:clamp(9px,2vw,14px);padding:clamp(6px,1.5vw,11px) clamp(7px,1.5vw,12px);text-align:center;}
+.stat-pill{background:var(--stat-bg);border:1px solid var(--stat-border);border-radius:clamp(9px,2vw,14px);padding:clamp(6px,1.5vw,11px) clamp(7px,1.5vw,12px);text-align:center;}
 .stat-label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--text-soft);}
 .stat-val{font-family:'Playfair Display',serif;font-size:clamp(12px,2.2vw,17px);font-weight:500;color:var(--text-dark);margin-top:2px;word-break:break-all;}
-/* Day grid */
 .dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px;}
-.dow-cell{text-align:center;font-size:var(--fs-xs);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-soft);padding:2px 0 5px;}
+.dow-cell{text-align:center;font-size:var(--fs-xs);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dow-color);padding:2px 0 5px;}
 .day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--gap-grid);}
 .day-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:clamp(7px,2vw,13px);transition:all .18s;cursor:default;}
-.day-cell.empty{background:transparent;}
-.day-cell.normal{background:rgba(255,255,255,.28);border:1px solid rgba(255,210,180,.3);}
-.day-cell.normal:hover{background:rgba(255,255,255,.55);border-color:rgba(240,169,138,.5);transform:translateY(-1px);box-shadow:0 4px 16px rgba(200,130,80,.12);}
-.day-cell.epoch{background:linear-gradient(135deg,rgba(240,169,138,.65),rgba(232,132,58,.5));border:1px solid rgba(255,200,160,.7);box-shadow:0 4px 20px rgba(220,110,50,.22),inset 0 1px 0 rgba(255,255,255,.5);}
-.day-cell.year-start{background:linear-gradient(135deg,rgba(200,230,200,.6),rgba(150,200,170,.5));border:1px solid rgba(160,210,180,.6);box-shadow:0 4px 16px rgba(100,180,130,.18),inset 0 1px 0 rgba(255,255,255,.5);}
-.day-cell.month-start{background:linear-gradient(135deg,rgba(180,210,240,.55),rgba(140,185,225,.45));border:1px solid rgba(160,200,240,.55);box-shadow:0 4px 16px rgba(100,150,210,.15),inset 0 1px 0 rgba(255,255,255,.5);}
+.day-cell.empty{background:var(--empty-bg);}
+.day-cell.normal{background:var(--day-bg);border:1px solid var(--day-border);}
+.day-cell.normal:hover{background:var(--day-hover);border-color:var(--day-hover-border);transform:translateY(-1px);box-shadow:0 4px 16px var(--card-shadow);}
+.day-cell.epoch{background:linear-gradient(135deg,rgba(240,169,138,.65),rgba(232,132,58,.5));border:1px solid rgba(255,200,160,.6);box-shadow:0 4px 20px rgba(220,110,50,.2),inset 0 1px 0 rgba(255,255,255,.3);}
+.day-cell.year-start{background:linear-gradient(135deg,rgba(130,200,160,.55),rgba(80,170,110,.45));border:1px solid rgba(120,190,150,.5);}
+.day-cell.month-start{background:linear-gradient(135deg,rgba(130,170,240,.5),rgba(90,140,220,.4));border:1px solid rgba(120,160,235,.45);}
 .day-num{font-family:'Playfair Display',serif;font-size:var(--fs-day);font-weight:400;color:var(--text-dark);line-height:1;}
 .day-cell.epoch .day-num{color:#5a2a08;}
-.day-cell.year-start .day-num{color:#1a4a2a;}
-.day-cell.month-start .day-num{color:#14346a;}
+.day-cell.year-start .day-num{color:#0a4020;}
+.day-cell.month-start .day-num{color:#0a2a6a;}
 .day-greg{font-size:var(--fs-greg);color:var(--text-soft);margin-top:1px;}
-.day-cell.epoch .day-greg{color:rgba(90,42,8,.75);}
-.day-cell.year-start .day-greg{color:rgba(26,74,42,.75);}
-.day-cell.month-start .day-greg{color:rgba(20,52,106,.75);}
-.day-badge{font-size:clamp(6px,1vw,8px);font-weight:500;border-radius:999px;padding:1px 4px;margin-top:1px;}
-.day-cell.epoch .day-badge{background:rgba(255,255,255,.45);color:#5a2a08;}
-.day-cell.year-start .day-badge{background:rgba(255,255,255,.45);color:#1a4a2a;}
-.day-cell.month-start .day-badge{background:rgba(255,255,255,.45);color:#14346a;}
-/* Legend */
+.day-cell.epoch .day-greg{color:rgba(90,42,8,.7);}
+.day-cell.year-start .day-greg{color:rgba(10,64,32,.7);}
+.day-cell.month-start .day-greg{color:rgba(10,42,106,.7);}
+.day-badge{font-size:clamp(6px,1vw,8px);font-weight:500;border-radius:999px;padding:1px 4px;margin-top:1px;background:rgba(255,255,255,.4);}
+.day-cell.epoch .day-badge{color:#5a2a08;}
+.day-cell.year-start .day-badge{color:#0a4020;}
+.day-cell.month-start .day-badge{color:#0a2a6a;}
 .legend{display:flex;gap:clamp(8px,2vw,16px);justify-content:center;margin-top:clamp(0.6rem,2vw,1.1rem);flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--text-soft);}
-.legend-swatch{width:clamp(9px,1.5vw,12px);height:clamp(9px,1.5vw,12px);border-radius:4px;border:1px solid rgba(255,255,255,.6);}
-/* Footer */
-.footer{text-align:center;font-size:var(--fs-xs);color:var(--text-soft);padding:1.5rem 0 1rem;opacity:.7;}
+.legend-swatch{width:clamp(9px,1.5vw,12px);height:clamp(9px,1.5vw,12px);border-radius:4px;}
+/* Print modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-title{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,20px);color:var(--text-dark);margin-bottom:1rem;}
+.modal-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:1rem;flex-wrap:wrap;}
+.modal-field{flex:1;min-width:100px;}
+.modal-field label{display:block;font-size:var(--fs-xs);font-weight:500;color:var(--text-soft);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
+.modal-field input,.modal-field select{width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;}
+.modal-info{font-size:var(--fs-xs);color:var(--text-soft);margin-bottom:1rem;line-height:1.6;background:var(--stat-bg);border-radius:10px;padding:8px 12px;border:1px solid var(--stat-border);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.modal-cancel{background:var(--stat-bg);border:1px solid var(--stat-border);border-radius:10px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-mid);cursor:pointer;}
+.modal-go{background:var(--print-btn-grad);border:1px solid var(--print-btn-border);border-radius:10px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;}
+.modal-cancel:hover{background:var(--day-hover);}
+.modal-go:hover{filter:brightness(1.1);}
+/* Secret */
+.secret-btn{position:fixed;bottom:0;left:0;width:48px;height:48px;z-index:200;background:transparent;border:none;cursor:pointer;outline:none;}
+.secret-popup{position:fixed;bottom:56px;left:12px;max-width:min(340px,90vw);background:var(--msg-bg);border:1px solid var(--msg-border);border-radius:18px;padding:1.25rem 1.4rem;z-index:300;box-shadow:0 16px 50px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
+.secret-popup.open{display:block;}
+@keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+.secret-popup-title{font-family:'Playfair Display',serif;font-size:clamp(13px,2vw,15px);font-weight:500;color:var(--msg-accent);margin-bottom:.65rem;}
+.secret-popup-body{font-size:clamp(11px,1.7vw,13px);color:var(--text-dark);line-height:1.75;}
+.secret-popup-sig{margin-top:.75rem;font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,17px);font-weight:500;color:var(--msg-accent);letter-spacing:.08em;text-align:right;}
+.secret-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:16px;color:var(--text-soft);cursor:pointer;line-height:1;}
+.secret-close:hover{color:var(--text-dark);}
+/* Print */
+@media print{
+  .orb,.theme-bar,.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap{display:none!important;}
+  body{background:white!important;color:#111!important;}
+  .app{padding:0;}
+  .glass-card{box-shadow:none!important;border:1px solid #ddd!important;background:white!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;margin-bottom:1rem!important;break-inside:avoid;}
+  .print-month-block{break-inside:avoid;margin-bottom:1.5rem;}
+  .day-cell.normal{background:#f8f8f8!important;border-color:#ddd!important;}
+  .day-cell.epoch{background:#ffe4cc!important;}
+  .day-cell.year-start{background:#d4f0dc!important;}
+  .day-cell.month-start{background:#d4e4f8!important;}
+  .day-num,.cal-heading-main,.stat-val,.cal-heading-sub,.dow-cell,.day-greg,.day-badge{color:#111!important;}
+  .stat-label,.dow-cell,.cal-heading-sub,.day-greg{color:#666!important;}
+}
 </style>
 </head>
-<body>
+<body class="theme-warm">
+
+<!-- Print modal -->
+<div class="modal-overlay" id="print-modal">
+  <div class="modal">
+    <p class="modal-title">🖨 Print Calendar</p>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Print by</label>
+        <select id="print-by"><option value="months">Months</option><option value="years">Years</option></select>
+      </div>
+      <div class="modal-field">
+        <label>Start year</label>
+        <input type="number" id="print-start-year" min="1" value="1"/>
+      </div>
+      <div class="modal-field" id="print-start-month-wrap">
+        <label>Start month</label>
+        <input type="number" id="print-start-month" min="1" max="13" value="1"/>
+      </div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label id="print-count-label">Number of months</label>
+        <input type="number" id="print-count" min="1" value="3"/>
+      </div>
+    </div>
+    <div class="modal-info" id="print-info">Printing 3 months starting Year 1, Month 1</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="print-cancel">Cancel</button>
+      <button class="modal-go" id="print-go">Print ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- Secret message -->
+<button class="secret-btn" id="secret-btn" aria-label=""></button>
+<div class="secret-popup" id="secret-popup">
+  <button class="secret-close" id="secret-close">✕</button>
+  <p class="secret-popup-title">A gift from Baidoo 🎁</p>
+  <p class="secret-popup-body">This app was made by Baidoo as a gift. Write down the age or number of years you hope to attain before you pass on and start living intentionally toward that vision. Life becomes more meaningful when you move with purpose, growth and direction. I'll be updating this with valuable features from time to time, so stay tuned and be on the lookout.</p>
+  <p class="secret-popup-sig">BAIDOO!</p>
+</div>
+
 <div class="app">
   <div class="orb orb1"></div>
   <div class="orb orb2"></div>
   <div class="orb orb3"></div>
 
-  <div class="page-header">
-    <h1 class="page-title">28-Day Calendar</h1>
-    <p class="page-sub">13 months · 28 days each · fully configurable</p>
+  <div class="theme-bar no-print">
+    <button class="theme-btn" id="btn-light" onclick="setTheme('light')"><span class="theme-dot" style="background:linear-gradient(135deg,#a8c4ff,#6a9ef0)"></span>Light</button>
+    <button class="theme-btn active" id="btn-warm" onclick="setTheme('warm')"><span class="theme-dot" style="background:linear-gradient(135deg,#f0a080,#e87040)"></span>Warm</button>
+    <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')"><span class="theme-dot" style="background:linear-gradient(135deg,#2a1a4a,#1a0a3a)"></span>Night</button>
   </div>
 
-  <div class="glass-card">
+  <div class="app-title-wrap no-print">
+    <h1 class="app-title">Lifetime <em>Calendar</em></h1>
+    <p class="app-tagline">13 months · 28 days each · fully configurable</p>
+  </div>
+
+  <div class="glass-card setup-glass-wrap no-print">
     <p class="setup-title">Calendar configuration</p>
     <div class="setup-fields">
       <div class="field-group">
@@ -134,26 +258,27 @@ body{
         <label>End year</label>
         <input type="number" id="end-year-in" min="1" value="127"/>
       </div>
+    </div>
+    <div class="btn-row">
       <button class="apply-btn" id="apply-btn">Apply</button>
+      <button class="print-btn" id="open-print-btn">🖨 Print Calendar</button>
     </div>
     <p class="err" id="err-msg">End year must be ≥ start year, and months must be 1–13.</p>
   </div>
 
-  <div class="glass-card">
+  <div class="glass-card" id="main-cal">
     <div class="cal-top">
-      <div class="nav-glass" id="prev-btn">&#8249;</div>
+      <div class="nav-glass no-print" id="prev-btn">&#8249;</div>
       <div>
         <div class="cal-heading-main" id="cal-title">—</div>
         <div class="cal-heading-sub" id="cal-sub">—</div>
       </div>
-      <div class="nav-glass" id="next-btn">&#8250;</div>
+      <div class="nav-glass no-print" id="next-btn">&#8250;</div>
     </div>
-
-    <div class="sel-row">
+    <div class="sel-row no-print">
       <select class="sel-pill" id="year-sel"></select>
       <select class="sel-pill" id="month-sel"></select>
     </div>
-
     <div class="stats-grid">
       <div class="stat-pill"><div class="stat-label">Total months</div><div class="stat-val" id="s-months">—</div></div>
       <div class="stat-pill"><div class="stat-label">Total weeks</div><div class="stat-val" id="s-weeks">—</div></div>
@@ -162,18 +287,16 @@ body{
       <div class="stat-pill"><div class="stat-label">Total seconds</div><div class="stat-val" id="s-secs">—</div></div>
       <div class="stat-pill"><div class="stat-label">Gregorian range</div><div class="stat-val" id="s-greg" style="font-size:clamp(9px,1.5vw,12px)">—</div></div>
     </div>
-
     <div class="dow-row" id="dow-row"></div>
     <div class="day-grid" id="day-grid"></div>
-
     <div class="legend">
-      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(240,169,138,.8),rgba(232,132,58,.7))"></div>Epoch</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(200,230,200,.8),rgba(150,200,170,.7))"></div>Year start</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(180,210,240,.8),rgba(140,185,225,.7))"></div>Month start</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.8))"></div>Epoch</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(130,200,160,.9),rgba(80,170,110,.8))"></div>Year start</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,rgba(130,170,240,.9),rgba(90,140,220,.8))"></div>Month start</div>
     </div>
   </div>
 
-  <p class="footer">28-day calendar system &middot; 13 months per year</p>
+  <div id="print-area" style="display:none"></div>
 </div>
 
 <script>
@@ -183,24 +306,43 @@ const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let cfg={epoch:new Date(1992,10,16),startYear:1,startMonth:1,endYear:127};
 let curY=1,curM=1;
 
+function setTheme(t){
+  document.body.className='theme-'+t;
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+t).classList.add('active');
+}
+
 const drow=document.getElementById('dow-row');
 DOW.forEach(d=>{const c=document.createElement('div');c.className='dow-cell';c.textContent=d;drow.appendChild(c);});
 
-function gd(y,m,d){
-  const n=((y-1)*MPY+(m-1))*DPM+(d-1);
-  const dt=new Date(cfg.epoch);dt.setDate(dt.getDate()+n);return dt;
-}
+function gd(y,m,d){const n=((y-1)*MPY+(m-1))*DPM+(d-1);const dt=new Date(cfg.epoch);dt.setDate(dt.getDate()+n);return dt;}
 function fg(d){return d.getDate()+' '+GM[d.getMonth()]+' '+d.getFullYear();}
 function fmt(n){return n.toLocaleString();}
 
 function calcStats(){
   const totalMonths=(cfg.endYear-cfg.startYear)*MPY+(MPY-cfg.startMonth+1);
   const totalDays=totalMonths*DPM;
-  const totalWeeks=totalDays/7;
-  const totalHours=totalDays*24;
-  const totalMins=totalHours*60;
-  const totalSecs=totalMins*60;
-  return{totalMonths,totalWeeks,totalHours,totalMins,totalSecs};
+  return{totalMonths,totalWeeks:totalDays/7,totalHours:totalDays*24,totalMins:totalDays*24*60,totalSecs:totalDays*24*3600};
+}
+
+function buildMonthGrid(y,m,container){
+  const sg=gd(y,m,1),dow0=sg.getDay();
+  const total=Math.ceil((dow0+28)/7)*7;
+  container.innerHTML='';
+  for(let i=0;i<total;i++){
+    const cell=document.createElement('div');
+    const di=i-dow0;
+    if(di<0||di>=28){cell.className='day-cell empty';container.appendChild(cell);continue;}
+    const dn=di+1,g=gd(y,m,dn);
+    const isEpoch=(y===cfg.startYear&&m===cfg.startMonth&&dn===1);
+    const isYS=(!isEpoch&&m===cfg.startMonth&&dn===1);
+    const isMS=(!isEpoch&&!isYS&&dn===1);
+    cell.className='day-cell '+(isEpoch?'epoch':isYS?'year-start':isMS?'month-start':'normal');
+    const num=document.createElement('div');num.className='day-num';num.textContent=dn;cell.appendChild(num);
+    const gr=document.createElement('div');gr.className='day-greg';gr.textContent=g.getDate()+' '+GM[g.getMonth()];cell.appendChild(gr);
+    if(isEpoch||isYS||isMS){const b=document.createElement('div');b.className='day-badge';b.textContent=isEpoch?'Epoch':isYS?'Y'+y:'M'+m;cell.appendChild(b);}
+    container.appendChild(cell);
+  }
 }
 
 function rebuildSels(){
@@ -217,38 +359,17 @@ function render(){
   if(curM<1)curM=1;if(curM>MPY)curM=MPY;
   document.getElementById('year-sel').value=curY;
   document.getElementById('month-sel').value=curM;
-
-  const sg=gd(curY,curM,1),eg=gd(curY,curM,28),dow0=sg.getDay();
-  document.getElementById('cal-title').textContent='Year '+curY+' · Month '+curM;
-  document.getElementById('cal-sub').textContent=fg(sg)+' – '+fg(eg);
-
+  const sg=gd(curY,curM,1),eg=gd(curY,curM,28);
+  document.getElementById('cal-title').textContent='Year '+curY+' \u00b7 Month '+curM;
+  document.getElementById('cal-sub').textContent=fg(sg)+' \u2013 '+fg(eg);
   const st=calcStats();
   document.getElementById('s-months').textContent=fmt(st.totalMonths);
   document.getElementById('s-weeks').textContent=fmt(st.totalWeeks);
   document.getElementById('s-hours').textContent=fmt(st.totalHours);
   document.getElementById('s-mins').textContent=fmt(st.totalMins);
   document.getElementById('s-secs').textContent=fmt(st.totalSecs);
-  document.getElementById('s-greg').textContent=fg(gd(cfg.startYear,cfg.startMonth,1))+' – '+fg(gd(cfg.endYear,MPY,DPM));
-
-  const grid=document.getElementById('day-grid');grid.innerHTML='';
-  const total=Math.ceil((dow0+28)/7)*7;
-  for(let i=0;i<total;i++){
-    const cell=document.createElement('div');
-    const di=i-dow0;
-    if(di<0||di>=28){cell.className='day-cell empty';grid.appendChild(cell);continue;}
-    const dn=di+1,g=gd(curY,curM,dn);
-    const isEpoch=(curY===cfg.startYear&&curM===cfg.startMonth&&dn===1);
-    const isYS=(!isEpoch&&curM===cfg.startMonth&&dn===1);
-    const isMS=(!isEpoch&&!isYS&&dn===1);
-    cell.className='day-cell '+(isEpoch?'epoch':isYS?'year-start':isMS?'month-start':'normal');
-    const num=document.createElement('div');num.className='day-num';num.textContent=dn;cell.appendChild(num);
-    const gr=document.createElement('div');gr.className='day-greg';gr.textContent=g.getDate()+' '+GM[g.getMonth()];cell.appendChild(gr);
-    if(isEpoch||isYS||isMS){
-      const b=document.createElement('div');b.className='day-badge';
-      b.textContent=isEpoch?'Epoch':isYS?'Y'+curY:'M'+curM;cell.appendChild(b);
-    }
-    grid.appendChild(cell);
-  }
+  document.getElementById('s-greg').textContent=fg(gd(cfg.startYear,cfg.startMonth,1))+' \u2013 '+fg(gd(cfg.endYear,MPY,DPM));
+  buildMonthGrid(curY,curM,document.getElementById('day-grid'));
 }
 
 function applyConfig(){
@@ -269,6 +390,60 @@ document.getElementById('year-sel').addEventListener('change',()=>{curY=+documen
 document.getElementById('month-sel').addEventListener('change',()=>{curM=+document.getElementById('month-sel').value;render();});
 document.getElementById('prev-btn').addEventListener('click',()=>{if(curM>1)curM--;else if(curY>cfg.startYear){curY--;curM=MPY;}render();});
 document.getElementById('next-btn').addEventListener('click',()=>{if(curM<MPY)curM++;else if(curY<cfg.endYear){curY++;curM=1;}render();});
+
+// Secret button
+const secretBtn=document.getElementById('secret-btn');
+const secretPopup=document.getElementById('secret-popup');
+const secretClose=document.getElementById('secret-close');
+secretBtn.addEventListener('click',()=>secretPopup.classList.toggle('open'));
+secretClose.addEventListener('click',e=>{e.stopPropagation();secretPopup.classList.remove('open');});
+document.addEventListener('click',e=>{if(!secretPopup.contains(e.target)&&e.target!==secretBtn)secretPopup.classList.remove('open');});
+
+// Print modal
+const modal=document.getElementById('print-modal');
+document.getElementById('open-print-btn').addEventListener('click',()=>{
+  document.getElementById('print-start-year').value=curY;
+  document.getElementById('print-start-month').value=curM;
+  updatePrintInfo();modal.classList.add('open');
+});
+document.getElementById('print-cancel').addEventListener('click',()=>modal.classList.remove('open'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
+
+function updatePrintInfo(){
+  const by=document.getElementById('print-by').value;
+  const sy=parseInt(document.getElementById('print-start-year').value)||1;
+  const sm=parseInt(document.getElementById('print-start-month').value)||1;
+  const count=parseInt(document.getElementById('print-count').value)||1;
+  document.getElementById('print-count-label').textContent=by==='months'?'Number of months':'Number of years';
+  const total=by==='months'?count:count*MPY;
+  document.getElementById('print-info').textContent='Printing '+total+' month'+(total>1?'s':'')+' starting Year '+sy+', Month '+(by==='months'?sm:1);
+  document.getElementById('print-start-month-wrap').style.display=by==='months'?'':'none';
+}
+['print-by','print-start-year','print-start-month','print-count'].forEach(id=>document.getElementById(id).addEventListener('input',updatePrintInfo));
+
+document.getElementById('print-go').addEventListener('click',()=>{
+  const by=document.getElementById('print-by').value;
+  let sy=parseInt(document.getElementById('print-start-year').value)||1;
+  let sm=by==='months'?(parseInt(document.getElementById('print-start-month').value)||1):1;
+  const count=parseInt(document.getElementById('print-count').value)||1;
+  const totalMonths=by==='months'?count:count*MPY;
+  const area=document.getElementById('print-area');
+  area.innerHTML='';area.style.display='block';
+  document.getElementById('main-cal').style.display='none';
+  let y=sy,m=sm;
+  for(let i=0;i<totalMonths;i++){
+    if(y>cfg.endYear)break;
+    const block=document.createElement('div');
+    block.className='glass-card print-month-block';
+    const sg=gd(y,m,1),eg=gd(y,m,28);
+    block.innerHTML='<div style="text-align:center;margin-bottom:.75rem"><div class="cal-heading-main">Lifetime Calendar \u00b7 Year '+y+' \u00b7 Month '+m+'</div><div class="cal-heading-sub">'+fg(sg)+' \u2013 '+fg(eg)+'</div></div><div class="dow-row">'+DOW.map(d=>'<div class="dow-cell">'+d+'</div>').join('')+'</div><div class="day-grid"></div>';
+    area.appendChild(block);
+    buildMonthGrid(y,m,block.querySelector('.day-grid'));
+    m++;if(m>MPY){m=1;y++;}
+  }
+  modal.classList.remove('open');
+  setTimeout(()=>{window.print();setTimeout(()=>{area.style.display='none';area.innerHTML='';document.getElementById('main-cal').style.display='';},500);},100);
+});
 
 rebuildSels();render();
 </script>
