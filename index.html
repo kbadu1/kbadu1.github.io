@@ -449,3 +449,506 @@ rebuildSels();render();
 </script>
 </body>
 </html>
+<!-- ===== TIMETABLE SCHEDULER ===== -->
+<style>
+.tt-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto;}
+.tt-overlay.open{display:flex;}
+.tt-panel{background:#fff;border-radius:20px;width:100%;max-width:720px;display:flex;flex-direction:column;font-family:'DM Sans',sans-serif;color:#1a1a1a;margin:auto;}
+body.theme-dark .tt-panel{background:#1a1e30;color:#e0e4f4;}
+body.theme-dark .tt-panel input,body.theme-dark .tt-panel select{background:#2a2f4a;color:#e0e4f4;border-color:#505880;}
+body.theme-dark .tt-cell{background:#2a2f4a;border-color:#3a4060;}
+body.theme-dark .tt-cell:hover{background:#343a5a;}
+body.theme-dark .tt-th{background:#20253a;}
+body.theme-dark .tt-thead th{background:#20253a;color:#a0a8cc;}
+body.theme-dark .tt-stat{background:#20253a;}
+body.theme-dark .tt-period-badge{background:#20253a;color:#a0a8cc;border-color:#3a4060;}
+body.theme-dark .tt-period-badge.active{background:#2a3a6a;color:#90b8f8;border-color:#5080c0;}
+body.theme-dark .tt-add-form{background:#20253a;}
+body.theme-dark .tt-month-card{background:#20253a;border-color:#3a4060;}
+.tt-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.1);}
+body.theme-dark .tt-header{border-bottom-color:rgba(255,255,255,.08);}
+.tt-header-title{font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px;}
+.tt-close-btn{background:none;border:1px solid rgba(0,0,0,.15);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:inherit;}
+body.theme-dark .tt-close-btn{border-color:rgba(255,255,255,.15);}
+.tt-close-btn:hover{background:rgba(0,0,0,.06);}
+body.theme-dark .tt-close-btn:hover{background:rgba(255,255,255,.06);}
+.tt-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,.1);padding:0 20px;}
+body.theme-dark .tt-tabs{border-bottom-color:rgba(255,255,255,.08);}
+.tt-tab{padding:10px 16px;font-size:13px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tt-tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;}
+body.theme-dark .tt-tab.active{color:#e0e4f4;border-bottom-color:#e0e4f4;}
+.tt-body{overflow-y:auto;max-height:65vh;}
+.tt-section{padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.07);}
+body.theme-dark .tt-section{border-bottom-color:rgba(255,255,255,.06);}
+.tt-field-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
+.tt-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px;}
+.tt-field label{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.07em;}
+.tt-field input,.tt-field select{font-size:13px;padding:6px 10px;border:1px solid rgba(0,0,0,.18);border-radius:8px;background:#fff;color:#1a1a1a;outline:none;width:100%;}
+body.theme-dark .tt-field input,body.theme-dark .tt-field select{border-color:rgba(255,255,255,.15);}
+.tt-field input:focus,.tt-field select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06);}
+.tt-build-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,rgba(100,150,240,.9),rgba(60,110,220,.85));color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.tt-build-btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.tt-period-nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid rgba(0,0,0,.07);align-items:center;}
+body.theme-dark .tt-period-nav{border-bottom-color:rgba(255,255,255,.06);}
+.tt-period-label{font-size:12px;font-weight:500;color:#888;margin-right:4px;}
+.tt-period-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.15);font-size:11px;font-weight:500;color:#555;cursor:pointer;transition:all .15s;background:#f5f5f5;}
+.tt-period-badge.active{background:#e6f1fb;border-color:#85b7eb;color:#0c447c;}
+body.theme-dark .tt-period-badge{background:#20253a;color:#a0a8cc;border-color:#3a4060;}
+body.theme-dark .tt-period-badge.active{background:#1a2a4a;color:#90b8f8;border-color:#4a80c0;}
+.tt-stat-row{display:flex;gap:8px;padding:10px 20px;flex-wrap:wrap;}
+.tt-stat{flex:1;min-width:80px;background:#f5f5f5;border-radius:8px;padding:8px 12px;text-align:center;}
+.tt-stat .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;}
+.tt-stat .val{font-size:17px;font-weight:500;margin-top:1px;}
+.tt-add-form{padding:12px 20px;background:#f9f9f9;border-bottom:1px solid rgba(0,0,0,.07);}
+body.theme-dark .tt-add-form{border-bottom-color:rgba(255,255,255,.06);}
+.tt-add-form .lbl2{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.tt-form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.tt-add-evt-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:8px;border:none;background:#e6f1fb;color:#0c447c;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.tt-add-evt-btn:hover{background:#b5d4f4;}
+.tt-clear-sel-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+body.theme-dark .tt-clear-sel-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
+.tt-sel-info{font-size:10px;color:#888;margin-top:5px;}
+.tt-grid-wrap{padding:12px 20px;overflow-x:auto;}
+.tt-table{border-collapse:collapse;width:100%;font-size:11px;}
+.tt-table th{background:#f5f5f5;font-weight:500;font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;padding:5px 6px;text-align:center;border:1px solid rgba(0,0,0,.1);}
+body.theme-dark .tt-table th{background:#20253a;border-color:rgba(255,255,255,.08);color:#6a72a0;}
+.tt-table td{border:1px solid rgba(0,0,0,.08);padding:0;vertical-align:top;}
+body.theme-dark .tt-table td{border-color:rgba(255,255,255,.06);}
+.tt-time-col{background:#f9f9f9;font-size:10px;color:#888;padding:5px 8px;text-align:right;white-space:nowrap;font-weight:500;min-width:80px;}
+body.theme-dark .tt-time-col{background:#1e2236;}
+.tt-cell{min-height:32px;padding:2px;cursor:pointer;transition:background .1s;background:#fff;}
+body.theme-dark .tt-cell{background:#1a1e30;}
+.tt-cell:hover{background:#f0f5ff;}
+body.theme-dark .tt-cell:hover{background:#20283a;}
+.tt-cell.selected{outline:2px solid #378add;outline-offset:-1px;}
+.tt-chip{border-radius:4px;padding:2px 5px;font-size:10px;font-weight:500;margin:1px;display:flex;align-items:center;gap:3px;}
+.tt-chip button{background:none;border:none;cursor:pointer;padding:0;font-size:11px;line-height:1;opacity:.7;}
+.tt-chip button:hover{opacity:1;}
+.tt-month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:14px 20px;}
+.tt-month-card{background:#f5f5f5;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;}
+.tt-month-card:hover{background:#e8effe;border-color:#85b7eb;}
+body.theme-dark .tt-month-card{background:#20253a;border-color:#3a4060;}
+body.theme-dark .tt-month-card:hover{background:#1a2a4a;border-color:#4a80c0;}
+.tt-month-card .mc-name{font-size:12px;font-weight:500;margin-bottom:3px;}
+.tt-month-card .mc-days{font-size:10px;color:#888;}
+.tt-month-card .mc-evs{font-size:10px;color:#0c447c;margin-top:2px;}
+body.theme-dark .tt-month-card .mc-evs{color:#90b8f8;}
+.tt-footer{padding:10px 20px;border-top:1px solid rgba(0,0,0,.1);display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;}
+body.theme-dark .tt-footer{border-top-color:rgba(255,255,255,.08);}
+.tt-footer-status{font-size:11px;color:#888;flex:1;}
+.tt-footer-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+body.theme-dark .tt-footer-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
+.tt-footer-btn:hover{background:rgba(0,0,0,.05);}
+body.theme-dark .tt-footer-btn:hover{background:rgba(255,255,255,.05);}
+.tt-clear-btn{color:#c05030;border-color:rgba(200,80,48,.3);}
+.tt-summary-wrap{padding:16px 20px;}
+.tt-ev-row{display:flex;gap:8px;align-items:center;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid rgba(0,0,0,.07);margin-bottom:4px;}
+body.theme-dark .tt-ev-row{border-color:rgba(255,255,255,.06);}
+.tt-ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+</style>
+
+<!-- Timetable modal -->
+<div class="tt-overlay" id="tt-overlay">
+  <div class="tt-panel">
+    <div class="tt-header">
+      <div class="tt-header-title">&#128197; Timetable Scheduler</div>
+      <button class="tt-close-btn" onclick="ttClose()">&#x2715; Close</button>
+    </div>
+    <div class="tt-tabs">
+      <div class="tt-tab active" onclick="ttTab('setup')">Setup</div>
+      <div class="tt-tab" onclick="ttTab('view')">View &amp; Edit</div>
+      <div class="tt-tab" onclick="ttTab('summary')">Summary</div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="tt-tab-setup" class="tt-body">
+      <div class="tt-section">
+        <div class="tt-field-row">
+          <div class="tt-field">
+            <label>Schedule name</label>
+            <input type="text" id="tt-name" value="My Lifetime Schedule"/>
+          </div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field">
+            <label>View mode</label>
+            <select id="tt-mode" onchange="ttModeChange()">
+              <option value="weeks">Weekly</option>
+              <option value="months">Monthly</option>
+              <option value="years">Yearly overview</option>
+            </select>
+          </div>
+          <div class="tt-field" id="tt-f-weeks">
+            <label>Number of weeks</label>
+            <input type="number" id="tt-num-weeks" value="4" min="1" max="52"/>
+          </div>
+          <div class="tt-field" id="tt-f-months" style="display:none">
+            <label>Number of months</label>
+            <input type="number" id="tt-num-months" value="3" min="1" max="24"/>
+          </div>
+          <div class="tt-field" id="tt-f-years" style="display:none">
+            <label>Number of years</label>
+            <input type="number" id="tt-num-years" value="1" min="1" max="10"/>
+          </div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field">
+            <label>Start from</label>
+            <select id="tt-start-from" onchange="ttStartChange()">
+              <option value="today">Today</option>
+              <option value="greg">Custom Gregorian date</option>
+              <option value="lifetime">Lifetime Calendar position</option>
+            </select>
+          </div>
+          <div class="tt-field" id="tt-f-greg">
+            <label>Date</label>
+            <input type="date" id="tt-greg-date"/>
+          </div>
+        </div>
+        <div class="tt-field-row" id="tt-f-lifetime" style="display:none">
+          <div class="tt-field"><label>Lifetime year</label><input type="number" id="tt-lt-yr" value="1" min="1" max="127"/></div>
+          <div class="tt-field"><label>Lifetime month</label><input type="number" id="tt-lt-mo" value="1" min="1" max="13"/></div>
+          <div class="tt-field"><label>Lifetime day</label><input type="number" id="tt-lt-dy" value="1" min="1" max="28"/></div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field"><label>Day start</label><input type="time" id="tt-day-start" value="06:00"/></div>
+          <div class="tt-field"><label>Day end</label><input type="time" id="tt-day-end" value="22:00"/></div>
+          <div class="tt-field">
+            <label>Slot duration</label>
+            <select id="tt-slot-dur">
+              <option value="30">30 min</option>
+              <option value="60" selected>1 hour</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;">
+        <button class="tt-build-btn" onclick="ttBuild()">&#128202; Build Timetable</button>
+      </div>
+    </div>
+
+    <!-- VIEW -->
+    <div id="tt-tab-view" class="tt-body" style="display:none">
+      <div class="tt-period-nav" id="tt-period-nav"></div>
+      <div class="tt-stat-row" id="tt-stat-row"></div>
+      <div class="tt-add-form">
+        <div class="lbl2">Add event — select a cell, then:</div>
+        <div class="tt-form-row">
+          <div class="tt-field" style="flex:2;min-width:120px;"><label>Event title</label><input type="text" id="tt-ev-title" placeholder="e.g. Deep work"/></div>
+          <div class="tt-field" style="min-width:80px;">
+            <label>Color</label>
+            <select id="tt-ev-color">
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="amber">Amber</option>
+              <option value="red">Red</option>
+              <option value="purple">Purple</option>
+            </select>
+          </div>
+          <button class="tt-add-evt-btn" onclick="ttAddEvent()">+ Add</button>
+          <button class="tt-clear-sel-btn" onclick="ttClearSel()">&#x2715; Deselect</button>
+        </div>
+        <div class="tt-sel-info" id="tt-sel-info">Click any cell to select it.</div>
+      </div>
+      <div class="tt-grid-wrap"><div id="tt-grid"></div></div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div id="tt-tab-summary" class="tt-body" style="display:none">
+      <div class="tt-summary-wrap"><div id="tt-summary">Build a timetable first.</div></div>
+    </div>
+
+    <div class="tt-footer">
+      <span class="tt-footer-status" id="tt-status"></span>
+      <button class="tt-footer-btn tt-clear-btn" onclick="ttClearAll()">&#128465; Clear events</button>
+      <button class="tt-footer-btn" onclick="ttClose()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const DOW_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON_L=['January','February','March','April','May','Jun','July','August','September','October','November','December'];
+const MON_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLORS={
+  blue:{bg:'#e6f1fb',border:'#85b7eb',text:'#0c447c'},
+  green:{bg:'#eaf3de',border:'#97c459',text:'#27500a'},
+  amber:{bg:'#faeeda',border:'#ef9f27',text:'#633806'},
+  red:{bg:'#fcebeb',border:'#f09595',text:'#791f1f'},
+  purple:{bg:'#eeedfe',border:'#afa9ec',text:'#3c3489'},
+};
+
+let T={built:false,mode:'weeks',periods:[],cur:0,slots:[],events:{},sel:null};
+
+document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
+
+function pad(n){return String(n).padStart(2,'0');}
+function fmtD(d){return d.getDate()+' '+MON_S[d.getMonth()]+' '+d.getFullYear();}
+function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function addM(d,n){const r=new Date(d);r.setMonth(r.getMonth()+n);return r;}
+function cellKey(p,d,s){return'p'+p+'_d'+d+'_s'+s;}
+
+window.ttOpen=function(){document.getElementById('tt-overlay').classList.add('open');};
+window.ttClose=function(){document.getElementById('tt-overlay').classList.remove('open');};
+
+window.ttTab=function(t){
+  ['setup','view','summary'].forEach((id,i)=>{
+    document.getElementById('tt-tab-'+id).style.display=id===t?'block':'none';
+    document.querySelectorAll('.tt-tab')[i].classList.toggle('active',id===t);
+  });
+  if(t==='summary')ttSummary();
+};
+
+window.ttModeChange=function(){
+  const m=document.getElementById('tt-mode').value;
+  document.getElementById('tt-f-weeks').style.display=m==='weeks'?'flex':'none';
+  document.getElementById('tt-f-months').style.display=m==='months'?'flex':'none';
+  document.getElementById('tt-f-years').style.display=m==='years'?'flex':'none';
+};
+
+window.ttStartChange=function(){
+  const v=document.getElementById('tt-start-from').value;
+  document.getElementById('tt-f-greg').style.display=v==='greg'?'flex':'none';
+  document.getElementById('tt-f-lifetime').style.display=v==='lifetime'?'flex':'none';
+  if(v==='today')document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
+};
+
+function getStart(){
+  const sf=document.getElementById('tt-start-from').value;
+  if(sf==='today')return new Date();
+  if(sf==='greg'){const p=document.getElementById('tt-greg-date').value.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+  const ly=+document.getElementById('tt-lt-yr').value||1;
+  const lm=+document.getElementById('tt-lt-mo').value||1;
+  const ld=+document.getElementById('tt-lt-dy').value||1;
+  const ep=new Date(1992,10,16);
+  const n=((ly-1)*13+(lm-1))*28+(ld-1);
+  const d=new Date(ep);d.setDate(d.getDate()+n);return d;
+}
+
+function buildSlots(){
+  const s=document.getElementById('tt-day-start').value||'06:00';
+  const e=document.getElementById('tt-day-end').value||'22:00';
+  const dur=+document.getElementById('tt-slot-dur').value||60;
+  const[sh,sm]=s.split(':').map(Number);
+  const[eh,em]=e.split(':').map(Number);
+  const sMin=sh*60+sm,eMin=eh*60+em;
+  const slots=[];
+  for(let m=sMin;m<eMin;m+=dur){
+    const h=Math.floor(m/60),mn=m%60;
+    const h2=Math.floor((m+dur)/60),mn2=(m+dur)%60;
+    slots.push(pad(h)+':'+pad(mn)+'\u2013'+pad(h2)+':'+pad(mn2));
+  }
+  return slots;
+}
+
+function buildPeriods(mode,start,count){
+  const ps=[];
+  if(mode==='weeks'){
+    for(let w=0;w<count;w++){
+      const days=[];
+      for(let d=0;d<7;d++)days.push(addD(start,w*7+d));
+      ps.push({label:'Week '+(w+1)+': '+fmtD(days[0])+' \u2013 '+fmtD(days[6]),days});
+    }
+  } else if(mode==='months'){
+    for(let mo=0;mo<count;mo++){
+      const base=addM(start,mo);
+      const y=base.getFullYear(),m=base.getMonth();
+      const dim=new Date(y,m+1,0).getDate();
+      const days=[];
+      for(let d=1;d<=dim;d++)days.push(new Date(y,m,d));
+      ps.push({label:MON_L[m]+' '+y,days});
+    }
+  } else {
+    for(let y=0;y<count;y++){
+      const base=addM(start,y*12);
+      const yr=base.getFullYear();
+      const days=[];
+      for(let m=0;m<12;m++){const dim=new Date(yr,m+1,0).getDate();for(let d=1;d<=dim;d++)days.push(new Date(yr,m,d));}
+      ps.push({label:'Year '+yr,days,yearMode:true});
+    }
+  }
+  return ps;
+}
+
+window.ttBuild=function(){
+  const mode=document.getElementById('tt-mode').value;
+  const count=mode==='weeks'?(+document.getElementById('tt-num-weeks').value||4)
+    :mode==='months'?(+document.getElementById('tt-num-months').value||3)
+    :(+document.getElementById('tt-num-years').value||1);
+  const start=getStart();
+  T.mode=mode;T.slots=buildSlots();T.periods=buildPeriods(mode,start,count);
+  T.cur=0;T.events={};T.built=true;T.sel=null;
+  renderNav();renderGrid();renderStats();
+  ttTab('view');
+  document.getElementById('tt-status').textContent='Built '+T.periods.length+' period(s), '+T.slots.length+' slot(s)/day.';
+};
+
+function renderNav(){
+  const nav=document.getElementById('tt-period-nav');
+  nav.innerHTML='<span class="tt-period-label">Period:</span>';
+  T.periods.forEach((p,i)=>{
+    const b=document.createElement('span');
+    b.className='tt-period-badge'+(i===T.cur?' active':'');
+    b.textContent=p.label;
+    b.onclick=()=>{T.cur=i;T.sel=null;renderNav();renderGrid();renderStats();};
+    nav.appendChild(b);
+  });
+}
+
+function renderStats(){
+  const p=T.periods[T.cur];if(!p)return;
+  const evCount=Object.keys(T.events).filter(k=>k.startsWith('p'+T.cur+'_')).length;
+  document.getElementById('tt-stat-row').innerHTML=
+    '<div class="tt-stat"><div class="lbl">Days</div><div class="val">'+p.days.length+'</div></div>'+
+    '<div class="tt-stat"><div class="lbl">Slots/day</div><div class="val">'+T.slots.length+'</div></div>'+
+    '<div class="tt-stat"><div class="lbl">Total slots</div><div class="val">'+(p.days.length*T.slots.length)+'</div></div>'+
+    '<div class="tt-stat"><div class="lbl">Events</div><div class="val">'+evCount+'</div></div>';
+}
+
+function renderGrid(){
+  const p=T.periods[T.cur];
+  if(!p){document.getElementById('tt-grid').innerHTML='<p style="color:#888;padding:1rem;font-size:13px">No period selected.</p>';return;}
+  if(p.yearMode){renderYearGrid(p);return;}
+  let h='<table class="tt-table"><thead><tr><th style="min-width:80px">Time</th>';
+  p.days.forEach(d=>{h+='<th>'+DOW_S[d.getDay()]+'<br><span style="font-weight:400;font-size:9px">'+d.getDate()+'/'+(d.getMonth()+1)+'</span></th>';});
+  h+='</tr></thead><tbody>';
+  T.slots.forEach((slot,si)=>{
+    h+='<tr><td class="tt-time-col">'+slot+'</td>';
+    p.days.forEach((d,di)=>{
+      const key=cellKey(T.cur,di,si);
+      const evs=T.events[key]||[];
+      const isSel=T.sel&&T.sel.key===key;
+      h+='<td><div class="tt-cell'+(isSel?' selected':'')+'" id="ttc-'+key+'" onclick="ttSelCell('+di+','+si+',\''+key+'\')">';
+      evs.forEach((ev,ei)=>{
+        const c=COLORS[ev.color]||COLORS.blue;
+        h+='<div class="tt-chip" style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+'">'+ev.title+'<button onclick="ttRmEv(\''+key+'\','+ei+',event)">&#x2715;</button></div>';
+      });
+      h+='</div></td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById('tt-grid').innerHTML=h;
+  updateSelInfo();
+}
+
+function renderYearGrid(p){
+  const ms={};
+  p.days.forEach(d=>{const m=d.getMonth();if(!ms[m])ms[m]=[];ms[m].push(d);});
+  let h='<div class="tt-month-grid">';
+  Object.keys(ms).forEach(m=>{
+    const days=ms[m];
+    const evC=days.reduce((a,d)=>{
+      const idx=p.days.indexOf(d);
+      const k=cellKey(T.cur,idx,0);
+      return a+(T.events[k]?T.events[k].length:0);
+    },0);
+    h+='<div class="tt-month-card" onclick="ttDrillMonth('+m+')">'+
+      '<div class="mc-name">'+MON_L[parseInt(m)]+'</div>'+
+      '<div class="mc-days">'+days.length+' days</div>'+
+      (evC?'<div class="mc-evs">'+evC+' event(s)</div>':'')+
+      '</div>';
+  });
+  h+='</div>';
+  document.getElementById('tt-grid').innerHTML=h;
+}
+
+window.ttDrillMonth=function(m){
+  const p=T.periods[T.cur];
+  const first=p.days.find(d=>d.getMonth()===parseInt(m));
+  if(!first)return;
+  T.mode='months';
+  T.periods=buildPeriods('months',new Date(first.getFullYear(),parseInt(m),1),1);
+  T.cur=0;T.sel=null;renderNav();renderGrid();renderStats();
+};
+
+window.ttSelCell=function(di,si,key){
+  T.sel={di,si,key};
+  document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('ttc-'+key);
+  if(el)el.classList.add('selected');
+  updateSelInfo();
+};
+
+function updateSelInfo(){
+  if(!T.sel){document.getElementById('tt-sel-info').textContent='Click any cell to select it.';return;}
+  const p=T.periods[T.cur];
+  const day=p&&p.days[T.sel.di];
+  const slot=T.slots[T.sel.si];
+  if(day&&slot)document.getElementById('tt-sel-info').textContent='Selected: '+DOW_S[day.getDay()]+' '+fmtD(day)+' \u00b7 '+slot;
+}
+
+window.ttClearSel=function(){T.sel=null;document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));updateSelInfo();};
+
+window.ttAddEvent=function(){
+  if(!T.sel){alert('Click a cell first.');return;}
+  const title=document.getElementById('tt-ev-title').value.trim();
+  if(!title){alert('Enter an event title.');return;}
+  const color=document.getElementById('tt-ev-color').value;
+  const key=T.sel.key;
+  if(!T.events[key])T.events[key]=[];
+  T.events[key].push({title,color});
+  document.getElementById('tt-ev-title').value='';
+  const saved=T.sel;renderGrid();renderStats();
+  if(saved)ttSelCell(saved.di,saved.si,saved.key);
+};
+
+window.ttRmEv=function(key,idx,e){
+  e.stopPropagation();
+  if(T.events[key]){T.events[key].splice(idx,1);if(!T.events[key].length)delete T.events[key];}
+  const saved=T.sel;renderGrid();renderStats();
+  if(saved)ttSelCell(saved.di,saved.si,saved.key);
+};
+
+window.ttClearAll=function(){
+  if(!confirm('Clear all events?'))return;
+  T.events={};renderGrid();renderStats();ttSummary();
+};
+
+function ttSummary(){
+  if(!T.built){document.getElementById('tt-summary').innerHTML='Build a timetable first.';return;}
+  const all=[];
+  Object.entries(T.events).forEach(([k,evs])=>{
+    const m=k.match(/p(\d+)_d(\d+)_s(\d+)/);if(!m)return;
+    const p=T.periods[+m[1]];
+    const day=p&&p.days[+m[2]];
+    const slot=T.slots[+m[3]];
+    evs.forEach(ev=>all.push({...ev,period:p?p.label:'',day:day?fmtD(day):'',slot:slot||''}));
+  });
+  if(!all.length){document.getElementById('tt-summary').innerHTML='<span style="color:#888">No events yet.</span>';return;}
+  const byT={};
+  all.forEach(ev=>{if(!byT[ev.title])byT[ev.title]={count:0,color:ev.color};byT[ev.title].count++;});
+  let h='<div style="font-size:13px;margin-bottom:10px;"><strong>'+all.length+'</strong> event(s) across '+T.periods.length+' period(s)</div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">';
+  Object.entries(byT).forEach(([t,{count,color}])=>{
+    const c=COLORS[color]||COLORS.blue;
+    h+='<div style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+';border-radius:6px;padding:3px 10px;font-size:11px;font-weight:500">'+t+' <span style="opacity:.7">\u00d7'+count+'</span></div>';
+  });
+  h+='</div><div style="font-size:10px;color:#888;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">All events</div>';
+  all.forEach(ev=>{
+    const c=COLORS[ev.color]||COLORS.blue;
+    h+='<div class="tt-ev-row"><span class="tt-ev-dot" style="background:'+c.text+'"></span><span style="font-weight:500;flex:1">'+ev.title+'</span><span style="color:#888;font-size:10px">'+ev.day+'</span><span style="color:#888;font-size:10px;margin-left:6px">'+ev.slot+'</span></div>';
+  });
+  document.getElementById('tt-summary').innerHTML=h;
+}
+window.ttSummary=ttSummary;
+})();
+</script>
+
+<!-- Add the Timetable button to the setup card -->
+<script>
+(function(){
+  const btnRow=document.querySelector('.btn-row');
+  if(btnRow){
+    const b=document.createElement('button');
+    b.className='apply-btn';
+    b.style.background='linear-gradient(135deg,rgba(80,170,130,.9),rgba(40,140,100,.85))';
+    b.style.borderColor='rgba(80,200,150,.5)';
+    b.innerHTML='&#128197; Timetable Scheduler';
+    b.onclick=function(){if(typeof ttOpen==='function')ttOpen();};
+    btnRow.appendChild(b);
+  }
+})();
+</script>
