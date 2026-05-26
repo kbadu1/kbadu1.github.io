@@ -2,13 +2,126 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Lifetime Calendar – by Baidoo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<!-- AUTH LOGIC — must load before body renders -->
+<script>
+var lcShowTab,lcSignIn,lcSignUp,lcGoOnboard,lcOnboardDone,lcSignOut;
+(function(){
+  var DB='lc_users',SE='lc_session';
+  function gU(){try{return JSON.parse(localStorage.getItem(DB)||'{}')}catch(e){return{}}}
+  function sU(u){localStorage.setItem(DB,JSON.stringify(u))}
+  function gS(){try{return JSON.parse(localStorage.getItem(SE)||'null')}catch(e){return null}}
+  function sS(s){localStorage.setItem(SE,JSON.stringify(s))}
+  function cS(){localStorage.removeItem(SE)}
+  function showErr(id,msg){var e=document.getElementById(id);if(e){e.style.display='block';e.textContent=msg;}}
+  function hideErr(id){var e=document.getElementById(id);if(e)e.style.display='none';}
+
+  lcShowTab=function(t){
+    var sf=document.getElementById('lc-signin-form');
+    var uf=document.getElementById('lc-signup-form');
+    var ts=document.getElementById('tab-signin');
+    var tu=document.getElementById('tab-signup');
+    if(sf)sf.style.display=t==='signin'?'block':'none';
+    if(uf)uf.style.display=t==='signup'?'block':'none';
+    if(ts)ts.classList.toggle('active',t==='signin');
+    if(tu)tu.classList.toggle('active',t==='signup');
+    hideErr('si-err');hideErr('su-err');
+  };
+
+  lcSignUp=function(){
+    var n=(document.getElementById('su-name').value||'').trim();
+    var em=(document.getElementById('su-email').value||'').trim();
+    var p=document.getElementById('su-pass').value||'';
+    if(!n||!em||!p){showErr('su-err','Please fill in all fields.');return;}
+    var u=gU();
+    if(u[n]){showErr('su-err','Name already taken. Try signing in.');return;}
+    u[n]={email:em,pass:p,name:n};sU(u);sS({name:n,email:em});
+    hideErr('su-err');lcGoOnboard(n);
+  };
+
+  lcSignIn=function(){
+    var n=(document.getElementById('si-name').value||'').trim();
+    var p=document.getElementById('si-pass').value||'';
+    var u=gU();
+    if(!u[n]||u[n].pass!==p){showErr('si-err','Name or password incorrect.');return;}
+    hideErr('si-err');sS({name:n,email:u[n].email});
+    var saved=localStorage.getItem('lc_cfg_'+n);
+    if(saved)lcApply(JSON.parse(saved),n);else lcGoOnboard(n);
+  };
+
+  lcGoOnboard=function(name){
+    var a=document.getElementById('lc-auth-screen');
+    var o=document.getElementById('lc-onboard-screen');
+    if(a)a.classList.add('hidden');
+    if(o)o.classList.remove('hidden');
+    var g=document.getElementById('lc-greet-name');
+    if(g)g.textContent='Welcome, '+name+'!';
+  };
+
+  lcOnboardDone=function(){
+    var sd=document.getElementById('ob-start-date').value;
+    var yr=parseInt(document.getElementById('ob-years').value)||127;
+    if(!sd){alert('Please enter a start date.');return;}
+    var s=gS();
+    if(s&&s.name)localStorage.setItem('lc_cfg_'+s.name,JSON.stringify({startDate:sd,years:yr}));
+    lcApply({startDate:sd,years:yr},s?s.name:'Guest');
+  };
+
+  function lcApply(cfg2,name){
+    var sdEl=document.getElementById('start-date');
+    var eyEl=document.getElementById('end-year-in');
+    if(sdEl)sdEl.value=cfg2.startDate;
+    if(eyEl)eyEl.value=cfg2.years;
+    var a=document.getElementById('lc-auth-screen');
+    var o=document.getElementById('lc-onboard-screen');
+    if(a)a.classList.add('hidden');
+    if(o)o.classList.add('hidden');
+    var pill=document.getElementById('lc-user-pill');
+    var nEl=document.getElementById('lc-user-name-pill');
+    var avEl=document.getElementById('lc-avatar');
+    if(pill)pill.style.display='flex';
+    if(nEl)nEl.textContent=name;
+    if(avEl)avEl.textContent=name.charAt(0).toUpperCase();
+    function doApply(){
+      if(typeof autoApply==='function')autoApply();
+      setTimeout(function(){if(typeof cdAutoUpdate==='function')cdAutoUpdate();},400);
+    }
+    if(document.readyState==='complete')doApply();
+    else window.addEventListener('load',doApply);
+  }
+
+  lcSignOut=function(){cS();location.reload();};
+
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter')return;
+    var auth=document.getElementById('lc-auth-screen');
+    var ob=document.getElementById('lc-onboard-screen');
+    if(auth&&!auth.classList.contains('hidden')){
+      var su=document.getElementById('lc-signup-form');
+      if(su&&su.style.display!=='none')lcSignUp();else lcSignIn();
+    }
+    if(ob&&!ob.classList.contains('hidden'))lcOnboardDone();
+  });
+
+  window.addEventListener('load',function(){
+    var s=gS();
+    if(s&&s.name){
+      var saved=localStorage.getItem('lc_cfg_'+s.name);
+      if(saved)lcApply(JSON.parse(saved),s.name);else lcGoOnboard(s.name);
+    }
+  });
+})();
+</script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── THEMES ── */
 body.theme-warm{
   --bg1:#fdebd8;--bg2:#fdf0e0;--bg3:#fce8d5;--bg4:#f9e4d0;--bg5:#fdeee0;
   --orb1a:#f0a080;--orb1b:#e87040;--orb2a:#fddbc0;--orb2b:#f4a878;--orb3a:#ffe0cc;--orb3b:#f8c0a0;
@@ -26,6 +139,7 @@ body.theme-warm{
   --print-btn-border:rgba(160,190,255,.5);--print-btn-shadow:rgba(80,120,200,.2);
   --theme-btn-active:rgba(255,255,255,.6);--dow-color:#b0907a;--empty-bg:transparent;
   --msg-bg:rgba(255,248,240,.95);--msg-border:rgba(240,169,138,.4);--msg-accent:#e8843a;
+  --peach:#f0a98a;--amber:#e8843a;
 }
 body.theme-light{
   --bg1:#f5f8ff;--bg2:#eef3ff;--bg3:#f0f5ff;--bg4:#e8effe;--bg5:#f2f7ff;
@@ -44,6 +158,7 @@ body.theme-light{
   --print-btn-border:rgba(100,200,160,.5);--print-btn-shadow:rgba(40,150,100,.2);
   --theme-btn-active:rgba(255,255,255,.8);--dow-color:#6a8ab0;--empty-bg:rgba(240,246,255,.2);
   --msg-bg:rgba(240,248,255,.97);--msg-border:rgba(120,170,255,.4);--msg-accent:#3a7ae8;
+  --peach:#90b8f8;--amber:#3a7ae8;
 }
 body.theme-dark{
   --bg1:#0f1117;--bg2:#141720;--bg3:#111520;--bg4:#0d1018;--bg5:#121620;
@@ -62,58 +177,123 @@ body.theme-dark{
   --print-btn-border:rgba(80,180,150,.4);--print-btn-shadow:rgba(40,140,110,.25);
   --theme-btn-active:rgba(255,255,255,.15);--dow-color:#6a72a0;--empty-bg:transparent;
   --msg-bg:rgba(25,28,48,.97);--msg-border:rgba(100,80,200,.4);--msg-accent:#a080f0;
+  --peach:#a080f0;--amber:#8060d0;
 }
+
 :root{
   --fs-sm:clamp(11px,1.8vw,14px);--fs-xs:clamp(9px,1.3vw,12px);
   --fs-xl:clamp(18px,3.5vw,26px);--fs-day:clamp(12px,2.2vw,17px);--fs-greg:clamp(7px,1vw,9px);
   --radius-card:clamp(14px,3vw,26px);--pad-card:clamp(0.9rem,3vw,1.75rem);--gap-grid:clamp(2px,0.6vw,5px);
 }
+
 html,body{min-height:100%;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
-body{transition:background .4s;}
-body.theme-warm{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
-body.theme-light{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
-body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;}
+body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg5)) fixed;transition:background .4s;}
+
+/* ── AUTH SCREENS ── */
+.lc-screen{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;
+  background:linear-gradient(135deg,#fdebd8,#fdf0e0,#fce8d5,#fdeee0);}
+.lc-screen.hidden{display:none!important;}
+.lc-screen .s-orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;animation:drift 12s ease-in-out infinite alternate;}
+.lc-screen .s-orb1{width:320px;height:320px;background:radial-gradient(circle,#f0a080,#e87040);top:-80px;left:-80px;}
+.lc-screen .s-orb2{width:240px;height:240px;background:radial-gradient(circle,#fddbc0,#f4a878);bottom:-60px;right:-60px;animation-delay:-5s;}
+.lc-card{position:relative;z-index:1;background:rgba(255,252,248,.78);backdrop-filter:blur(28px) saturate(1.4);
+  -webkit-backdrop-filter:blur(28px) saturate(1.4);border:1px solid rgba(255,255,255,.72);
+  border-radius:28px;padding:clamp(1.5rem,5vw,2.5rem);width:100%;max-width:420px;
+  box-shadow:0 16px 60px rgba(200,130,80,.18),inset 0 1px 0 rgba(255,255,255,.9);}
+.lc-logo{text-align:center;margin-bottom:1.5rem;}
+.lc-logo-title{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,34px);font-weight:400;color:#3a2a1e;}
+.lc-logo-title em{font-style:italic;color:#b0907a;}
+.lc-logo-sub{font-size:11px;color:#b0907a;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
+.lc-tabs{display:flex;border-bottom:1px solid rgba(240,169,138,.3);margin-bottom:1.5rem;}
+.lc-tab{flex:1;padding:9px;text-align:center;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:#b0907a;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;}
+.lc-tab.active{color:#3a2a1e;border-bottom-color:#e8843a;}
+.lc-form{display:flex;flex-direction:column;gap:12px;}
+.lc-field{display:flex;flex-direction:column;gap:4px;}
+.lc-field label{font-size:10px;font-weight:500;color:#b0907a;letter-spacing:.08em;text-transform:uppercase;}
+.lc-field input{background:rgba(255,255,255,.65);border:1px solid rgba(240,169,138,.45);border-radius:12px;
+  padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#3a2a1e;outline:none;transition:all .2s;width:100%;}
+.lc-field input:focus{border-color:#e8843a;background:rgba(255,255,255,.9);box-shadow:0 0 0 3px rgba(232,132,58,.12);}
+.lc-submit{background:linear-gradient(135deg,rgba(240,169,138,.95),rgba(232,132,58,.9));
+  border:1px solid rgba(255,200,160,.6);border-radius:14px;padding:13px;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:500;color:#fff;cursor:pointer;transition:all .2s;margin-top:4px;
+  box-shadow:0 4px 18px rgba(220,110,50,.25),inset 0 1px 0 rgba(255,255,255,.3);}
+.lc-submit:hover{transform:translateY(-1px);filter:brightness(1.06);}
+.lc-submit:active{transform:scale(.97);}
+.lc-err{font-size:12px;color:#c05030;text-align:center;display:none;margin-top:-4px;background:rgba(255,220,210,.4);border-radius:8px;padding:6px 10px;}
+.lc-switch{font-size:12px;color:#b0907a;text-align:center;margin-top:10px;}
+.lc-switch span{color:#e8843a;cursor:pointer;font-weight:500;text-decoration:underline;}
+.lc-greet{font-size:14px;color:#7a5a44;text-align:center;margin-bottom:1rem;font-style:italic;}
+.lc-onboard-title{font-family:'Playfair Display',serif;font-size:clamp(16px,3vw,20px);color:#3a2a1e;text-align:center;margin-bottom:.4rem;}
+.lc-onboard-sub{font-size:12px;color:#b0907a;text-align:center;margin-bottom:1.25rem;line-height:1.7;}
+
+/* ── USER PILL ── */
+.lc-user-pill{position:fixed;top:12px;left:12px;z-index:800;display:none;align-items:center;gap:8px;
+  background:var(--card-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--card-border);border-radius:999px;padding:5px 14px 5px 8px;
+  font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-mid);}
+.lc-user-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#f0a98a,#e8843a);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;}
+.lc-signout-btn{background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:11px;padding:0 0 0 8px;
+  border-left:1px solid var(--card-border);margin-left:4px;font-family:'DM Sans',sans-serif;}
+.lc-signout-btn:hover{color:#c05030;}
+
+/* ── ORBS ── */
 .orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;animation:drift 12s ease-in-out infinite alternate;z-index:0;}
 .orb1{width:clamp(140px,35vw,320px);height:clamp(140px,35vw,320px);background:radial-gradient(circle,var(--orb1a),var(--orb1b));top:-80px;left:-80px;}
 .orb2{width:clamp(110px,28vw,260px);height:clamp(110px,28vw,260px);background:radial-gradient(circle,var(--orb2a),var(--orb2b));bottom:-60px;right:-60px;animation-delay:-4s;}
 .orb3{width:clamp(80px,18vw,180px);height:clamp(80px,18vw,180px);background:radial-gradient(circle,var(--orb3a),var(--orb3b));top:40%;left:60%;animation-delay:-8s;}
 @keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(30px,20px) scale(1.08);}}
-.app{position:relative;z-index:1;min-height:100vh;padding:clamp(0.75rem,3vw,2rem) clamp(0.6rem,3vw,1rem);}
-.theme-bar{display:flex;justify-content:center;gap:8px;margin-bottom:clamp(0.6rem,2vw,1rem);}
-.theme-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;border:1px solid var(--card-border);background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:var(--fs-xs);color:var(--text-mid);transition:all .2s;font-weight:500;}
-.theme-btn:hover{background:var(--theme-btn-active);}
-.theme-btn.active{background:var(--theme-btn-active);border-color:var(--nav-border);color:var(--text-dark);box-shadow:0 2px 12px var(--card-shadow);}
+
+/* ── THEME DROPDOWN ── */
+.theme-bar{display:flex;justify-content:flex-end;margin-bottom:clamp(.6rem,2vw,1rem);position:relative;}
+.theme-dropdown-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;border:1px solid var(--card-border);background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:var(--fs-xs);color:var(--text-mid);font-weight:500;transition:all .2s;user-select:none;}
+.theme-dropdown-btn:hover{background:var(--theme-btn-active);}
+.theme-dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--card-bg);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--card-border);border-radius:14px;padding:6px;box-shadow:0 8px 30px var(--card-shadow);z-index:50;display:none;min-width:130px;}
+.theme-dropdown-menu.open{display:block;}
+.theme-opt{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:var(--fs-xs);font-weight:500;color:var(--text-mid);transition:background .15s;}
+.theme-opt:hover,.theme-opt.active{background:var(--theme-btn-active);color:var(--text-dark);}
 .theme-dot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.4);}
-.app-title-wrap{text-align:center;margin-bottom:clamp(0.5rem,1.5vw,1rem);}
-.app-title{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,42px);font-weight:400;color:var(--text-dark);letter-spacing:-0.02em;line-height:1.1;}
+
+/* ── APP LAYOUT ── */
+.app{position:relative;z-index:1;min-height:100vh;padding:clamp(.75rem,3vw,2rem) clamp(.6rem,3vw,1rem);}
+.app-title-wrap{text-align:center;margin-bottom:clamp(.5rem,1.5vw,1rem);}
+.app-title{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,42px);font-weight:400;color:var(--text-dark);letter-spacing:-.02em;line-height:1.1;}
 .app-title em{font-style:italic;color:var(--text-soft);}
 .app-tagline{font-size:var(--fs-xs);color:var(--text-soft);margin-top:5px;letter-spacing:.06em;text-transform:uppercase;}
-.glass-card{background:var(--card-bg);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);max-width:700px;margin:0 auto clamp(0.6rem,2vw,1.25rem);box-shadow:0 8px 40px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.15);transition:background .3s,border .3s,box-shadow .3s;}
+
+/* ── GLASS CARD ── */
+.glass-card{background:var(--card-bg);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);max-width:700px;margin:0 auto clamp(.6rem,2vw,1.25rem);box-shadow:0 8px 40px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.15);transition:background .3s,border .3s,box-shadow .3s;}
+
+/* ── CONFIG CARD ── */
 .setup-title{font-family:'Playfair Display',serif;font-size:var(--fs-xs);font-style:italic;color:var(--text-soft);margin-bottom:.75rem;letter-spacing:.04em;}
-.setup-fields{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
-.field-group{display:flex;flex-direction:column;gap:3px;flex:1;min-width:clamp(80px,18vw,115px);}
-.field-group label{font-size:var(--fs-xs);font-weight:500;color:var(--text-soft);letter-spacing:.07em;text-transform:uppercase;}
-.field-group input{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:clamp(5px,1.2vw,8px) clamp(7px,1.5vw,12px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;transition:all .2s;width:100%;}
-.field-group input:focus{border-color:var(--nav-border);box-shadow:0 0 0 3px var(--card-shadow);}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:8px;}
-.apply-btn,.print-btn{border-radius:12px;padding:clamp(6px,1.2vw,9px) clamp(12px,2.5vw,20px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;border:1px solid;}
+.config-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.cfg-field{display:flex;flex-direction:column;gap:4px;}
+.cfg-field label{font-size:var(--fs-xs);font-weight:500;color:var(--text-soft);letter-spacing:.07em;text-transform:uppercase;}
+.cfg-field input{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;width:100%;transition:border .2s;}
+.cfg-field input:focus{border-color:var(--peach);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;}
+.apply-btn,.print-btn,.tt-launch-btn{border-radius:12px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;border:1px solid;}
 .apply-btn{background:var(--btn-grad);border-color:var(--btn-border);box-shadow:0 4px 16px var(--btn-shadow),inset 0 1px 0 rgba(255,255,255,.3);}
+.tt-launch-btn{background:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.85));border-color:rgba(255,200,160,.5);box-shadow:0 4px 16px rgba(220,110,50,.2),inset 0 1px 0 rgba(255,255,255,.3);}
 .print-btn{background:var(--print-btn-grad);border-color:var(--print-btn-border);box-shadow:0 4px 16px var(--print-btn-shadow),inset 0 1px 0 rgba(255,255,255,.3);}
-.apply-btn:hover,.print-btn:hover{transform:translateY(-1px);}
-.apply-btn:active,.print-btn:active{transform:scale(.97);}
+.apply-btn:hover,.print-btn:hover,.tt-launch-btn:hover{transform:translateY(-1px);filter:brightness(1.06);}
+.apply-btn:active,.print-btn:active,.tt-launch-btn:active{transform:scale(.97);}
 .err{font-size:var(--fs-xs);color:#e05030;margin-top:6px;display:none;}
-.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(0.6rem,2vw,1.1rem);}
+
+/* ── CALENDAR HEADER ── */
+.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(.6rem,2vw,1.1rem);}
 .nav-glass{background:var(--nav-bg);border:1px solid var(--nav-border);border-radius:50%;width:clamp(30px,6vw,40px);height:clamp(30px,6vw,40px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-mid);font-size:clamp(14px,2.5vw,18px);box-shadow:0 2px 10px var(--card-shadow);user-select:none;}
 .nav-glass:hover{background:var(--day-hover);transform:scale(1.08);}
 .cal-heading-main{font-family:'Playfair Display',serif;font-size:var(--fs-xl);font-weight:400;color:var(--text-dark);text-align:center;}
-.cal-heading-sub{font-size:var(--fs-xs);color:var(--text-soft);margin-top:2px;text-align:center;}
-.sel-row{display:flex;gap:8px;margin-bottom:clamp(0.6rem,2vw,1.1rem);justify-content:center;}
-.sel-pill{background:var(--sel-bg);border:1px solid var(--sel-border);border-radius:20px;padding:clamp(4px,1vw,6px) clamp(10px,2vw,16px);font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;text-align:center;transition:all .2s;}
-.sel-pill:focus{border-color:var(--nav-border);}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(clamp(85px,22vw,140px),1fr));gap:clamp(5px,1.2vw,9px);margin-bottom:clamp(0.6rem,2vw,1.1rem);}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(5px,1.2vw,9px);margin-bottom:clamp(.6rem,2vw,1.1rem);max-width:340px;margin-left:auto;margin-right:auto;}
 .stat-pill{background:var(--stat-bg);border:1px solid var(--stat-border);border-radius:clamp(9px,2vw,14px);padding:clamp(6px,1.5vw,11px) clamp(7px,1.5vw,12px);text-align:center;}
 .stat-label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--text-soft);}
-.stat-val{font-family:'Playfair Display',serif;font-size:clamp(12px,2.2vw,17px);font-weight:500;color:var(--text-dark);margin-top:2px;word-break:break-all;}
+.stat-val{font-family:'Playfair Display',serif;font-size:clamp(12px,2.2vw,17px);font-weight:500;color:var(--text-dark);margin-top:2px;}
+
+/* ── DAY GRID ── */
 .dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px;}
 .dow-cell{text-align:center;font-size:var(--fs-xs);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dow-color);padding:2px 0 5px;}
 .day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--gap-grid);}
@@ -124,6 +304,12 @@ body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg
 .day-cell.epoch{background:linear-gradient(135deg,rgba(240,169,138,.65),rgba(232,132,58,.5));border:1px solid rgba(255,200,160,.6);box-shadow:0 4px 20px rgba(220,110,50,.2),inset 0 1px 0 rgba(255,255,255,.3);}
 .day-cell.year-start{background:linear-gradient(135deg,rgba(130,200,160,.55),rgba(80,170,110,.45));border:1px solid rgba(120,190,150,.5);}
 .day-cell.month-start{background:linear-gradient(135deg,rgba(130,170,240,.5),rgba(90,140,220,.4));border:1px solid rgba(120,160,235,.45);}
+.day-cell.today{background:linear-gradient(135deg,#ff7e47,#e8391a)!important;border:2px solid rgba(255,120,60,.9)!important;box-shadow:0 0 0 3px rgba(232,57,26,.22),0 6px 24px rgba(220,80,30,.35),inset 0 1px 0 rgba(255,255,255,.35)!important;transform:scale(1.06);z-index:2;animation:todayPulse 2.5s ease-in-out infinite;}
+@keyframes todayPulse{0%,100%{box-shadow:0 0 0 3px rgba(232,57,26,.22),0 6px 24px rgba(220,80,30,.35),inset 0 1px 0 rgba(255,255,255,.35);}50%{box-shadow:0 0 0 6px rgba(232,57,26,.12),0 8px 30px rgba(220,80,30,.45),inset 0 1px 0 rgba(255,255,255,.35);}}
+.day-cell.today .day-num{color:#fff!important;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,.25);}
+.day-cell.today .day-greg{color:rgba(255,255,255,.85)!important;}
+.day-cell.today .day-badge{background:rgba(255,255,255,.3)!important;color:#fff!important;}
+.day-cell.today:hover{transform:scale(1.1)!important;}
 .day-num{font-family:'Playfair Display',serif;font-size:var(--fs-day);font-weight:400;color:var(--text-dark);line-height:1;}
 .day-cell.epoch .day-num{color:#5a2a08;}
 .day-cell.year-start .day-num{color:#0a4020;}
@@ -136,10 +322,58 @@ body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg
 .day-cell.epoch .day-badge{color:#5a2a08;}
 .day-cell.year-start .day-badge{color:#0a4020;}
 .day-cell.month-start .day-badge{color:#0a2a6a;}
-.legend{display:flex;gap:clamp(8px,2vw,16px);justify-content:center;margin-top:clamp(0.6rem,2vw,1.1rem);flex-wrap:wrap;}
+
+/* ── TODAY BADGE ── */
+.today-badge-wrap{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.6rem;}
+.today-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(255,126,71,.2),rgba(232,57,26,.15));border:1px solid rgba(232,57,26,.3);border-radius:999px;padding:3px 12px;font-size:var(--fs-xs);color:#c8391a;font-weight:500;letter-spacing:.03em;}
+body.theme-dark .today-badge{color:#ff9068;border-color:rgba(255,100,60,.35);background:rgba(255,100,60,.1);}
+.live-clock{font-family:'Playfair Display',serif;font-size:clamp(11px,1.8vw,14px);color:var(--text-soft);letter-spacing:.04em;}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:clamp(8px,2vw,16px);justify-content:center;margin-top:clamp(.6rem,2vw,1.1rem);flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--text-soft);}
 .legend-swatch{width:clamp(9px,1.5vw,12px);height:clamp(9px,1.5vw,12px);border-radius:4px;}
-/* Print modal */
+
+/* ── SECRET BUTTON ── */
+.secret-btn{position:fixed;bottom:0;left:0;width:48px;height:48px;z-index:200;background:transparent;border:none;cursor:pointer;outline:none;}
+.secret-popup{position:fixed;bottom:56px;left:12px;max-width:min(340px,90vw);background:var(--msg-bg);border:1px solid var(--msg-border);border-radius:18px;padding:1.25rem 1.4rem;z-index:300;box-shadow:0 16px 50px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
+.secret-popup.open{display:block;}
+@keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+.secret-popup-title{font-family:'Playfair Display',serif;font-size:clamp(13px,2vw,15px);font-weight:500;color:var(--msg-accent);margin-bottom:.65rem;}
+.secret-popup-body{font-size:clamp(11px,1.7vw,13px);color:var(--text-dark);line-height:1.75;}
+.secret-popup-sig{margin-top:.75rem;font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,17px);font-weight:500;color:var(--msg-accent);letter-spacing:.08em;text-align:right;}
+.secret-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:16px;color:var(--text-soft);cursor:pointer;line-height:1;}
+
+/* ── COUNTDOWN BANNER ── */
+.cd-banner-outer{max-width:700px;margin:0 auto clamp(.6rem,2vw,1.25rem);}
+.cd-setup-glass{background:var(--card-bg);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);box-shadow:0 8px 40px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.15);}
+.cd-setup-title{font-family:'Playfair Display',serif;font-size:var(--fs-xs);font-style:italic;color:var(--text-soft);margin-bottom:.75rem;letter-spacing:.04em;}
+.cd-field{display:flex;flex-direction:column;gap:3px;}
+.cd-field input{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);color:var(--text-dark);outline:none;transition:border .2s;}
+.cd-field input:focus{border-color:var(--peach);}
+.cd-err{font-size:var(--fs-xs);color:#e05030;margin-top:6px;display:none;}
+.cd-live-card{background:var(--card-bg);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);box-shadow:0 12px 50px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.2);display:none;}
+.cd-live-card.visible{display:block;}
+.cd-eyebrow{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.1em;color:var(--text-soft);text-align:center;margin-bottom:5px;}
+.cd-sentence{font-family:'Playfair Display',serif;font-size:clamp(13px,2.2vw,17px);font-weight:400;color:var(--text-dark);text-align:center;line-height:1.6;margin-bottom:1.25rem;}
+.cd-sentence strong{font-weight:500;}
+.cd-tick-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(4px,1vw,8px);margin-bottom:1rem;}
+@media(max-width:480px){.cd-tick-grid{grid-template-columns:repeat(4,1fr);}}
+.cd-tick{background:rgba(255,255,255,.32);border:1px solid rgba(255,210,180,.3);border-radius:clamp(8px,2vw,14px);padding:clamp(8px,1.5vw,13px) 4px;text-align:center;position:relative;overflow:hidden;transition:transform .1s;}
+body.theme-dark .cd-tick{background:rgba(40,45,70,.5);border-color:rgba(80,90,140,.25);}
+body.theme-light .cd-tick{background:rgba(235,245,255,.6);border-color:rgba(170,210,255,.35);}
+.cd-tick::after{content:'';position:absolute;inset:0;background:var(--peach);opacity:0;transition:opacity .35s;}
+.cd-tick.pulse::after{opacity:.18;}
+.cd-tick-num{font-family:'Playfair Display',serif;font-size:clamp(14px,3.5vw,26px);font-weight:400;color:var(--text-dark);line-height:1;display:block;}
+.cd-tick-lbl{font-size:clamp(7px,1vw,9px);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text-soft);margin-top:3px;display:block;}
+.cd-progress-wrap{margin-bottom:.75rem;}
+.cd-progress-meta{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--text-soft);margin-bottom:4px;}
+.cd-progress-track{height:6px;background:rgba(255,255,255,.3);border-radius:999px;overflow:hidden;border:1px solid rgba(255,200,160,.2);}
+body.theme-dark .cd-progress-track{background:rgba(40,45,70,.5);border-color:rgba(80,90,140,.2);}
+body.theme-light .cd-progress-track{background:rgba(200,220,255,.3);border-color:rgba(140,180,240,.2);}
+.cd-progress-fill{height:100%;background:linear-gradient(90deg,var(--peach),var(--amber));border-radius:999px;transition:width 1s linear;}
+
+/* ── PRINT MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
@@ -154,19 +388,97 @@ body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg
 .modal-go{background:var(--print-btn-grad);border:1px solid var(--print-btn-border);border-radius:10px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;}
 .modal-cancel:hover{background:var(--day-hover);}
 .modal-go:hover{filter:brightness(1.1);}
-/* Secret */
-.secret-btn{position:fixed;bottom:0;left:0;width:48px;height:48px;z-index:200;background:transparent;border:none;cursor:pointer;outline:none;}
-.secret-popup{position:fixed;bottom:56px;left:12px;max-width:min(340px,90vw);background:var(--msg-bg);border:1px solid var(--msg-border);border-radius:18px;padding:1.25rem 1.4rem;z-index:300;box-shadow:0 16px 50px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
-.secret-popup.open{display:block;}
-@keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
-.secret-popup-title{font-family:'Playfair Display',serif;font-size:clamp(13px,2vw,15px);font-weight:500;color:var(--msg-accent);margin-bottom:.65rem;}
-.secret-popup-body{font-size:clamp(11px,1.7vw,13px);color:var(--text-dark);line-height:1.75;}
-.secret-popup-sig{margin-top:.75rem;font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,17px);font-weight:500;color:var(--msg-accent);letter-spacing:.08em;text-align:right;}
-.secret-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:16px;color:var(--text-soft);cursor:pointer;line-height:1;}
-.secret-close:hover{color:var(--text-dark);}
-/* Print */
+
+/* ── TIMETABLE ── */
+.tt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto;}
+.tt-overlay.open{display:flex;}
+.tt-panel{background:rgba(255,250,244,.92);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);border:1px solid rgba(255,220,190,.6);border-radius:20px;width:100%;max-width:720px;display:flex;flex-direction:column;font-family:'DM Sans',sans-serif;color:#3a2a1e;margin:auto;box-shadow:0 16px 60px rgba(200,130,80,.2),inset 0 1px 0 rgba(255,255,255,.8);}
+body.theme-dark .tt-panel{background:rgba(22,26,44,.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-color:rgba(80,90,140,.4);color:#e0e4f4;box-shadow:0 16px 60px rgba(0,0,0,.4);}
+.tt-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(240,169,138,.25);}
+body.theme-dark .tt-header{border-bottom-color:rgba(255,255,255,.07);}
+.tt-header-title{font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px;}
+.tt-close-btn{background:none;border:1px solid rgba(240,169,138,.4);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:#7a5a44;}
+.tt-close-btn:hover{background:rgba(240,169,138,.15);}
+body.theme-dark .tt-close-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
+.tt-tabs{display:flex;border-bottom:1px solid rgba(240,169,138,.25);padding:0 20px;background:rgba(255,248,240,.4);}
+body.theme-dark .tt-tabs{border-bottom-color:rgba(255,255,255,.06);background:rgba(25,28,45,.4);}
+.tt-tab{padding:10px 16px;font-size:13px;font-weight:500;color:#b0907a;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tt-tab.active{color:#3a2a1e;border-bottom-color:#e8843a;}
+body.theme-dark .tt-tab{color:#6a72a0;}
+body.theme-dark .tt-tab.active{color:#e0e4f4;border-bottom-color:#f0a98a;}
+.tt-body{overflow-y:auto;max-height:65vh;}
+.tt-section{padding:16px 20px;border-bottom:1px solid rgba(240,169,138,.18);}
+body.theme-dark .tt-section{border-bottom-color:rgba(255,255,255,.06);}
+.tt-field-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
+.tt-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px;}
+.tt-field label{font-size:10px;font-weight:500;color:#b0907a;text-transform:uppercase;letter-spacing:.07em;}
+.tt-field input,.tt-field select{font-size:13px;padding:6px 10px;border:1px solid rgba(240,169,138,.4);border-radius:8px;background:rgba(255,255,255,.55);color:#3a2a1e;outline:none;width:100%;transition:border .2s;}
+body.theme-dark .tt-field input,body.theme-dark .tt-field select{background:rgba(40,45,70,.7);color:#e0e4f4;border-color:rgba(100,110,160,.4);}
+.tt-field input:focus,.tt-field select:focus{border-color:#e8843a;box-shadow:0 0 0 3px rgba(232,132,58,.12);}
+.tt-build-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;border:1px solid rgba(255,200,160,.5);background:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.85));color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(220,110,50,.2);}
+.tt-build-btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.tt-period-nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid rgba(240,169,138,.18);align-items:center;}
+.tt-period-label{font-size:12px;font-weight:500;color:#b0907a;margin-right:4px;}
+.tt-period-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;border:1px solid rgba(240,169,138,.35);font-size:11px;font-weight:500;color:#7a5a44;cursor:pointer;transition:all .15s;background:rgba(255,248,240,.6);}
+.tt-period-badge.active{background:linear-gradient(135deg,rgba(240,169,138,.35),rgba(232,132,58,.25));border-color:rgba(232,132,58,.5);color:#7a3010;}
+body.theme-dark .tt-period-badge{background:rgba(30,35,55,.6);color:#a0a8cc;border-color:rgba(80,90,140,.4);}
+body.theme-dark .tt-period-badge.active{background:rgba(80,60,160,.3);border-color:rgba(120,100,200,.5);color:#c0a8f0;}
+.tt-stat-row{display:flex;gap:8px;padding:10px 20px;flex-wrap:wrap;}
+.tt-stat{flex:1;min-width:80px;background:rgba(255,248,240,.55);border:1px solid rgba(240,169,138,.25);border-radius:8px;padding:8px 12px;text-align:center;}
+body.theme-dark .tt-stat{background:rgba(30,35,55,.6);border-color:rgba(80,90,140,.3);}
+.tt-stat .lbl{font-size:10px;color:#b0907a;text-transform:uppercase;letter-spacing:.05em;}
+body.theme-dark .tt-stat .lbl{color:#6a72a0;}
+.tt-stat .val{font-size:17px;font-weight:500;color:#3a2a1e;}
+body.theme-dark .tt-stat .val{color:#e0e4f4;}
+.tt-add-form{padding:12px 20px;background:rgba(255,245,235,.55);border-bottom:1px solid rgba(240,169,138,.2);}
+body.theme-dark .tt-add-form{background:rgba(25,28,45,.5);border-bottom-color:rgba(255,255,255,.06);}
+.tt-add-form .lbl2{font-size:10px;font-weight:500;color:#b0907a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.tt-form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.tt-add-evt-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:8px;border:1px solid rgba(232,132,58,.4);background:rgba(240,169,138,.2);color:#7a3010;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.tt-add-evt-btn:hover{background:rgba(240,169,138,.35);}
+.tt-clear-sel-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid rgba(240,169,138,.3);background:transparent;color:#7a5a44;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+body.theme-dark .tt-clear-sel-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
+.tt-sel-info{font-size:10px;color:#b0907a;margin-top:5px;}
+.tt-grid-wrap{padding:12px 20px;overflow-x:auto;}
+.tt-table{border-collapse:collapse;width:100%;font-size:11px;}
+.tt-table th{background:rgba(255,248,240,.7);font-weight:500;font-size:10px;color:#b0907a;text-transform:uppercase;letter-spacing:.05em;padding:5px 6px;text-align:center;border:1px solid rgba(240,169,138,.2);}
+body.theme-dark .tt-table th{background:rgba(25,28,45,.7);color:#6a72a0;border-color:rgba(80,90,140,.3);}
+.tt-table td{border:1px solid rgba(240,169,138,.15);padding:0;vertical-align:top;}
+body.theme-dark .tt-table td{border-color:rgba(80,90,140,.2);}
+.tt-time-col{background:rgba(255,248,240,.6);font-size:10px;color:#b0907a;padding:5px 8px;text-align:right;white-space:nowrap;font-weight:500;min-width:80px;}
+body.theme-dark .tt-time-col{background:rgba(20,24,40,.5);color:#6a72a0;}
+.tt-cell{min-height:32px;padding:2px;cursor:pointer;transition:background .1s;background:rgba(255,252,248,.6);}
+body.theme-dark .tt-cell{background:rgba(22,26,42,.6);}
+.tt-cell:hover{background:rgba(255,240,225,.7);}
+body.theme-dark .tt-cell:hover{background:rgba(35,40,65,.7);}
+.tt-cell.selected{outline:2px solid #e8843a;outline-offset:-1px;}
+.tt-chip{border-radius:4px;padding:2px 5px;font-size:10px;font-weight:500;margin:1px;display:flex;align-items:center;gap:3px;}
+.tt-chip button{background:none;border:none;cursor:pointer;padding:0;font-size:11px;line-height:1;opacity:.7;}
+.tt-chip button:hover{opacity:1;}
+.tt-month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:14px 20px;}
+.tt-month-card{background:rgba(255,248,240,.6);border:1px solid rgba(240,169,138,.25);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;}
+.tt-month-card:hover{background:rgba(240,169,138,.2);border-color:rgba(232,132,58,.4);}
+body.theme-dark .tt-month-card{background:rgba(25,28,45,.6);border-color:rgba(80,90,140,.35);}
+.tt-month-card .mc-name{font-size:12px;font-weight:500;margin-bottom:3px;color:#3a2a1e;}
+body.theme-dark .tt-month-card .mc-name{color:#e0e4f4;}
+.tt-month-card .mc-days{font-size:10px;color:#b0907a;}
+.tt-month-card .mc-evs{font-size:10px;color:#e8843a;margin-top:2px;}
+.tt-footer{padding:10px 20px;border-top:1px solid rgba(240,169,138,.25);display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;background:rgba(255,248,240,.35);}
+body.theme-dark .tt-footer{border-top-color:rgba(255,255,255,.07);background:rgba(20,24,38,.35);}
+.tt-footer-status{font-size:11px;color:#b0907a;flex:1;}
+body.theme-dark .tt-footer-status{color:#6a72a0;}
+.tt-footer-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(240,169,138,.35);background:transparent;color:#7a5a44;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+body.theme-dark .tt-footer-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
+.tt-footer-btn:hover{background:rgba(240,169,138,.15);}
+.tt-clear-btn{color:#c05030;border-color:rgba(200,80,48,.35);background:rgba(255,230,220,.2);}
+.tt-summary-wrap{padding:16px 20px;}
+.tt-ev-row{display:flex;gap:8px;align-items:center;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid rgba(240,169,138,.15);margin-bottom:4px;}
+body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
+.tt-ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── PRINT ── */
 @media print{
-  .orb,.theme-bar,.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap{display:none!important;}
+  .orb,.theme-bar,.glass-card.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap,.cd-banner-outer,.lc-auth-screen,.lc-onboard-screen,.lc-user-pill{display:none!important;}
   body{background:white!important;color:#111!important;}
   .app{padding:0;}
   .glass-card{box-shadow:none!important;border:1px solid #ddd!important;background:white!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;margin-bottom:1rem!important;break-inside:avoid;}
@@ -175,117 +487,261 @@ body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg
   .day-cell.epoch{background:#ffe4cc!important;}
   .day-cell.year-start{background:#d4f0dc!important;}
   .day-cell.month-start{background:#d4e4f8!important;}
+  .day-cell.today{background:#ffe0d0!important;transform:none!important;animation:none!important;}
   .day-num,.cal-heading-main,.stat-val,.cal-heading-sub,.dow-cell,.day-greg,.day-badge{color:#111!important;}
-  .stat-label,.dow-cell,.cal-heading-sub,.day-greg{color:#666!important;}
+  .stat-label,.dow-cell,.day-greg{color:#666!important;}
 }
 </style>
 </head>
 <body class="theme-warm">
 
-<!-- Print modal -->
+<!-- ══ AUTH SCREEN ══ -->
+<div class="lc-screen" id="lc-auth-screen">
+  <div class="s-orb s-orb1"></div>
+  <div class="s-orb s-orb2"></div>
+  <div class="lc-card">
+    <div class="lc-logo">
+      <div class="lc-logo-title">Lifetime <em>Calendar</em></div>
+      <div class="lc-logo-sub">by Baidoo</div>
+    </div>
+    <div class="lc-tabs">
+      <div class="lc-tab active" id="tab-signin" onclick="lcShowTab('signin')">Sign In</div>
+      <div class="lc-tab" id="tab-signup" onclick="lcShowTab('signup')">Sign Up</div>
+    </div>
+    <!-- Sign In -->
+    <div id="lc-signin-form">
+      <div class="lc-form">
+        <div class="lc-field"><label>Name</label><input type="text" id="si-name" placeholder="Your name" autocomplete="username"/></div>
+        <div class="lc-field"><label>Password</label><input type="password" id="si-pass" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password"/></div>
+        <p class="lc-err" id="si-err">Name or password incorrect.</p>
+        <button class="lc-submit" onclick="lcSignIn()">Sign In &#8594;</button>
+      </div>
+      <p class="lc-switch">No account? <span onclick="lcShowTab('signup')">Sign up free</span></p>
+    </div>
+    <!-- Sign Up -->
+    <div id="lc-signup-form" style="display:none">
+      <div class="lc-form">
+        <div class="lc-field"><label>Full name</label><input type="text" id="su-name" placeholder="Your name"/></div>
+        <div class="lc-field"><label>Email</label><input type="email" id="su-email" placeholder="you@email.com"/></div>
+        <div class="lc-field"><label>Password</label><input type="password" id="su-pass" placeholder="Create a password"/></div>
+        <p class="lc-err" id="su-err">Please fill in all fields.</p>
+        <button class="lc-submit" onclick="lcSignUp()">Create Account &#8594;</button>
+      </div>
+      <p class="lc-switch">Already have an account? <span onclick="lcShowTab('signin')">Sign in</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING SCREEN ══ -->
+<div class="lc-screen hidden" id="lc-onboard-screen">
+  <div class="s-orb s-orb1"></div>
+  <div class="s-orb s-orb2"></div>
+  <div class="lc-card">
+    <div class="lc-logo"><div class="lc-logo-title">Lifetime <em>Calendar</em></div></div>
+    <div class="lc-greet" id="lc-greet-name">Welcome!</div>
+    <div class="lc-onboard-title">Set up your calendar</div>
+    <div class="lc-onboard-sub">Choose your start date and how many years to track.<br>You can always change this later.</div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:.5rem;">
+      <div class="lc-field"><label>Gregorian start date</label><input type="date" id="ob-start-date" value="1992-11-16"/></div>
+      <div class="lc-field"><label>Number of years to track</label><input type="number" id="ob-years" value="127" min="1" max="200"/></div>
+      <button class="lc-submit" onclick="lcOnboardDone()">Open my Lifetime Calendar &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ USER PILL ══ -->
+<div class="lc-user-pill no-print" id="lc-user-pill">
+  <div class="lc-user-avatar" id="lc-avatar">B</div>
+  <span id="lc-user-name-pill">User</span>
+  <button class="lc-signout-btn" onclick="lcSignOut()">Sign out</button>
+</div>
+
+<!-- ══ PRINT MODAL ══ -->
 <div class="modal-overlay" id="print-modal">
   <div class="modal">
-    <p class="modal-title">🖨 Print Calendar</p>
+    <p class="modal-title">&#128424; Print Calendar</p>
     <div class="modal-row">
-      <div class="modal-field">
-        <label>Print by</label>
-        <select id="print-by"><option value="months">Months</option><option value="years">Years</option></select>
-      </div>
-      <div class="modal-field">
-        <label>Start year</label>
-        <input type="number" id="print-start-year" min="1" value="1"/>
-      </div>
-      <div class="modal-field" id="print-start-month-wrap">
-        <label>Start month</label>
-        <input type="number" id="print-start-month" min="1" max="13" value="1"/>
-      </div>
+      <div class="modal-field"><label>Print by</label><select id="print-by"><option value="months">Months</option><option value="years">Years</option></select></div>
+      <div class="modal-field"><label>Start year</label><input type="number" id="print-start-year" min="1" value="1"/></div>
+      <div class="modal-field" id="print-start-month-wrap"><label>Start month</label><input type="number" id="print-start-month" min="1" max="13" value="1"/></div>
     </div>
     <div class="modal-row">
-      <div class="modal-field">
-        <label id="print-count-label">Number of months</label>
-        <input type="number" id="print-count" min="1" value="3"/>
-      </div>
+      <div class="modal-field"><label id="print-count-label">Number of months</label><input type="number" id="print-count" min="1" value="3"/></div>
     </div>
     <div class="modal-info" id="print-info">Printing 3 months starting Year 1, Month 1</div>
     <div class="modal-btns">
       <button class="modal-cancel" id="print-cancel">Cancel</button>
-      <button class="modal-go" id="print-go">Print ↗</button>
+      <button class="modal-go" id="print-go">Print &#8599;</button>
     </div>
   </div>
 </div>
 
-<!-- Secret message -->
+<!-- ══ TIMETABLE MODAL ══ -->
+<div class="tt-overlay" id="tt-overlay">
+  <div class="tt-panel">
+    <div class="tt-header">
+      <div class="tt-header-title">&#128197; Timetable Scheduler</div>
+      <button class="tt-close-btn" onclick="ttClose()">&#x2715; Close</button>
+    </div>
+    <div class="tt-tabs">
+      <div class="tt-tab active" onclick="ttTab('setup')">Setup</div>
+      <div class="tt-tab" onclick="ttTab('view')">View &amp; Edit</div>
+      <div class="tt-tab" onclick="ttTab('summary')">Summary</div>
+    </div>
+    <div id="tt-tab-setup" class="tt-body">
+      <div class="tt-section">
+        <div class="tt-field-row">
+          <div class="tt-field"><label>Schedule name</label><input type="text" id="tt-name" value="My Lifetime Schedule"/></div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field"><label>View mode</label>
+            <select id="tt-mode" onchange="ttModeChange()">
+              <option value="days">Daily</option>
+              <option value="weeks" selected>Weekly</option>
+              <option value="months">Monthly</option>
+              <option value="years">Yearly overview</option>
+            </select>
+          </div>
+          <div class="tt-field" id="tt-f-days" style="display:none"><label>Number of days</label><input type="number" id="tt-num-days" value="7" min="1" max="31"/></div>
+          <div class="tt-field" id="tt-f-weeks"><label>Number of weeks</label><input type="number" id="tt-num-weeks" value="4" min="1" max="52"/></div>
+          <div class="tt-field" id="tt-f-months" style="display:none"><label>Number of months</label><input type="number" id="tt-num-months" value="3" min="1" max="24"/></div>
+          <div class="tt-field" id="tt-f-years" style="display:none"><label>Number of years</label><input type="number" id="tt-num-years" value="1" min="1" max="10"/></div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field"><label>Start from</label>
+            <select id="tt-start-from" onchange="ttStartChange()">
+              <option value="today">Today</option>
+              <option value="greg">Custom Gregorian date</option>
+              <option value="lifetime">Lifetime Calendar position</option>
+            </select>
+          </div>
+          <div class="tt-field" id="tt-f-greg" style="display:none"><label>Date</label><input type="date" id="tt-greg-date"/></div>
+        </div>
+        <div class="tt-field-row" id="tt-f-lifetime" style="display:none">
+          <div class="tt-field"><label>Lifetime year</label><input type="number" id="tt-lt-yr" value="1" min="1" max="127"/></div>
+          <div class="tt-field"><label>Lifetime month</label><input type="number" id="tt-lt-mo" value="1" min="1" max="13"/></div>
+          <div class="tt-field"><label>Lifetime day</label><input type="number" id="tt-lt-dy" value="1" min="1" max="28"/></div>
+        </div>
+        <div class="tt-field-row">
+          <div class="tt-field"><label>Day start</label><input type="time" id="tt-day-start" value="06:00"/></div>
+          <div class="tt-field"><label>Day end</label><input type="time" id="tt-day-end" value="22:00"/></div>
+          <div class="tt-field"><label>Slot duration</label><select id="tt-slot-dur"><option value="30">30 min</option><option value="60" selected>1 hour</option><option value="120">2 hours</option></select></div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;"><button class="tt-build-btn" onclick="ttBuild()">&#128202; Build Timetable</button></div>
+    </div>
+    <div id="tt-tab-view" class="tt-body" style="display:none">
+      <div class="tt-period-nav" id="tt-period-nav"></div>
+      <div class="tt-stat-row" id="tt-stat-row"></div>
+      <div class="tt-add-form">
+        <div class="lbl2">Add event &#8212; select a cell, then:</div>
+        <div class="tt-form-row">
+          <div class="tt-field" style="flex:2;min-width:120px;"><label>Event title</label><input type="text" id="tt-ev-title" placeholder="e.g. Deep work"/></div>
+          <div class="tt-field" style="min-width:80px;"><label>Color</label><select id="tt-ev-color"><option value="blue">Blue</option><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option><option value="purple">Purple</option></select></div>
+          <button class="tt-add-evt-btn" onclick="ttAddEvent()">+ Add</button>
+          <button class="tt-clear-sel-btn" onclick="ttClearSel()">&#x2715; Deselect</button>
+        </div>
+        <div class="tt-sel-info" id="tt-sel-info">Click any cell to select it.</div>
+      </div>
+      <div class="tt-grid-wrap"><div id="tt-grid"></div></div>
+    </div>
+    <div id="tt-tab-summary" class="tt-body" style="display:none">
+      <div class="tt-summary-wrap"><div id="tt-summary">Build a timetable first.</div></div>
+    </div>
+    <div class="tt-footer">
+      <span class="tt-footer-status" id="tt-status"></span>
+      <button class="tt-footer-btn tt-clear-btn" onclick="ttClearAll()">&#128465; Clear events</button>
+      <button class="tt-footer-btn" onclick="ttClose()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECRET MESSAGE ══ -->
 <button class="secret-btn" id="secret-btn" aria-label=""></button>
 <div class="secret-popup" id="secret-popup">
-  <button class="secret-close" id="secret-close">✕</button>
-  <p class="secret-popup-title">A gift from Baidoo 🎁</p>
+  <button class="secret-close" id="secret-close">&#x2715;</button>
+  <p class="secret-popup-title">A gift from Baidoo &#127873;</p>
   <p class="secret-popup-body">This app was made by Baidoo as a gift. Write down the age or number of years you hope to attain before you pass on and start living intentionally toward that vision. Life becomes more meaningful when you move with purpose, growth and direction. I'll be updating this with valuable features from time to time, so stay tuned and be on the lookout.</p>
   <p class="secret-popup-sig">BAIDOO!</p>
 </div>
 
+<!-- ══ MAIN APP ══ -->
 <div class="app">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
 
   <div class="theme-bar no-print">
-    <button class="theme-btn" id="btn-light" onclick="setTheme('light')"><span class="theme-dot" style="background:linear-gradient(135deg,#a8c4ff,#6a9ef0)"></span>Light</button>
-    <button class="theme-btn active" id="btn-warm" onclick="setTheme('warm')"><span class="theme-dot" style="background:linear-gradient(135deg,#f0a080,#e87040)"></span>Warm</button>
-    <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')"><span class="theme-dot" style="background:linear-gradient(135deg,#2a1a4a,#1a0a3a)"></span>Night</button>
+    <div class="theme-dropdown-btn" id="theme-dd-btn" onclick="toggleThemeDD()">
+      <span class="theme-dot" id="theme-dd-dot" style="background:linear-gradient(135deg,#f0a080,#e87040)"></span>
+      <span id="theme-dd-label">Warm</span>
+      <span style="font-size:10px;opacity:.6">&#9660;</span>
+    </div>
+    <div class="theme-dropdown-menu" id="theme-dd-menu">
+      <div class="theme-opt" id="opt-light" onclick="setTheme('light');closeThemeDD()"><span class="theme-dot" style="background:linear-gradient(135deg,#a8c4ff,#6a9ef0)"></span>Light</div>
+      <div class="theme-opt active" id="opt-warm" onclick="setTheme('warm');closeThemeDD()"><span class="theme-dot" style="background:linear-gradient(135deg,#f0a080,#e87040)"></span>Warm</div>
+      <div class="theme-opt" id="opt-dark" onclick="setTheme('dark');closeThemeDD()"><span class="theme-dot" style="background:linear-gradient(135deg,#2a1a4a,#1a0a3a)"></span>Night</div>
+    </div>
   </div>
 
   <div class="app-title-wrap no-print">
     <h1 class="app-title">Lifetime <em>Calendar</em></h1>
-    <p class="app-tagline">13 months · 28 days each · fully configurable</p>
+    <p class="app-tagline">13 months &middot; 28 days each &middot; fully configurable</p>
   </div>
 
   <div class="glass-card setup-glass-wrap no-print">
     <p class="setup-title">Calendar configuration</p>
-    <div class="setup-fields">
-      <div class="field-group">
+    <div class="config-row">
+      <div class="cfg-field" style="flex:2;min-width:160px;max-width:280px;">
         <label>Gregorian start date</label>
-        <input type="date" id="start-date" value="1992-11-16"/>
+        <input type="date" id="start-date" value="1992-11-16" onchange="autoApply()"/>
       </div>
-      <div class="field-group" style="max-width:clamp(68px,14vw,90px)">
-        <label>Start month</label>
-        <input type="number" id="start-month" min="1" max="13" value="1"/>
+      <div class="cfg-field" style="flex:1;min-width:100px;max-width:150px;">
+        <label>Number of years</label>
+        <input type="number" id="end-year-in" min="1" value="127" onchange="autoApply()"/>
       </div>
-      <div class="field-group" style="max-width:clamp(68px,14vw,90px)">
-        <label>Start year</label>
-        <input type="number" id="start-year-in" min="1" value="1"/>
-      </div>
-      <div class="field-group" style="max-width:clamp(68px,14vw,90px)">
-        <label>End year</label>
-        <input type="number" id="end-year-in" min="1" value="127"/>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="apply-btn" id="apply-btn">Apply</button>
+        <button class="tt-launch-btn" onclick="ttOpen()">&#128197; Timetable</button>
+        <button class="print-btn" id="open-print-btn">&#128424; Print</button>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="apply-btn" id="apply-btn">Apply</button>
-      <button class="print-btn" id="open-print-btn">🖨 Print Calendar</button>
-    </div>
-    <p class="err" id="err-msg">End year must be ≥ start year, and months must be 1–13.</p>
+    <p class="err" id="err-msg">Please enter a valid start date and number of years.</p>
   </div>
 
+  <!-- COUNTDOWN BANNER (injected before cal by JS) -->
+  <div class="cd-banner-outer no-print" id="cd-banner-outer">
+    <div class="cd-live-card" id="cd-live">
+      <div class="cd-eyebrow">Your available time to make a difference</div>
+      <div class="cd-sentence" id="cd-sentence">&#8212;</div>
+      <div class="cd-tick-grid">
+        <div class="cd-tick" id="cdt-yr"><span class="cd-tick-num" id="cdv-yr">&#8212;</span><span class="cd-tick-lbl">Years</span></div>
+        <div class="cd-tick" id="cdt-mo"><span class="cd-tick-num" id="cdv-mo">&#8212;</span><span class="cd-tick-lbl">Months</span></div>
+        <div class="cd-tick" id="cdt-wk"><span class="cd-tick-num" id="cdv-wk">&#8212;</span><span class="cd-tick-lbl">Weeks</span></div>
+        <div class="cd-tick" id="cdt-dy"><span class="cd-tick-num" id="cdv-dy">&#8212;</span><span class="cd-tick-lbl">Days</span></div>
+        <div class="cd-tick" id="cdt-hr"><span class="cd-tick-num" id="cdv-hr">&#8212;</span><span class="cd-tick-lbl">Hours</span></div>
+        <div class="cd-tick" id="cdt-mn"><span class="cd-tick-num" id="cdv-mn">&#8212;</span><span class="cd-tick-lbl">Minutes</span></div>
+        <div class="cd-tick" id="cdt-sc"><span class="cd-tick-num" id="cdv-sc">&#8212;</span><span class="cd-tick-lbl">Seconds</span></div>
+      </div>
+      <div class="cd-progress-wrap">
+        <div class="cd-progress-meta"><span id="cd-born-lbl">Start</span><span id="cd-pct-lbl">&#8212;</span><span id="cd-end-lbl">End</span></div>
+        <div class="cd-progress-track"><div class="cd-progress-fill" id="cd-pfill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR CARD -->
   <div class="glass-card" id="main-cal">
     <div class="cal-top">
       <div class="nav-glass no-print" id="prev-btn">&#8249;</div>
       <div>
-        <div class="cal-heading-main" id="cal-title">—</div>
-        <div class="cal-heading-sub" id="cal-sub">—</div>
+        <div class="cal-heading-main" id="cal-title">&#8212;</div>
+        <div style="display:none" id="cal-sub"></div>
       </div>
       <div class="nav-glass no-print" id="next-btn">&#8250;</div>
     </div>
-    <div class="sel-row no-print">
-      <select class="sel-pill" id="year-sel"></select>
-      <select class="sel-pill" id="month-sel"></select>
-    </div>
+    <div style="display:none"><select id="year-sel"></select><select id="month-sel"></select></div>
     <div class="stats-grid">
-      <div class="stat-pill"><div class="stat-label">Total months</div><div class="stat-val" id="s-months">—</div></div>
-      <div class="stat-pill"><div class="stat-label">Total weeks</div><div class="stat-val" id="s-weeks">—</div></div>
-      <div class="stat-pill"><div class="stat-label">Total hours</div><div class="stat-val" id="s-hours">—</div></div>
-      <div class="stat-pill"><div class="stat-label">Total minutes</div><div class="stat-val" id="s-mins">—</div></div>
-      <div class="stat-pill"><div class="stat-label">Total seconds</div><div class="stat-val" id="s-secs">—</div></div>
-      <div class="stat-pill"><div class="stat-label">Gregorian range</div><div class="stat-val" id="s-greg" style="font-size:clamp(9px,1.5vw,12px)">—</div></div>
+      <div class="stat-pill"><div class="stat-label">Years remaining</div><div class="stat-val" id="s-rem-years">&#8212;</div></div>
+      <div class="stat-pill"><div class="stat-label">Months remaining</div><div class="stat-val" id="s-rem-months">&#8212;</div></div>
     </div>
     <div class="dow-row" id="dow-row"></div>
     <div class="day-grid" id="day-grid"></div>
@@ -300,35 +756,70 @@ body.theme-dark{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg
 </div>
 
 <script>
+// ══ CONSTANTS ══
 const DPM=28,MPY=13;
 const GM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let cfg={epoch:new Date(1992,10,16),startYear:1,startMonth:1,endYear:127};
 let curY=1,curM=1;
 
+// ══ THEME ══
 function setTheme(t){
   document.body.className='theme-'+t;
-  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('btn-'+t).classList.add('active');
+  document.querySelectorAll('.theme-opt').forEach(b=>b.classList.remove('active'));
+  const opt=document.getElementById('opt-'+t);if(opt)opt.classList.add('active');
+  const dots={light:'linear-gradient(135deg,#a8c4ff,#6a9ef0)',warm:'linear-gradient(135deg,#f0a080,#e87040)',dark:'linear-gradient(135deg,#2a1a4a,#1a0a3a)'};
+  const labels={light:'Light',warm:'Warm',dark:'Night'};
+  const dd=document.getElementById('theme-dd-dot'),dl=document.getElementById('theme-dd-label');
+  if(dd)dd.style.background=dots[t];if(dl)dl.textContent=labels[t];
 }
+function toggleThemeDD(){document.getElementById('theme-dd-menu').classList.toggle('open');}
+function closeThemeDD(){document.getElementById('theme-dd-menu').classList.remove('open');}
+document.addEventListener('click',function(e){
+  const m=document.getElementById('theme-dd-menu'),b=document.getElementById('theme-dd-btn');
+  if(m&&b&&!m.contains(e.target)&&!b.contains(e.target))m.classList.remove('open');
+});
 
+// ══ DOW HEADERS ══
 const drow=document.getElementById('dow-row');
 DOW.forEach(d=>{const c=document.createElement('div');c.className='dow-cell';c.textContent=d;drow.appendChild(c);});
 
+// ══ HELPERS ══
 function gd(y,m,d){const n=((y-1)*MPY+(m-1))*DPM+(d-1);const dt=new Date(cfg.epoch);dt.setDate(dt.getDate()+n);return dt;}
 function fg(d){return d.getDate()+' '+GM[d.getMonth()]+' '+d.getFullYear();}
-function fmt(n){return n.toLocaleString();}
+function fmt(n){if(n===undefined||n===null||isNaN(n))return'—';return Math.floor(n).toLocaleString();}
 
-function calcStats(){
-  const totalMonths=(cfg.endYear-cfg.startYear)*MPY+(MPY-cfg.startMonth+1);
-  const totalDays=totalMonths*DPM;
-  return{totalMonths,totalWeeks:totalDays/7,totalHours:totalDays*24,totalMins:totalDays*24*60,totalSecs:totalDays*24*3600};
+// ══ TODAY IN LIFETIME ══
+function getTodayLifetime(){
+  const now=new Date();
+  const diffDays=Math.floor((now-cfg.epoch)/(1000*60*60*24));
+  if(diffDays<0)return null;
+  const totalMonths=Math.floor(diffDays/DPM);
+  const ty=Math.floor(totalMonths/MPY)+cfg.startYear;
+  const tm=(totalMonths%MPY)+1;
+  const td=(diffDays%DPM)+1;
+  return{y:ty,m:tm,d:td};
 }
 
+// ══ CALC STATS ══
+function calcStats(){
+  try{
+    const totalDays=(cfg.endYear||127)*DPM*MPY;
+    const endDate=new Date(cfg.epoch);endDate.setDate(endDate.getDate()+totalDays);
+    const now=new Date();
+    const msLeft=endDate-now;
+    if(!msLeft||msLeft<=0)return{remYears:0,remMonths:0};
+    const daysLeft=msLeft/(1000*60*60*24);
+    return{remYears:Math.floor(daysLeft/365.25)||0,remMonths:Math.floor((daysLeft%365.25)/30.4375)||0};
+  }catch(e){return{remYears:0,remMonths:0};}
+}
+
+// ══ BUILD MONTH GRID ══
 function buildMonthGrid(y,m,container){
   const sg=gd(y,m,1),dow0=sg.getDay();
   const total=Math.ceil((dow0+28)/7)*7;
   container.innerHTML='';
+  const todayLT=getTodayLifetime();
   for(let i=0;i<total;i++){
     const cell=document.createElement('div');
     const di=i-dow0;
@@ -337,14 +828,23 @@ function buildMonthGrid(y,m,container){
     const isEpoch=(y===cfg.startYear&&m===cfg.startMonth&&dn===1);
     const isYS=(!isEpoch&&m===cfg.startMonth&&dn===1);
     const isMS=(!isEpoch&&!isYS&&dn===1);
-    cell.className='day-cell '+(isEpoch?'epoch':isYS?'year-start':isMS?'month-start':'normal');
+    const isToday=todayLT&&todayLT.y===y&&todayLT.m===m&&todayLT.d===dn;
+    let cls='day-cell ';
+    if(isToday)cls+='today';
+    else if(isEpoch)cls+='epoch';
+    else if(isYS)cls+='year-start';
+    else if(isMS)cls+='month-start';
+    else cls+='normal';
+    cell.className=cls;
     const num=document.createElement('div');num.className='day-num';num.textContent=dn;cell.appendChild(num);
     const gr=document.createElement('div');gr.className='day-greg';gr.textContent=g.getDate()+' '+GM[g.getMonth()];cell.appendChild(gr);
-    if(isEpoch||isYS||isMS){const b=document.createElement('div');b.className='day-badge';b.textContent=isEpoch?'Epoch':isYS?'Y'+y:'M'+m;cell.appendChild(b);}
+    if(isToday){const b=document.createElement('div');b.className='day-badge';b.textContent='Today';cell.appendChild(b);}
+    else if(isEpoch||isYS||isMS){const b=document.createElement('div');b.className='day-badge';b.textContent=isEpoch?'Epoch':isYS?'Y'+y:'M'+m;cell.appendChild(b);}
     container.appendChild(cell);
   }
 }
 
+// ══ REBUILD SELECTORS ══
 function rebuildSels(){
   const ys=document.getElementById('year-sel'),ms=document.getElementById('month-sel');
   ys.innerHTML='';ms.innerHTML='';
@@ -352,54 +852,75 @@ function rebuildSels(){
   for(let m=1;m<=MPY;m++){const o=document.createElement('option');o.value=m;o.textContent='Month '+m;ms.appendChild(o);}
 }
 
+// ══ RENDER ══
 function render(){
   if(curY<cfg.startYear)curY=cfg.startYear;
   if(curY>cfg.endYear)curY=cfg.endYear;
-  if(curY===cfg.startYear&&curM<cfg.startMonth)curM=cfg.startMonth;
   if(curM<1)curM=1;if(curM>MPY)curM=MPY;
   document.getElementById('year-sel').value=curY;
   document.getElementById('month-sel').value=curM;
   const sg=gd(curY,curM,1),eg=gd(curY,curM,28);
   document.getElementById('cal-title').textContent='Year '+curY+' \u00b7 Month '+curM;
-  document.getElementById('cal-sub').textContent=fg(sg)+' \u2013 '+fg(eg);
+  // Today badge
+  const todayLT=getTodayLifetime();
+  const existingBadge=document.getElementById('today-badge-row');
+  if(existingBadge)existingBadge.remove();
+  if(todayLT&&todayLT.y===curY&&todayLT.m===curM){
+    const todayGreg=new Date();
+    const todayStr=todayGreg.getDate()+' '+GM[todayGreg.getMonth()]+' '+todayGreg.getFullYear();
+    const bDiv=document.createElement('div');
+    bDiv.id='today-badge-row';
+    bDiv.className='today-badge-wrap';
+    bDiv.innerHTML='<span class="today-badge">&#9679; Today is Lifetime Day '+todayLT.d+' &middot; '+todayStr+'</span><span class="live-clock" id="live-clock"></span>';
+    const dayGrid=document.getElementById('day-grid');
+    if(dayGrid&&dayGrid.parentNode)dayGrid.parentNode.insertBefore(bDiv,dayGrid);
+  }
+  // Stats
   const st=calcStats();
-  document.getElementById('s-months').textContent=fmt(st.totalMonths);
-  document.getElementById('s-weeks').textContent=fmt(st.totalWeeks);
-  document.getElementById('s-hours').textContent=fmt(st.totalHours);
-  document.getElementById('s-mins').textContent=fmt(st.totalMins);
-  document.getElementById('s-secs').textContent=fmt(st.totalSecs);
-  document.getElementById('s-greg').textContent=fg(gd(cfg.startYear,cfg.startMonth,1))+' \u2013 '+fg(gd(cfg.endYear,MPY,DPM));
+  const remYEl=document.getElementById('s-rem-years');
+  const remMEl=document.getElementById('s-rem-months');
+  if(remYEl)remYEl.textContent=fmt(st.remYears);
+  if(remMEl)remMEl.textContent=fmt(st.remMonths);
+  // Grid
   buildMonthGrid(curY,curM,document.getElementById('day-grid'));
 }
 
+// ══ CONFIG ══
 function applyConfig(){
   const rd=document.getElementById('start-date').value;
-  const sm=parseInt(document.getElementById('start-month').value);
-  const sy=parseInt(document.getElementById('start-year-in').value);
   const ey=parseInt(document.getElementById('end-year-in').value);
   const err=document.getElementById('err-msg');
-  if(!rd||isNaN(sm)||isNaN(sy)||isNaN(ey)||sm<1||sm>13||sy<1||ey<sy){err.style.display='block';return;}
+  if(!rd||isNaN(ey)||ey<1){err.style.display='block';return;}
   err.style.display='none';
   const p=rd.split('-');cfg.epoch=new Date(+p[0],+p[1]-1,+p[2]);
-  cfg.startYear=sy;cfg.startMonth=sm;cfg.endYear=ey;
-  curY=sy;curM=sm;rebuildSels();render();
+  cfg.startYear=1;cfg.startMonth=1;cfg.endYear=ey;
+  curY=1;curM=1;
+  rebuildSels();
+  const _t=getTodayLifetime();
+  if(_t&&_t.y>=cfg.startYear&&_t.y<=cfg.endYear){curY=_t.y;curM=_t.m;}
+  render();
+  if(typeof cdAutoUpdate==='function')cdAutoUpdate();
+  // persist
+  try{const sess=JSON.parse(localStorage.getItem('lc_session')||'null');if(sess&&sess.name)localStorage.setItem('lc_cfg_'+sess.name,JSON.stringify({startDate:rd,years:ey}));}catch(e){}
+}
+function autoApply(){
+  const rd=document.getElementById('start-date').value;
+  const ey=parseInt(document.getElementById('end-year-in').value);
+  if(rd&&!isNaN(ey)&&ey>=1)applyConfig();
 }
 
 document.getElementById('apply-btn').addEventListener('click',applyConfig);
-document.getElementById('year-sel').addEventListener('change',()=>{curY=+document.getElementById('year-sel').value;render();});
-document.getElementById('month-sel').addEventListener('change',()=>{curM=+document.getElementById('month-sel').value;render();});
 document.getElementById('prev-btn').addEventListener('click',()=>{if(curM>1)curM--;else if(curY>cfg.startYear){curY--;curM=MPY;}render();});
 document.getElementById('next-btn').addEventListener('click',()=>{if(curM<MPY)curM++;else if(curY<cfg.endYear){curY++;curM=1;}render();});
 
-// Secret button
-const secretBtn=document.getElementById('secret-btn');
-const secretPopup=document.getElementById('secret-popup');
-const secretClose=document.getElementById('secret-close');
-secretBtn.addEventListener('click',()=>secretPopup.classList.toggle('open'));
-secretClose.addEventListener('click',e=>{e.stopPropagation();secretPopup.classList.remove('open');});
-document.addEventListener('click',e=>{if(!secretPopup.contains(e.target)&&e.target!==secretBtn)secretPopup.classList.remove('open');});
+// ══ LIVE CLOCK ══
+function tickClock(){const cl=document.getElementById('live-clock');if(!cl)return;const n=new Date();cl.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');}
+setInterval(tickClock,1000);tickClock();
 
-// Print modal
+// ══ MIDNIGHT REFRESH ══
+(function sched(){const n=new Date();const ms=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1)-n;setTimeout(()=>{render();sched();},ms);})();
+
+// ══ PRINT ══
 const modal=document.getElementById('print-modal');
 document.getElementById('open-print-btn').addEventListener('click',()=>{
   document.getElementById('print-start-year').value=curY;
@@ -408,7 +929,6 @@ document.getElementById('open-print-btn').addEventListener('click',()=>{
 });
 document.getElementById('print-cancel').addEventListener('click',()=>modal.classList.remove('open'));
 modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
-
 function updatePrintInfo(){
   const by=document.getElementById('print-by').value;
   const sy=parseInt(document.getElementById('print-start-year').value)||1;
@@ -420,535 +940,203 @@ function updatePrintInfo(){
   document.getElementById('print-start-month-wrap').style.display=by==='months'?'':'none';
 }
 ['print-by','print-start-year','print-start-month','print-count'].forEach(id=>document.getElementById(id).addEventListener('input',updatePrintInfo));
-
 document.getElementById('print-go').addEventListener('click',()=>{
   const by=document.getElementById('print-by').value;
   let sy=parseInt(document.getElementById('print-start-year').value)||1;
   let sm=by==='months'?(parseInt(document.getElementById('print-start-month').value)||1):1;
   const count=parseInt(document.getElementById('print-count').value)||1;
   const totalMonths=by==='months'?count:count*MPY;
-  const area=document.getElementById('print-area');
-  area.innerHTML='';area.style.display='block';
+  const area=document.getElementById('print-area');area.innerHTML='';area.style.display='block';
   document.getElementById('main-cal').style.display='none';
   let y=sy,m=sm;
   for(let i=0;i<totalMonths;i++){
     if(y>cfg.endYear)break;
-    const block=document.createElement('div');
-    block.className='glass-card print-month-block';
+    const block=document.createElement('div');block.className='glass-card print-month-block';
     const sg=gd(y,m,1),eg=gd(y,m,28);
-    block.innerHTML='<div style="text-align:center;margin-bottom:.75rem"><div class="cal-heading-main">Lifetime Calendar \u00b7 Year '+y+' \u00b7 Month '+m+'</div><div class="cal-heading-sub">'+fg(sg)+' \u2013 '+fg(eg)+'</div></div><div class="dow-row">'+DOW.map(d=>'<div class="dow-cell">'+d+'</div>').join('')+'</div><div class="day-grid"></div>';
-    area.appendChild(block);
-    buildMonthGrid(y,m,block.querySelector('.day-grid'));
+    block.innerHTML='<div style="text-align:center;margin-bottom:.75rem"><div class="cal-heading-main">Lifetime Calendar \u00b7 Year '+y+' \u00b7 Month '+m+'</div></div><div class="dow-row">'+DOW.map(d=>'<div class="dow-cell">'+d+'</div>').join('')+'</div><div class="day-grid"></div>';
+    area.appendChild(block);buildMonthGrid(y,m,block.querySelector('.day-grid'));
     m++;if(m>MPY){m=1;y++;}
   }
   modal.classList.remove('open');
   setTimeout(()=>{window.print();setTimeout(()=>{area.style.display='none';area.innerHTML='';document.getElementById('main-cal').style.display='';},500);},100);
 });
 
-rebuildSels();render();
+// ══ SECRET ══
+const secretBtn=document.getElementById('secret-btn');
+const secretPopup=document.getElementById('secret-popup');
+secretBtn.addEventListener('click',()=>secretPopup.classList.toggle('open'));
+document.getElementById('secret-close').addEventListener('click',e=>{e.stopPropagation();secretPopup.classList.remove('open');});
+document.addEventListener('click',e=>{if(!secretPopup.contains(e.target)&&e.target!==secretBtn)secretPopup.classList.remove('open');});
+
+// ══ COUNTDOWN ══
+var cdTimer=null,cdEnd=null;
+function cdAutoUpdate(){
+  try{
+    const epoch=cfg&&cfg.epoch?cfg.epoch:new Date(1992,10,16);
+    const endYears=cfg&&cfg.endYear?cfg.endYear:127;
+    const totalDays=endYears*DPM*MPY;
+    cdEnd=new Date(epoch);cdEnd.setDate(cdEnd.getDate()+totalDays);cdEnd.setHours(23,59,59);
+    if(cdEnd<=new Date()){document.getElementById('cd-live').classList.remove('visible');return;}
+    document.getElementById('cd-live').classList.add('visible');
+    document.getElementById('cd-born-lbl').textContent=fg(epoch);
+    document.getElementById('cd-end-lbl').textContent=fg(cdEnd);
+    if(cdTimer)clearInterval(cdTimer);
+    cdTick();cdTimer=setInterval(cdTick,1000);
+  }catch(e){console.error('cdAutoUpdate error:',e);}
+}
+function cdTick(){
+  if(!cdEnd)return;
+  const now=new Date();const msLeft=cdEnd-now;
+  if(msLeft<=0){clearInterval(cdTimer);document.getElementById('cd-sentence').innerHTML='<em>Your time has come. Live fully.</em>';return;}
+  const totalSec=Math.floor(msLeft/1000);
+  const totalMin=Math.floor(totalSec/60);
+  const totalHr=Math.floor(totalMin/60);
+  const totalDay=Math.floor(totalHr/24);
+  const totalWk=Math.floor(totalDay/7);
+  const totalMo=Math.floor(totalDay/30.4375);
+  const totalYr=Math.floor(totalDay/365.25);
+  const remSec=totalSec%60,remMin=totalMin%60,remHr=totalHr%24;
+  const remDay=totalDay-(totalWk*7);
+  const remWk=Math.max(0,totalWk-Math.floor(totalYr*365.25/7));
+  const remMo=totalMo%12;
+  function pad(n){return String(Math.floor(n)).padStart(2,'0');}
+  function fmtN(n){return Math.floor(n).toLocaleString();}
+  const prevSc=document.getElementById('cdv-sc').textContent;
+  const prevMn=document.getElementById('cdv-mn').textContent;
+  function setV(vi,val,ci,pulse){
+    document.getElementById(vi).textContent=val;
+    if(pulse){const c=document.getElementById(ci);c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),380);}
+  }
+  setV('cdv-yr',fmtN(totalYr),'cdt-yr',false);
+  setV('cdv-mo',fmtN(remMo),'cdt-mo',false);
+  setV('cdv-wk',fmtN(remWk),'cdt-wk',false);
+  setV('cdv-dy',fmtN(remDay),'cdt-dy',false);
+  setV('cdv-hr',pad(remHr),'cdt-hr',false);
+  setV('cdv-mn',pad(remMin),'cdt-mn',prevMn!==pad(remMin));
+  setV('cdv-sc',pad(remSec),'cdt-sc',prevSc!==pad(remSec));
+  document.getElementById('cd-sentence').innerHTML='You have <strong>'+fmtN(totalYr)+'</strong> years, <strong>'+fmtN(remMo)+'</strong> months, <strong>'+fmtN(totalWk)+'</strong> weeks, <strong>'+fmtN(totalDay)+'</strong> days, <strong>'+pad(remHr)+'</strong> hours, <strong>'+pad(remMin)+'</strong> minutes and <strong>'+pad(remSec)+'</strong> seconds left.';
+  const lifespan=cdEnd-cfg.epoch;const lived=now-cfg.epoch;
+  const pct=Math.min(100,Math.max(0,(lived/lifespan)*100));
+  document.getElementById('cd-pfill').style.width=pct.toFixed(3)+'%';
+  document.getElementById('cd-pct-lbl').textContent=pct.toFixed(1)+'% of lifetime elapsed';
+}
+
+// ══ TIMETABLE ══
+(function(){
+  const DOW_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MON_L=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MON_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const COLORS={blue:{bg:'#e6f1fb',border:'#85b7eb',text:'#0c447c'},green:{bg:'#eaf3de',border:'#97c459',text:'#27500a'},amber:{bg:'#faeeda',border:'#ef9f27',text:'#633806'},red:{bg:'#fcebeb',border:'#f09595',text:'#791f1f'},purple:{bg:'#eeedfe',border:'#afa9ec',text:'#3c3489'}};
+  let T={built:false,mode:'weeks',periods:[],cur:0,slots:[],events:{},sel:null};
+  function pad(n){return String(n).padStart(2,'0');}
+  function fmtD(d){return d.getDate()+' '+MON_S[d.getMonth()]+' '+d.getFullYear();}
+  function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+  function addM(d,n){const r=new Date(d);r.setMonth(r.getMonth()+n);return r;}
+  function cellKey(p,d,s){return'p'+p+'_d'+d+'_s'+s;}
+  window.ttOpen=function(){document.getElementById('tt-overlay').classList.add('open');};
+  window.ttClose=function(){document.getElementById('tt-overlay').classList.remove('open');};
+  window.ttTab=function(t){['setup','view','summary'].forEach((id,i)=>{document.getElementById('tt-tab-'+id).style.display=id===t?'block':'none';document.querySelectorAll('.tt-tab')[i].classList.toggle('active',id===t);});if(t==='summary')ttSummary();};
+  window.ttModeChange=function(){
+    const m=document.getElementById('tt-mode').value;
+    document.getElementById('tt-f-days').style.display=m==='days'?'flex':'none';
+    document.getElementById('tt-f-weeks').style.display=m==='weeks'?'flex':'none';
+    document.getElementById('tt-f-months').style.display=m==='months'?'flex':'none';
+    document.getElementById('tt-f-years').style.display=m==='years'?'flex':'none';
+  };
+  window.ttStartChange=function(){
+    const v=document.getElementById('tt-start-from').value;
+    document.getElementById('tt-f-greg').style.display=v==='greg'?'flex':'none';
+    document.getElementById('tt-f-lifetime').style.display=v==='lifetime'?'flex':'none';
+    if(v==='today')document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
+  };
+  document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
+  function getStart(){
+    const sf=document.getElementById('tt-start-from').value;
+    if(sf==='today')return new Date();
+    if(sf==='greg'){const p=document.getElementById('tt-greg-date').value.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+    const ly=+document.getElementById('tt-lt-yr').value||1;
+    const lm=+document.getElementById('tt-lt-mo').value||1;
+    const ld=+document.getElementById('tt-lt-dy').value||1;
+    const n=((ly-1)*13+(lm-1))*28+(ld-1);
+    const d=new Date(cfg.epoch);d.setDate(d.getDate()+n);return d;
+  }
+  function buildSlots(){
+    const s=document.getElementById('tt-day-start').value||'06:00';
+    const e=document.getElementById('tt-day-end').value||'22:00';
+    const dur=+document.getElementById('tt-slot-dur').value||60;
+    const[sh,sm]=s.split(':').map(Number);const[eh,em]=e.split(':').map(Number);
+    const sMin=sh*60+sm,eMin=eh*60+em;const slots=[];
+    for(let m=sMin;m<eMin;m+=dur){const h=Math.floor(m/60),mn=m%60;const h2=Math.floor((m+dur)/60),mn2=(m+dur)%60;slots.push(pad(h)+':'+pad(mn)+'\u2013'+pad(h2)+':'+pad(mn2));}
+    return slots;
+  }
+  function buildPeriods(mode,start,count){
+    const ps=[];
+    if(mode==='days'){for(let d=0;d<count;d++){const day=addD(start,d);ps.push({label:DOW_S[day.getDay()]+' '+fmtD(day),days:[day]});}}
+    else if(mode==='weeks'){for(let w=0;w<count;w++){const days=[];for(let d=0;d<7;d++)days.push(addD(start,w*7+d));ps.push({label:'Week '+(w+1)+': '+fmtD(days[0])+' \u2013 '+fmtD(days[6]),days});}}
+    else if(mode==='months'){for(let mo=0;mo<count;mo++){const base=addM(start,mo);const y=base.getFullYear(),m=base.getMonth();const dim=new Date(y,m+1,0).getDate();const days=[];for(let d=1;d<=dim;d++)days.push(new Date(y,m,d));ps.push({label:MON_L[m]+' '+y,days});}}
+    else{for(let y=0;y<count;y++){const base=addM(start,y*12);const yr=base.getFullYear();const days=[];for(let m=0;m<12;m++){const dim=new Date(yr,m+1,0).getDate();for(let d=1;d<=dim;d++)days.push(new Date(yr,m,d));}ps.push({label:'Year '+yr,days,yearMode:true});}}
+    return ps;
+  }
+  window.ttBuild=function(){
+    const mode=document.getElementById('tt-mode').value;
+    const count=mode==='days'?(+document.getElementById('tt-num-days').value||7):mode==='weeks'?(+document.getElementById('tt-num-weeks').value||4):mode==='months'?(+document.getElementById('tt-num-months').value||3):(+document.getElementById('tt-num-years').value||1);
+    const start=getStart();
+    T.mode=mode;T.slots=buildSlots();T.periods=buildPeriods(mode,start,count);T.cur=0;T.events={};T.built=true;T.sel=null;
+    renderNav();renderGrid();renderStats();ttTab('view');document.getElementById('tt-status').textContent='Built '+T.periods.length+' period(s), '+T.slots.length+' slot(s)/day.';
+  };
+  function renderNav(){
+    const nav=document.getElementById('tt-period-nav');nav.innerHTML='<span class="tt-period-label">Period:</span>';
+    T.periods.forEach((p,i)=>{const b=document.createElement('span');b.className='tt-period-badge'+(i===T.cur?' active':'');b.textContent=p.label;b.onclick=()=>{T.cur=i;T.sel=null;renderNav();renderGrid();renderStats();};nav.appendChild(b);});
+  }
+  function renderStats(){
+    const p=T.periods[T.cur];if(!p)return;
+    const evCount=Object.keys(T.events).filter(k=>k.startsWith('p'+T.cur+'_')).length;
+    document.getElementById('tt-stat-row').innerHTML='<div class="tt-stat"><div class="lbl">Days</div><div class="val">'+p.days.length+'</div></div><div class="tt-stat"><div class="lbl">Slots/day</div><div class="val">'+T.slots.length+'</div></div><div class="tt-stat"><div class="lbl">Total slots</div><div class="val">'+(p.days.length*T.slots.length)+'</div></div><div class="tt-stat"><div class="lbl">Events</div><div class="val">'+evCount+'</div></div>';
+  }
+  function renderGrid(){
+    const p=T.periods[T.cur];if(!p){document.getElementById('tt-grid').innerHTML='<p style="padding:1rem;font-size:13px;color:#b0907a">No period selected.</p>';return;}
+    if(p.yearMode){renderYearGrid(p);return;}
+    let h='<table class="tt-table"><thead><tr><th style="min-width:80px">Time</th>';
+    p.days.forEach(d=>{h+='<th>'+DOW_S[d.getDay()]+'<br><span style="font-weight:400;font-size:9px">'+d.getDate()+'/'+(d.getMonth()+1)+'</span></th>';});
+    h+='</tr></thead><tbody>';
+    T.slots.forEach((slot,si)=>{
+      h+='<tr><td class="tt-time-col">'+slot+'</td>';
+      p.days.forEach((d,di)=>{
+        const key=cellKey(T.cur,di,si);const evs=T.events[key]||[];const isSel=T.sel&&T.sel.key===key;
+        h+='<td><div class="tt-cell'+(isSel?' selected':'')+'" id="ttc-'+key+'" onclick="ttSelCell('+di+','+si+',\''+key+'\')">';
+        evs.forEach((ev,ei)=>{const c=COLORS[ev.color]||COLORS.blue;h+='<div class="tt-chip" style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+'">'+ev.title+'<button onclick="ttRmEv(\''+key+'\','+ei+',event)">&#x2715;</button></div>';});
+        h+='</div></td>';
+      });h+='</tr>';
+    });
+    h+='</tbody></table>';document.getElementById('tt-grid').innerHTML=h;updateSelInfo();
+  }
+  function renderYearGrid(p){
+    const ms={};p.days.forEach(d=>{const m=d.getMonth();if(!ms[m])ms[m]=[];ms[m].push(d);});
+    let h='<div class="tt-month-grid">';
+    Object.keys(ms).forEach(m=>{const days=ms[m];const evC=days.reduce((a,d)=>{const idx=p.days.indexOf(d);const k=cellKey(T.cur,idx,0);return a+(T.events[k]?T.events[k].length:0);},0);h+='<div class="tt-month-card" onclick="ttDrillMonth('+m+')"><div class="mc-name">'+MON_L[parseInt(m)]+'</div><div class="mc-days">'+days.length+' days</div>'+(evC?'<div class="mc-evs">'+evC+' event(s)</div>':'')+' </div>';});
+    h+='</div>';document.getElementById('tt-grid').innerHTML=h;
+  }
+  window.ttDrillMonth=function(m){const p=T.periods[T.cur];const first=p.days.find(d=>d.getMonth()===parseInt(m));if(!first)return;T.mode='months';T.periods=buildPeriods('months',new Date(first.getFullYear(),parseInt(m),1),1);T.cur=0;T.sel=null;renderNav();renderGrid();renderStats();};
+  window.ttSelCell=function(di,si,key){T.sel={di,si,key};document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));const el=document.getElementById('ttc-'+key);if(el)el.classList.add('selected');updateSelInfo();};
+  function updateSelInfo(){if(!T.sel){document.getElementById('tt-sel-info').textContent='Click any cell to select it.';return;}const p=T.periods[T.cur];const day=p&&p.days[T.sel.di];const slot=T.slots[T.sel.si];if(day&&slot)document.getElementById('tt-sel-info').textContent='Selected: '+DOW_S[day.getDay()]+' '+fmtD(day)+' \u00b7 '+slot;}
+  window.ttClearSel=function(){T.sel=null;document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));updateSelInfo();};
+  window.ttAddEvent=function(){if(!T.sel){alert('Click a cell first.');return;}const title=document.getElementById('tt-ev-title').value.trim();if(!title){alert('Enter an event title.');return;}const color=document.getElementById('tt-ev-color').value;const key=T.sel.key;if(!T.events[key])T.events[key]=[];T.events[key].push({title,color});document.getElementById('tt-ev-title').value='';const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
+  window.ttRmEv=function(key,idx,e){e.stopPropagation();if(T.events[key]){T.events[key].splice(idx,1);if(!T.events[key].length)delete T.events[key];}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
+  window.ttClearAll=function(){if(!confirm('Clear all events?'))return;T.events={};renderGrid();renderStats();ttSummary();};
+  function ttSummary(){
+    if(!T.built){document.getElementById('tt-summary').innerHTML='Build a timetable first.';return;}
+    const all=[];Object.entries(T.events).forEach(([k,evs])=>{const m=k.match(/p(\d+)_d(\d+)_s(\d+)/);if(!m)return;const p=T.periods[+m[1]];const day=p&&p.days[+m[2]];const slot=T.slots[+m[3]];evs.forEach(ev=>all.push({...ev,day:day?fmtD(day):'',slot:slot||''}));});
+    if(!all.length){document.getElementById('tt-summary').innerHTML='<span style="color:#b0907a">No events yet.</span>';return;}
+    const byT={};all.forEach(ev=>{if(!byT[ev.title])byT[ev.title]={count:0,color:ev.color};byT[ev.title].count++;});
+    let h='<div style="font-size:13px;margin-bottom:10px;color:#3a2a1e"><strong>'+all.length+'</strong> event(s) across '+T.periods.length+' period(s)</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">';
+    Object.entries(byT).forEach(([t,{count,color}])=>{const c=COLORS[color]||COLORS.blue;h+='<div style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+';border-radius:6px;padding:3px 10px;font-size:11px;font-weight:500">'+t+' <span style="opacity:.7">\u00d7'+count+'</span></div>';});
+    h+='</div><div style="font-size:10px;color:#b0907a;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">All events</div>';
+    all.forEach(ev=>{const c=COLORS[ev.color]||COLORS.blue;h+='<div class="tt-ev-row"><span class="tt-ev-dot" style="background:'+c.text+'"></span><span style="font-weight:500;flex:1;color:#3a2a1e">'+ev.title+'</span><span style="color:#b0907a;font-size:10px">'+ev.day+'</span><span style="color:#b0907a;font-size:10px;margin-left:6px">'+ev.slot+'</span></div>';});
+    document.getElementById('tt-summary').innerHTML=h;
+  }
+  window.ttSummary=ttSummary;
+})();
 </script>
 </body>
 </html>
-<!-- ===== TIMETABLE SCHEDULER ===== -->
-<style>
-.tt-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto;}
-.tt-overlay.open{display:flex;}
-.tt-panel{background:#fff;border-radius:20px;width:100%;max-width:720px;display:flex;flex-direction:column;font-family:'DM Sans',sans-serif;color:#1a1a1a;margin:auto;}
-body.theme-dark .tt-panel{background:#1a1e30;color:#e0e4f4;}
-body.theme-dark .tt-panel input,body.theme-dark .tt-panel select{background:#2a2f4a;color:#e0e4f4;border-color:#505880;}
-body.theme-dark .tt-cell{background:#2a2f4a;border-color:#3a4060;}
-body.theme-dark .tt-cell:hover{background:#343a5a;}
-body.theme-dark .tt-th{background:#20253a;}
-body.theme-dark .tt-thead th{background:#20253a;color:#a0a8cc;}
-body.theme-dark .tt-stat{background:#20253a;}
-body.theme-dark .tt-period-badge{background:#20253a;color:#a0a8cc;border-color:#3a4060;}
-body.theme-dark .tt-period-badge.active{background:#2a3a6a;color:#90b8f8;border-color:#5080c0;}
-body.theme-dark .tt-add-form{background:#20253a;}
-body.theme-dark .tt-month-card{background:#20253a;border-color:#3a4060;}
-.tt-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.1);}
-body.theme-dark .tt-header{border-bottom-color:rgba(255,255,255,.08);}
-.tt-header-title{font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px;}
-.tt-close-btn{background:none;border:1px solid rgba(0,0,0,.15);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:inherit;}
-body.theme-dark .tt-close-btn{border-color:rgba(255,255,255,.15);}
-.tt-close-btn:hover{background:rgba(0,0,0,.06);}
-body.theme-dark .tt-close-btn:hover{background:rgba(255,255,255,.06);}
-.tt-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,.1);padding:0 20px;}
-body.theme-dark .tt-tabs{border-bottom-color:rgba(255,255,255,.08);}
-.tt-tab{padding:10px 16px;font-size:13px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
-.tt-tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;}
-body.theme-dark .tt-tab.active{color:#e0e4f4;border-bottom-color:#e0e4f4;}
-.tt-body{overflow-y:auto;max-height:65vh;}
-.tt-section{padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.07);}
-body.theme-dark .tt-section{border-bottom-color:rgba(255,255,255,.06);}
-.tt-field-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
-.tt-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px;}
-.tt-field label{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.07em;}
-.tt-field input,.tt-field select{font-size:13px;padding:6px 10px;border:1px solid rgba(0,0,0,.18);border-radius:8px;background:#fff;color:#1a1a1a;outline:none;width:100%;}
-body.theme-dark .tt-field input,body.theme-dark .tt-field select{border-color:rgba(255,255,255,.15);}
-.tt-field input:focus,.tt-field select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06);}
-.tt-build-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,rgba(100,150,240,.9),rgba(60,110,220,.85));color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
-.tt-build-btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
-.tt-period-nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid rgba(0,0,0,.07);align-items:center;}
-body.theme-dark .tt-period-nav{border-bottom-color:rgba(255,255,255,.06);}
-.tt-period-label{font-size:12px;font-weight:500;color:#888;margin-right:4px;}
-.tt-period-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.15);font-size:11px;font-weight:500;color:#555;cursor:pointer;transition:all .15s;background:#f5f5f5;}
-.tt-period-badge.active{background:#e6f1fb;border-color:#85b7eb;color:#0c447c;}
-body.theme-dark .tt-period-badge{background:#20253a;color:#a0a8cc;border-color:#3a4060;}
-body.theme-dark .tt-period-badge.active{background:#1a2a4a;color:#90b8f8;border-color:#4a80c0;}
-.tt-stat-row{display:flex;gap:8px;padding:10px 20px;flex-wrap:wrap;}
-.tt-stat{flex:1;min-width:80px;background:#f5f5f5;border-radius:8px;padding:8px 12px;text-align:center;}
-.tt-stat .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;}
-.tt-stat .val{font-size:17px;font-weight:500;margin-top:1px;}
-.tt-add-form{padding:12px 20px;background:#f9f9f9;border-bottom:1px solid rgba(0,0,0,.07);}
-body.theme-dark .tt-add-form{border-bottom-color:rgba(255,255,255,.06);}
-.tt-add-form .lbl2{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
-.tt-form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
-.tt-add-evt-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:8px;border:none;background:#e6f1fb;color:#0c447c;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
-.tt-add-evt-btn:hover{background:#b5d4f4;}
-.tt-clear-sel-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
-body.theme-dark .tt-clear-sel-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
-.tt-sel-info{font-size:10px;color:#888;margin-top:5px;}
-.tt-grid-wrap{padding:12px 20px;overflow-x:auto;}
-.tt-table{border-collapse:collapse;width:100%;font-size:11px;}
-.tt-table th{background:#f5f5f5;font-weight:500;font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;padding:5px 6px;text-align:center;border:1px solid rgba(0,0,0,.1);}
-body.theme-dark .tt-table th{background:#20253a;border-color:rgba(255,255,255,.08);color:#6a72a0;}
-.tt-table td{border:1px solid rgba(0,0,0,.08);padding:0;vertical-align:top;}
-body.theme-dark .tt-table td{border-color:rgba(255,255,255,.06);}
-.tt-time-col{background:#f9f9f9;font-size:10px;color:#888;padding:5px 8px;text-align:right;white-space:nowrap;font-weight:500;min-width:80px;}
-body.theme-dark .tt-time-col{background:#1e2236;}
-.tt-cell{min-height:32px;padding:2px;cursor:pointer;transition:background .1s;background:#fff;}
-body.theme-dark .tt-cell{background:#1a1e30;}
-.tt-cell:hover{background:#f0f5ff;}
-body.theme-dark .tt-cell:hover{background:#20283a;}
-.tt-cell.selected{outline:2px solid #378add;outline-offset:-1px;}
-.tt-chip{border-radius:4px;padding:2px 5px;font-size:10px;font-weight:500;margin:1px;display:flex;align-items:center;gap:3px;}
-.tt-chip button{background:none;border:none;cursor:pointer;padding:0;font-size:11px;line-height:1;opacity:.7;}
-.tt-chip button:hover{opacity:1;}
-.tt-month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:14px 20px;}
-.tt-month-card{background:#f5f5f5;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;}
-.tt-month-card:hover{background:#e8effe;border-color:#85b7eb;}
-body.theme-dark .tt-month-card{background:#20253a;border-color:#3a4060;}
-body.theme-dark .tt-month-card:hover{background:#1a2a4a;border-color:#4a80c0;}
-.tt-month-card .mc-name{font-size:12px;font-weight:500;margin-bottom:3px;}
-.tt-month-card .mc-days{font-size:10px;color:#888;}
-.tt-month-card .mc-evs{font-size:10px;color:#0c447c;margin-top:2px;}
-body.theme-dark .tt-month-card .mc-evs{color:#90b8f8;}
-.tt-footer{padding:10px 20px;border-top:1px solid rgba(0,0,0,.1);display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;}
-body.theme-dark .tt-footer{border-top-color:rgba(255,255,255,.08);}
-.tt-footer-status{font-size:11px;color:#888;flex:1;}
-.tt-footer-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
-body.theme-dark .tt-footer-btn{border-color:rgba(255,255,255,.15);color:#a0a8cc;}
-.tt-footer-btn:hover{background:rgba(0,0,0,.05);}
-body.theme-dark .tt-footer-btn:hover{background:rgba(255,255,255,.05);}
-.tt-clear-btn{color:#c05030;border-color:rgba(200,80,48,.3);}
-.tt-summary-wrap{padding:16px 20px;}
-.tt-ev-row{display:flex;gap:8px;align-items:center;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid rgba(0,0,0,.07);margin-bottom:4px;}
-body.theme-dark .tt-ev-row{border-color:rgba(255,255,255,.06);}
-.tt-ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-</style>
-
-<!-- Timetable modal -->
-<div class="tt-overlay" id="tt-overlay">
-  <div class="tt-panel">
-    <div class="tt-header">
-      <div class="tt-header-title">&#128197; Timetable Scheduler</div>
-      <button class="tt-close-btn" onclick="ttClose()">&#x2715; Close</button>
-    </div>
-    <div class="tt-tabs">
-      <div class="tt-tab active" onclick="ttTab('setup')">Setup</div>
-      <div class="tt-tab" onclick="ttTab('view')">View &amp; Edit</div>
-      <div class="tt-tab" onclick="ttTab('summary')">Summary</div>
-    </div>
-
-    <!-- SETUP -->
-    <div id="tt-tab-setup" class="tt-body">
-      <div class="tt-section">
-        <div class="tt-field-row">
-          <div class="tt-field">
-            <label>Schedule name</label>
-            <input type="text" id="tt-name" value="My Lifetime Schedule"/>
-          </div>
-        </div>
-        <div class="tt-field-row">
-          <div class="tt-field">
-            <label>View mode</label>
-            <select id="tt-mode" onchange="ttModeChange()">
-              <option value="weeks">Weekly</option>
-              <option value="months">Monthly</option>
-              <option value="years">Yearly overview</option>
-            </select>
-          </div>
-          <div class="tt-field" id="tt-f-weeks">
-            <label>Number of weeks</label>
-            <input type="number" id="tt-num-weeks" value="4" min="1" max="52"/>
-          </div>
-          <div class="tt-field" id="tt-f-months" style="display:none">
-            <label>Number of months</label>
-            <input type="number" id="tt-num-months" value="3" min="1" max="24"/>
-          </div>
-          <div class="tt-field" id="tt-f-years" style="display:none">
-            <label>Number of years</label>
-            <input type="number" id="tt-num-years" value="1" min="1" max="10"/>
-          </div>
-        </div>
-        <div class="tt-field-row">
-          <div class="tt-field">
-            <label>Start from</label>
-            <select id="tt-start-from" onchange="ttStartChange()">
-              <option value="today">Today</option>
-              <option value="greg">Custom Gregorian date</option>
-              <option value="lifetime">Lifetime Calendar position</option>
-            </select>
-          </div>
-          <div class="tt-field" id="tt-f-greg">
-            <label>Date</label>
-            <input type="date" id="tt-greg-date"/>
-          </div>
-        </div>
-        <div class="tt-field-row" id="tt-f-lifetime" style="display:none">
-          <div class="tt-field"><label>Lifetime year</label><input type="number" id="tt-lt-yr" value="1" min="1" max="127"/></div>
-          <div class="tt-field"><label>Lifetime month</label><input type="number" id="tt-lt-mo" value="1" min="1" max="13"/></div>
-          <div class="tt-field"><label>Lifetime day</label><input type="number" id="tt-lt-dy" value="1" min="1" max="28"/></div>
-        </div>
-        <div class="tt-field-row">
-          <div class="tt-field"><label>Day start</label><input type="time" id="tt-day-start" value="06:00"/></div>
-          <div class="tt-field"><label>Day end</label><input type="time" id="tt-day-end" value="22:00"/></div>
-          <div class="tt-field">
-            <label>Slot duration</label>
-            <select id="tt-slot-dur">
-              <option value="30">30 min</option>
-              <option value="60" selected>1 hour</option>
-              <option value="120">2 hours</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div style="padding:14px 20px;">
-        <button class="tt-build-btn" onclick="ttBuild()">&#128202; Build Timetable</button>
-      </div>
-    </div>
-
-    <!-- VIEW -->
-    <div id="tt-tab-view" class="tt-body" style="display:none">
-      <div class="tt-period-nav" id="tt-period-nav"></div>
-      <div class="tt-stat-row" id="tt-stat-row"></div>
-      <div class="tt-add-form">
-        <div class="lbl2">Add event — select a cell, then:</div>
-        <div class="tt-form-row">
-          <div class="tt-field" style="flex:2;min-width:120px;"><label>Event title</label><input type="text" id="tt-ev-title" placeholder="e.g. Deep work"/></div>
-          <div class="tt-field" style="min-width:80px;">
-            <label>Color</label>
-            <select id="tt-ev-color">
-              <option value="blue">Blue</option>
-              <option value="green">Green</option>
-              <option value="amber">Amber</option>
-              <option value="red">Red</option>
-              <option value="purple">Purple</option>
-            </select>
-          </div>
-          <button class="tt-add-evt-btn" onclick="ttAddEvent()">+ Add</button>
-          <button class="tt-clear-sel-btn" onclick="ttClearSel()">&#x2715; Deselect</button>
-        </div>
-        <div class="tt-sel-info" id="tt-sel-info">Click any cell to select it.</div>
-      </div>
-      <div class="tt-grid-wrap"><div id="tt-grid"></div></div>
-    </div>
-
-    <!-- SUMMARY -->
-    <div id="tt-tab-summary" class="tt-body" style="display:none">
-      <div class="tt-summary-wrap"><div id="tt-summary">Build a timetable first.</div></div>
-    </div>
-
-    <div class="tt-footer">
-      <span class="tt-footer-status" id="tt-status"></span>
-      <button class="tt-footer-btn tt-clear-btn" onclick="ttClearAll()">&#128465; Clear events</button>
-      <button class="tt-footer-btn" onclick="ttClose()">Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-const DOW_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MON_L=['January','February','March','April','May','Jun','July','August','September','October','November','December'];
-const MON_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const COLORS={
-  blue:{bg:'#e6f1fb',border:'#85b7eb',text:'#0c447c'},
-  green:{bg:'#eaf3de',border:'#97c459',text:'#27500a'},
-  amber:{bg:'#faeeda',border:'#ef9f27',text:'#633806'},
-  red:{bg:'#fcebeb',border:'#f09595',text:'#791f1f'},
-  purple:{bg:'#eeedfe',border:'#afa9ec',text:'#3c3489'},
-};
-
-let T={built:false,mode:'weeks',periods:[],cur:0,slots:[],events:{},sel:null};
-
-document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
-
-function pad(n){return String(n).padStart(2,'0');}
-function fmtD(d){return d.getDate()+' '+MON_S[d.getMonth()]+' '+d.getFullYear();}
-function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function addM(d,n){const r=new Date(d);r.setMonth(r.getMonth()+n);return r;}
-function cellKey(p,d,s){return'p'+p+'_d'+d+'_s'+s;}
-
-window.ttOpen=function(){document.getElementById('tt-overlay').classList.add('open');};
-window.ttClose=function(){document.getElementById('tt-overlay').classList.remove('open');};
-
-window.ttTab=function(t){
-  ['setup','view','summary'].forEach((id,i)=>{
-    document.getElementById('tt-tab-'+id).style.display=id===t?'block':'none';
-    document.querySelectorAll('.tt-tab')[i].classList.toggle('active',id===t);
-  });
-  if(t==='summary')ttSummary();
-};
-
-window.ttModeChange=function(){
-  const m=document.getElementById('tt-mode').value;
-  document.getElementById('tt-f-weeks').style.display=m==='weeks'?'flex':'none';
-  document.getElementById('tt-f-months').style.display=m==='months'?'flex':'none';
-  document.getElementById('tt-f-years').style.display=m==='years'?'flex':'none';
-};
-
-window.ttStartChange=function(){
-  const v=document.getElementById('tt-start-from').value;
-  document.getElementById('tt-f-greg').style.display=v==='greg'?'flex':'none';
-  document.getElementById('tt-f-lifetime').style.display=v==='lifetime'?'flex':'none';
-  if(v==='today')document.getElementById('tt-greg-date').value=new Date().toISOString().slice(0,10);
-};
-
-function getStart(){
-  const sf=document.getElementById('tt-start-from').value;
-  if(sf==='today')return new Date();
-  if(sf==='greg'){const p=document.getElementById('tt-greg-date').value.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
-  const ly=+document.getElementById('tt-lt-yr').value||1;
-  const lm=+document.getElementById('tt-lt-mo').value||1;
-  const ld=+document.getElementById('tt-lt-dy').value||1;
-  const ep=new Date(1992,10,16);
-  const n=((ly-1)*13+(lm-1))*28+(ld-1);
-  const d=new Date(ep);d.setDate(d.getDate()+n);return d;
-}
-
-function buildSlots(){
-  const s=document.getElementById('tt-day-start').value||'06:00';
-  const e=document.getElementById('tt-day-end').value||'22:00';
-  const dur=+document.getElementById('tt-slot-dur').value||60;
-  const[sh,sm]=s.split(':').map(Number);
-  const[eh,em]=e.split(':').map(Number);
-  const sMin=sh*60+sm,eMin=eh*60+em;
-  const slots=[];
-  for(let m=sMin;m<eMin;m+=dur){
-    const h=Math.floor(m/60),mn=m%60;
-    const h2=Math.floor((m+dur)/60),mn2=(m+dur)%60;
-    slots.push(pad(h)+':'+pad(mn)+'\u2013'+pad(h2)+':'+pad(mn2));
-  }
-  return slots;
-}
-
-function buildPeriods(mode,start,count){
-  const ps=[];
-  if(mode==='weeks'){
-    for(let w=0;w<count;w++){
-      const days=[];
-      for(let d=0;d<7;d++)days.push(addD(start,w*7+d));
-      ps.push({label:'Week '+(w+1)+': '+fmtD(days[0])+' \u2013 '+fmtD(days[6]),days});
-    }
-  } else if(mode==='months'){
-    for(let mo=0;mo<count;mo++){
-      const base=addM(start,mo);
-      const y=base.getFullYear(),m=base.getMonth();
-      const dim=new Date(y,m+1,0).getDate();
-      const days=[];
-      for(let d=1;d<=dim;d++)days.push(new Date(y,m,d));
-      ps.push({label:MON_L[m]+' '+y,days});
-    }
-  } else {
-    for(let y=0;y<count;y++){
-      const base=addM(start,y*12);
-      const yr=base.getFullYear();
-      const days=[];
-      for(let m=0;m<12;m++){const dim=new Date(yr,m+1,0).getDate();for(let d=1;d<=dim;d++)days.push(new Date(yr,m,d));}
-      ps.push({label:'Year '+yr,days,yearMode:true});
-    }
-  }
-  return ps;
-}
-
-window.ttBuild=function(){
-  const mode=document.getElementById('tt-mode').value;
-  const count=mode==='weeks'?(+document.getElementById('tt-num-weeks').value||4)
-    :mode==='months'?(+document.getElementById('tt-num-months').value||3)
-    :(+document.getElementById('tt-num-years').value||1);
-  const start=getStart();
-  T.mode=mode;T.slots=buildSlots();T.periods=buildPeriods(mode,start,count);
-  T.cur=0;T.events={};T.built=true;T.sel=null;
-  renderNav();renderGrid();renderStats();
-  ttTab('view');
-  document.getElementById('tt-status').textContent='Built '+T.periods.length+' period(s), '+T.slots.length+' slot(s)/day.';
-};
-
-function renderNav(){
-  const nav=document.getElementById('tt-period-nav');
-  nav.innerHTML='<span class="tt-period-label">Period:</span>';
-  T.periods.forEach((p,i)=>{
-    const b=document.createElement('span');
-    b.className='tt-period-badge'+(i===T.cur?' active':'');
-    b.textContent=p.label;
-    b.onclick=()=>{T.cur=i;T.sel=null;renderNav();renderGrid();renderStats();};
-    nav.appendChild(b);
-  });
-}
-
-function renderStats(){
-  const p=T.periods[T.cur];if(!p)return;
-  const evCount=Object.keys(T.events).filter(k=>k.startsWith('p'+T.cur+'_')).length;
-  document.getElementById('tt-stat-row').innerHTML=
-    '<div class="tt-stat"><div class="lbl">Days</div><div class="val">'+p.days.length+'</div></div>'+
-    '<div class="tt-stat"><div class="lbl">Slots/day</div><div class="val">'+T.slots.length+'</div></div>'+
-    '<div class="tt-stat"><div class="lbl">Total slots</div><div class="val">'+(p.days.length*T.slots.length)+'</div></div>'+
-    '<div class="tt-stat"><div class="lbl">Events</div><div class="val">'+evCount+'</div></div>';
-}
-
-function renderGrid(){
-  const p=T.periods[T.cur];
-  if(!p){document.getElementById('tt-grid').innerHTML='<p style="color:#888;padding:1rem;font-size:13px">No period selected.</p>';return;}
-  if(p.yearMode){renderYearGrid(p);return;}
-  let h='<table class="tt-table"><thead><tr><th style="min-width:80px">Time</th>';
-  p.days.forEach(d=>{h+='<th>'+DOW_S[d.getDay()]+'<br><span style="font-weight:400;font-size:9px">'+d.getDate()+'/'+(d.getMonth()+1)+'</span></th>';});
-  h+='</tr></thead><tbody>';
-  T.slots.forEach((slot,si)=>{
-    h+='<tr><td class="tt-time-col">'+slot+'</td>';
-    p.days.forEach((d,di)=>{
-      const key=cellKey(T.cur,di,si);
-      const evs=T.events[key]||[];
-      const isSel=T.sel&&T.sel.key===key;
-      h+='<td><div class="tt-cell'+(isSel?' selected':'')+'" id="ttc-'+key+'" onclick="ttSelCell('+di+','+si+',\''+key+'\')">';
-      evs.forEach((ev,ei)=>{
-        const c=COLORS[ev.color]||COLORS.blue;
-        h+='<div class="tt-chip" style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+'">'+ev.title+'<button onclick="ttRmEv(\''+key+'\','+ei+',event)">&#x2715;</button></div>';
-      });
-      h+='</div></td>';
-    });
-    h+='</tr>';
-  });
-  h+='</tbody></table>';
-  document.getElementById('tt-grid').innerHTML=h;
-  updateSelInfo();
-}
-
-function renderYearGrid(p){
-  const ms={};
-  p.days.forEach(d=>{const m=d.getMonth();if(!ms[m])ms[m]=[];ms[m].push(d);});
-  let h='<div class="tt-month-grid">';
-  Object.keys(ms).forEach(m=>{
-    const days=ms[m];
-    const evC=days.reduce((a,d)=>{
-      const idx=p.days.indexOf(d);
-      const k=cellKey(T.cur,idx,0);
-      return a+(T.events[k]?T.events[k].length:0);
-    },0);
-    h+='<div class="tt-month-card" onclick="ttDrillMonth('+m+')">'+
-      '<div class="mc-name">'+MON_L[parseInt(m)]+'</div>'+
-      '<div class="mc-days">'+days.length+' days</div>'+
-      (evC?'<div class="mc-evs">'+evC+' event(s)</div>':'')+
-      '</div>';
-  });
-  h+='</div>';
-  document.getElementById('tt-grid').innerHTML=h;
-}
-
-window.ttDrillMonth=function(m){
-  const p=T.periods[T.cur];
-  const first=p.days.find(d=>d.getMonth()===parseInt(m));
-  if(!first)return;
-  T.mode='months';
-  T.periods=buildPeriods('months',new Date(first.getFullYear(),parseInt(m),1),1);
-  T.cur=0;T.sel=null;renderNav();renderGrid();renderStats();
-};
-
-window.ttSelCell=function(di,si,key){
-  T.sel={di,si,key};
-  document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));
-  const el=document.getElementById('ttc-'+key);
-  if(el)el.classList.add('selected');
-  updateSelInfo();
-};
-
-function updateSelInfo(){
-  if(!T.sel){document.getElementById('tt-sel-info').textContent='Click any cell to select it.';return;}
-  const p=T.periods[T.cur];
-  const day=p&&p.days[T.sel.di];
-  const slot=T.slots[T.sel.si];
-  if(day&&slot)document.getElementById('tt-sel-info').textContent='Selected: '+DOW_S[day.getDay()]+' '+fmtD(day)+' \u00b7 '+slot;
-}
-
-window.ttClearSel=function(){T.sel=null;document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));updateSelInfo();};
-
-window.ttAddEvent=function(){
-  if(!T.sel){alert('Click a cell first.');return;}
-  const title=document.getElementById('tt-ev-title').value.trim();
-  if(!title){alert('Enter an event title.');return;}
-  const color=document.getElementById('tt-ev-color').value;
-  const key=T.sel.key;
-  if(!T.events[key])T.events[key]=[];
-  T.events[key].push({title,color});
-  document.getElementById('tt-ev-title').value='';
-  const saved=T.sel;renderGrid();renderStats();
-  if(saved)ttSelCell(saved.di,saved.si,saved.key);
-};
-
-window.ttRmEv=function(key,idx,e){
-  e.stopPropagation();
-  if(T.events[key]){T.events[key].splice(idx,1);if(!T.events[key].length)delete T.events[key];}
-  const saved=T.sel;renderGrid();renderStats();
-  if(saved)ttSelCell(saved.di,saved.si,saved.key);
-};
-
-window.ttClearAll=function(){
-  if(!confirm('Clear all events?'))return;
-  T.events={};renderGrid();renderStats();ttSummary();
-};
-
-function ttSummary(){
-  if(!T.built){document.getElementById('tt-summary').innerHTML='Build a timetable first.';return;}
-  const all=[];
-  Object.entries(T.events).forEach(([k,evs])=>{
-    const m=k.match(/p(\d+)_d(\d+)_s(\d+)/);if(!m)return;
-    const p=T.periods[+m[1]];
-    const day=p&&p.days[+m[2]];
-    const slot=T.slots[+m[3]];
-    evs.forEach(ev=>all.push({...ev,period:p?p.label:'',day:day?fmtD(day):'',slot:slot||''}));
-  });
-  if(!all.length){document.getElementById('tt-summary').innerHTML='<span style="color:#888">No events yet.</span>';return;}
-  const byT={};
-  all.forEach(ev=>{if(!byT[ev.title])byT[ev.title]={count:0,color:ev.color};byT[ev.title].count++;});
-  let h='<div style="font-size:13px;margin-bottom:10px;"><strong>'+all.length+'</strong> event(s) across '+T.periods.length+' period(s)</div>';
-  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">';
-  Object.entries(byT).forEach(([t,{count,color}])=>{
-    const c=COLORS[color]||COLORS.blue;
-    h+='<div style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+';border-radius:6px;padding:3px 10px;font-size:11px;font-weight:500">'+t+' <span style="opacity:.7">\u00d7'+count+'</span></div>';
-  });
-  h+='</div><div style="font-size:10px;color:#888;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">All events</div>';
-  all.forEach(ev=>{
-    const c=COLORS[ev.color]||COLORS.blue;
-    h+='<div class="tt-ev-row"><span class="tt-ev-dot" style="background:'+c.text+'"></span><span style="font-weight:500;flex:1">'+ev.title+'</span><span style="color:#888;font-size:10px">'+ev.day+'</span><span style="color:#888;font-size:10px;margin-left:6px">'+ev.slot+'</span></div>';
-  });
-  document.getElementById('tt-summary').innerHTML=h;
-}
-window.ttSummary=ttSummary;
-})();
-</script>
-
-<!-- Add the Timetable button to the setup card -->
-<script>
-(function(){
-  const btnRow=document.querySelector('.btn-row');
-  if(btnRow){
-    const b=document.createElement('button');
-    b.className='apply-btn';
-    b.style.background='linear-gradient(135deg,rgba(80,170,130,.9),rgba(40,140,100,.85))';
-    b.style.borderColor='rgba(80,200,150,.5)';
-    b.innerHTML='&#128197; Timetable Scheduler';
-    b.onclick=function(){if(typeof ttOpen==='function')ttOpen();};
-    btnRow.appendChild(b);
-  }
-})();
-</script>
