@@ -335,7 +335,8 @@ body.theme-dark .today-badge{color:#ff9068;border-color:rgba(255,100,60,.35);bac
 .legend-swatch{width:clamp(9px,1.5vw,12px);height:clamp(9px,1.5vw,12px);border-radius:4px;}
 
 /* ── SECRET BUTTON ── */
-.secret-btn{position:fixed;bottom:0;left:0;width:48px;height:48px;z-index:200;background:transparent;border:none;cursor:pointer;outline:none;}
+.secret-btn{position:fixed;bottom:18px;left:18px;z-index:700;background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:999px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text-soft);cursor:pointer;outline:none;transition:all .2s;box-shadow:0 4px 16px var(--card-shadow);letter-spacing:.02em;}
+.secret-btn:hover{background:var(--theme-btn-active);color:var(--text-dark);transform:translateY(-1px);}
 .secret-popup{position:fixed;bottom:56px;left:12px;max-width:min(340px,90vw);background:var(--msg-bg);border:1px solid var(--msg-border);border-radius:18px;padding:1.25rem 1.4rem;z-index:300;box-shadow:0 16px 50px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
 .secret-popup.open{display:block;}
 @keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
@@ -530,6 +531,96 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 .cycle-clear-btn{padding:5px 14px;border-radius:8px;border:1px solid rgba(200,80,110,.3);background:rgba(255,210,215,.2);color:#c03050;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
 .cycle-clear-btn:hover{background:rgba(255,210,215,.4);}
 
+
+/* ── NOTIFICATION SYSTEM ── */
+.notif-toast-wrap{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:320px;pointer-events:none;}
+.notif-toast{background:rgba(255,252,248,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,200,160,.5);border-radius:14px;padding:12px 14px;box-shadow:0 8px 30px rgba(200,130,80,.18);pointer-events:all;animation:toastIn .35s cubic-bezier(.34,1.4,.64,1);display:flex;gap:10px;align-items:flex-start;}
+.notif-toast.cycle{border-color:rgba(255,182,193,.55);background:rgba(255,248,250,.95);}
+.notif-toast.dismissing{animation:toastOut .3s ease forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(40px);}}
+.notif-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.notif-body{flex:1;}
+.notif-title{font-family:'Playfair Display',serif;font-size:13px;font-weight:500;color:#3a2a1e;margin-bottom:2px;}
+.notif-msg{font-size:11px;color:#7a5a44;line-height:1.5;}
+.notif-toast.cycle .notif-title{color:#4a1a28;}
+.notif-toast.cycle .notif-msg{color:#a05070;}
+.notif-close{background:none;border:none;font-size:14px;color:#b0907a;cursor:pointer;padding:0;line-height:1;flex-shrink:0;}
+.notif-close:hover{color:#3a2a1e;}
+
+.notif-perm-bar{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:9998;background:rgba(255,252,248,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,200,160,.5);border-radius:999px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:12px;color:#7a5a44;display:none;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(200,130,80,.15);}
+.notif-perm-bar.show{display:flex;}
+.notif-allow-btn{background:var(--btn-grad);border:1px solid var(--btn-border);border-radius:999px;padding:4px 14px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#fff;cursor:pointer;}
+.notif-allow-btn:hover{filter:brightness(1.08);}
+.notif-dismiss-perm{background:none;border:none;color:#b0907a;cursor:pointer;font-size:13px;padding:0 0 0 4px;}
+
+
+/* ── DONATE ── */
+.donate-fixed-btn{position:fixed;bottom:18px;right:18px;z-index:700;background:linear-gradient(135deg,rgba(240,169,138,.92),rgba(232,132,58,.88));border:1px solid rgba(255,200,160,.6);border-radius:999px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#fff;cursor:pointer;box-shadow:0 4px 20px rgba(220,110,50,.3),inset 0 1px 0 rgba(255,255,255,.3);transition:all .2s;letter-spacing:.02em;}
+.donate-fixed-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 28px rgba(220,110,50,.4);}
+.donate-fixed-btn:active{transform:scale(.97);}
+
+.donate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:800;display:none;align-items:center;justify-content:center;padding:1rem;}
+.donate-overlay.open{display:flex;}
+.donate-panel{background:rgba(255,252,248,.96);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);border:1px solid rgba(255,220,190,.6);border-radius:28px;width:100%;max-width:440px;font-family:'DM Sans',sans-serif;color:#3a2a1e;box-shadow:0 20px 70px rgba(200,130,80,.22),inset 0 1px 0 rgba(255,255,255,.9);}
+
+.donate-header{padding:22px 24px 16px;text-align:center;border-bottom:1px solid rgba(240,169,138,.2);}
+.donate-logo{font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,26px);font-weight:400;color:#3a2a1e;margin-bottom:4px;}
+.donate-logo em{font-style:italic;color:#b0907a;}
+.donate-tagline{font-size:12px;color:#b0907a;line-height:1.6;max-width:300px;margin:0 auto;}
+
+.donate-body{padding:20px 24px;}
+
+/* Amount presets */
+.donate-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.donate-preset{background:rgba(255,255,255,.55);border:1px solid rgba(240,169,138,.35);border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#7a5a44;transition:all .18s;}
+.donate-preset:hover{background:rgba(240,169,138,.15);border-color:rgba(232,132,58,.45);}
+.donate-preset.active{background:linear-gradient(135deg,rgba(240,169,138,.4),rgba(232,132,58,.3));border-color:rgba(232,132,58,.6);color:#3a2a1e;box-shadow:0 2px 10px rgba(220,110,50,.12);}
+
+/* Amount input row */
+.donate-amount-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:16px;}
+.donate-currency-sel{background:rgba(255,255,255,.55);border:1px solid rgba(240,169,138,.4);border-radius:10px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:#3a2a1e;outline:none;width:100px;cursor:pointer;appearance:none;-webkit-appearance:none;text-align:center;}
+.donate-currency-sel:focus{border-color:var(--peach);}
+.donate-amount-input{flex:1;background:rgba(255,255,255,.55);border:1px solid rgba(240,169,138,.4);border-radius:10px;padding:10px 14px;font-family:'Playfair Display',serif;font-size:22px;color:#3a2a1e;outline:none;width:100%;transition:border .2s;text-align:center;}
+.donate-amount-input:focus{border-color:#e8843a;background:rgba(255,255,255,.8);box-shadow:0 0 0 3px rgba(232,132,58,.1);}
+.donate-amount-input::placeholder{color:rgba(176,144,122,.5);font-size:18px;}
+
+/* Card details */
+.donate-section-label{font-size:10px;font-weight:500;color:#b0907a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.donate-card-row{display:flex;gap:8px;margin-bottom:10px;}
+.donate-input{background:rgba(255,255,255,.55);border:1px solid rgba(240,169,138,.4);border-radius:10px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:13px;color:#3a2a1e;outline:none;width:100%;transition:border .2s;}
+.donate-input:focus{border-color:#e8843a;background:rgba(255,255,255,.8);box-shadow:0 0 0 3px rgba(232,132,58,.1);}
+.donate-input::placeholder{color:rgba(176,144,122,.55);}
+.donate-card-icon{position:relative;}
+.donate-card-icon .donate-input{padding-right:36px;}
+.donate-card-icon::after{content:'&#128179;';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
+
+/* Summary */
+.donate-summary{background:rgba(255,248,240,.6);border:1px solid rgba(240,169,138,.3);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.donate-summary-label{font-size:12px;color:#b0907a;}
+.donate-summary-amount{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:#3a2a1e;}
+
+/* Submit */
+.donate-submit{width:100%;background:linear-gradient(135deg,rgba(240,169,138,.95),rgba(232,132,58,.9));border:1px solid rgba(255,200,160,.6);border-radius:14px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(220,110,50,.25),inset 0 1px 0 rgba(255,255,255,.3);letter-spacing:.01em;}
+.donate-submit:hover{transform:translateY(-1px);filter:brightness(1.06);}
+.donate-submit:active{transform:scale(.97);}
+.donate-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+/* Success state */
+.donate-success{text-align:center;padding:20px 0;}
+.donate-success-icon{font-size:48px;display:block;margin-bottom:12px;}
+.donate-success-title{font-family:'Playfair Display',serif;font-size:22px;color:#3a2a1e;margin-bottom:8px;}
+.donate-success-msg{font-size:13px;color:#b0907a;line-height:1.7;max-width:280px;margin:0 auto 16px;}
+.donate-success-back{background:none;border:1px solid rgba(240,169,138,.45);border-radius:999px;padding:7px 20px;font-family:'DM Sans',sans-serif;font-size:13px;color:#7a5a44;cursor:pointer;}
+.donate-success-back:hover{background:rgba(240,169,138,.15);}
+
+.donate-err{font-size:11px;color:#c03050;margin-top:6px;display:none;background:rgba(255,210,215,.35);border-radius:6px;padding:5px 10px;text-align:center;}
+.donate-secure-note{font-size:10px;color:#b0907a;text-align:center;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:4px;}
+
+.donate-close-btn{position:absolute;top:14px;right:18px;background:none;border:1px solid rgba(240,169,138,.4);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:#b0907a;}
+.donate-close-btn:hover{background:rgba(240,169,138,.15);color:#3a2a1e;}
+.donate-header{position:relative;}
+
 @media print{
   .orb,.theme-bar,.glass-card.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap,.cd-banner-outer,.lc-auth-screen,.lc-onboard-screen,.lc-user-pill{display:none!important;}
   body{background:white!important;color:#111!important;}
@@ -710,11 +801,11 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 </div>
 
 <!-- ══ SECRET MESSAGE ══ -->
-<button class="secret-btn" id="secret-btn" aria-label=""></button>
-<div class="secret-popup" id="secret-popup">
+<button class="secret-btn no-print" id="secret-btn" aria-label="About Lifetime Calendar">&#9432; About</button>
+<div class="secret-popup no-print" id="secret-popup">
   <button class="secret-close" id="secret-close">&#x2715;</button>
-  <p class="secret-popup-title">A gift from Baidoo &#127873;</p>
-  <p class="secret-popup-body">This app was made by Baidoo as a gift. Write down the age or number of years you hope to attain before you pass on and start living intentionally toward that vision. Life becomes more meaningful when you move with purpose, growth and direction. I'll be updating this with valuable features from time to time, so stay tuned and be on the lookout.</p>
+  <p class="secret-popup-title">About &#127873;</p>
+  <p class="secret-popup-body"><strong>This is my free gift to you.</strong> Write down the age or number of years you hope to attain before you pass on and start living intentionally toward that vision. Life becomes more meaningful when you move with purpose, growth and direction. I'll be updating this with valuable features from time to time, so stay tuned and be on the lookout.</p>
   <p class="secret-popup-sig">BAIDOO!</p>
 </div>
 
@@ -858,14 +949,24 @@ function getTodayLifetime(){
 // ══ CALC STATS ══
 function calcStats(){
   try{
-    const totalDays=(cfg.endYear||127)*DPM*MPY;
-    const endDate=new Date(cfg.epoch);endDate.setDate(endDate.getDate()+totalDays);
+    // Work entirely in Lifetime Calendar units (13 months/year, 28 days/month)
+    const totalCalMonths=(cfg.endYear||127)*MPY;
     const now=new Date();
-    const msLeft=endDate-now;
-    if(!msLeft||msLeft<=0)return{remYears:0,remMonths:0};
-    const daysLeft=msLeft/(1000*60*60*24);
-    return{remYears:Math.floor(daysLeft/365.25)||0,remMonths:Math.floor((daysLeft%365.25)/30.4375)||0};
-  }catch(e){return{remYears:0,remMonths:0};}
+    const daysElapsed=Math.floor((now-cfg.epoch)/(1000*60*60*24));
+    if(daysElapsed<0)return{remYears:cfg.endYear||127,remMonths:0,totalMonths:totalCalMonths};
+    // Current lifetime year and month (1-indexed)
+    const monthsElapsed=Math.floor(daysElapsed/DPM); // completed months
+    const curLifetimeMonth=monthsElapsed+1;           // the month we are currently IN (1-indexed)
+    const curYear=Math.ceil(curLifetimeMonth/MPY);    // current lifetime year
+    const curMonthInYear=((curLifetimeMonth-1)%MPY)+1;// current month within year (1-13)
+    // Elapsed = curYear*MPY + curMonthInYear (years AND months of life used up)
+    const elapsedMonths=curYear*MPY + curMonthInYear;
+    // Remaining
+    const totalMonths=Math.max(0,totalCalMonths-elapsedMonths);
+    const remYears=Math.floor(totalMonths/MPY);
+    const remMonths=totalMonths%MPY;
+    return{remYears,remMonths,totalMonths,curYear,curMonthInYear};
+  }catch(e){return{remYears:0,remMonths:0,totalMonths:0};}
 }
 
 // ══ BUILD MONTH GRID ══
@@ -933,8 +1034,10 @@ function render(){
   const st=calcStats();
   const remYEl=document.getElementById('s-rem-years');
   const remMEl=document.getElementById('s-rem-months');
+  const remTMEl=document.getElementById('s-rem-total-mo');
   if(remYEl)remYEl.textContent=fmt(st.remYears);
   if(remMEl)remMEl.textContent=fmt(st.remMonths);
+  if(remTMEl)remTMEl.textContent=fmt(st.remYears*12+st.remMonths);
   // Grid
   buildMonthGrid(curY,curM,document.getElementById('day-grid'));
 }
@@ -1042,33 +1145,54 @@ function cdTick(){
   if(!cdEnd)return;
   const now=new Date();const msLeft=cdEnd-now;
   if(msLeft<=0){clearInterval(cdTimer);document.getElementById('cd-sentence').innerHTML='<em>Your time has come. Live fully.</em>';return;}
+
+  // ── Lifetime calendar years & months (13 months/year, 28 days/month) ──
+  const totalCalMonths=(cfg.endYear||127)*MPY;
+  const daysElapsed=Math.floor((now-cfg.epoch)/(1000*60*60*24));
+  const monthsElapsed=Math.floor(daysElapsed/DPM);
+  const curLifetimeMonth=monthsElapsed+1;
+  const curYear=Math.ceil(curLifetimeMonth/MPY);
+  const curMonthInYear=((curLifetimeMonth-1)%MPY)+1;
+  const elapsedMonths=curYear*MPY+curMonthInYear;
+  const remTotalMonths=Math.max(0,totalCalMonths-elapsedMonths);
+  const ltYears=Math.floor(remTotalMonths/MPY);   // remaining lifetime years
+  const ltMonths=remTotalMonths%MPY;              // remaining lifetime months
+
+  // ── Weeks, days, hours, minutes, seconds from real time left ──
   const totalSec=Math.floor(msLeft/1000);
   const totalMin=Math.floor(totalSec/60);
   const totalHr=Math.floor(totalMin/60);
   const totalDay=Math.floor(totalHr/24);
   const totalWk=Math.floor(totalDay/7);
-  const totalMo=Math.floor(totalDay/30.4375);
-  const totalYr=Math.floor(totalDay/365.25);
-  const remSec=totalSec%60,remMin=totalMin%60,remHr=totalHr%24;
-  const remDay=totalDay-(totalWk*7);
-  const remWk=Math.max(0,totalWk-Math.floor(totalYr*365.25/7));
-  const remMo=totalMo%12;
-  function pad(n){return String(Math.floor(n)).padStart(2,'0');}
-  function fmtN(n){return Math.floor(n).toLocaleString();}
+  const remSec=totalSec%60;
+  const remMin=totalMin%60;
+  const remHr=totalHr%24;
+  // Weeks remaining after stripping lifetime years & months worth of days
+  const daysInLtYearsMonths=(ltYears*MPY+ltMonths)*DPM;
+  const remWk=Math.max(0,Math.floor((totalDay-daysInLtYearsMonths)/7));
+  const remDay=Math.max(0,totalDay-daysInLtYearsMonths-(remWk*7));
+
+  function pad(n){return String(Math.floor(Math.abs(n))).padStart(2,'0');}
+  function fmtN(n){return Math.max(0,Math.floor(n)).toLocaleString();}
+
   const prevSc=document.getElementById('cdv-sc').textContent;
   const prevMn=document.getElementById('cdv-mn').textContent;
   function setV(vi,val,ci,pulse){
     document.getElementById(vi).textContent=val;
     if(pulse){const c=document.getElementById(ci);c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),380);}
   }
-  setV('cdv-yr',fmtN(totalYr),'cdt-yr',false);
-  setV('cdv-mo',fmtN(remMo),'cdt-mo',false);
+
+  setV('cdv-yr',fmtN(ltYears),'cdt-yr',false);
+  setV('cdv-mo',fmtN(ltMonths),'cdt-mo',false);
   setV('cdv-wk',fmtN(remWk),'cdt-wk',false);
   setV('cdv-dy',fmtN(remDay),'cdt-dy',false);
   setV('cdv-hr',pad(remHr),'cdt-hr',false);
   setV('cdv-mn',pad(remMin),'cdt-mn',prevMn!==pad(remMin));
   setV('cdv-sc',pad(remSec),'cdt-sc',prevSc!==pad(remSec));
-  document.getElementById('cd-sentence').innerHTML='You have <strong>'+fmtN(totalYr)+'</strong> years, <strong>'+fmtN(remMo)+'</strong> months, <strong>'+fmtN(totalWk)+'</strong> weeks, <strong>'+fmtN(totalDay)+'</strong> days, <strong>'+pad(remHr)+'</strong> hours, <strong>'+pad(remMin)+'</strong> minutes and <strong>'+pad(remSec)+'</strong> seconds left.';
+
+  document.getElementById('cd-sentence').innerHTML=
+    'You have <strong>'+fmtN(ltYears)+'</strong> years, <strong>'+fmtN(ltMonths)+'</strong> months, <strong>'+fmtN(remWk)+'</strong> weeks, <strong>'+fmtN(remDay)+'</strong> days, <strong>'+pad(remHr)+'</strong> hours, <strong>'+pad(remMin)+'</strong> minutes and <strong>'+pad(remSec)+'</strong> seconds left.';
+
   const lifespan=cdEnd-cfg.epoch;const lived=now-cfg.epoch;
   const pct=Math.min(100,Math.max(0,(lived/lifespan)*100));
   document.getElementById('cd-pfill').style.width=pct.toFixed(3)+'%';
@@ -1136,6 +1260,8 @@ function cdTick(){
     const count=mode==='days'?(+document.getElementById('tt-num-days').value||7):mode==='weeks'?(+document.getElementById('tt-num-weeks').value||4):mode==='months'?(+document.getElementById('tt-num-months').value||3):(+document.getElementById('tt-num-years').value||1);
     const start=getStart();
     T.mode=mode;T.slots=buildSlots();T.periods=buildPeriods(mode,start,count);T.cur=0;T.events={};T.built=true;T.sel=null;
+    // persist for notification system
+    try{localStorage.setItem('lc_timetable',JSON.stringify({mode:T.mode,slots:T.slots,periods:T.periods.map(function(p){return{label:p.label,days:p.days.map(function(d){return d.toISOString();}),yearMode:p.yearMode||false};}),events:{}}));}catch(e){}
     renderNav();renderGrid();renderStats();ttTab('view');document.getElementById('tt-status').textContent='Built '+T.periods.length+' period(s), '+T.slots.length+' slot(s)/day.';
   };
   function renderNav(){
@@ -1174,7 +1300,8 @@ function cdTick(){
   window.ttSelCell=function(di,si,key){T.sel={di,si,key};document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));const el=document.getElementById('ttc-'+key);if(el)el.classList.add('selected');updateSelInfo();};
   function updateSelInfo(){if(!T.sel){document.getElementById('tt-sel-info').textContent='Click any cell to select it.';return;}const p=T.periods[T.cur];const day=p&&p.days[T.sel.di];const slot=T.slots[T.sel.si];if(day&&slot)document.getElementById('tt-sel-info').textContent='Selected: '+DOW_S[day.getDay()]+' '+fmtD(day)+' \u00b7 '+slot;}
   window.ttClearSel=function(){T.sel=null;document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));updateSelInfo();};
-  window.ttAddEvent=function(){if(!T.sel){alert('Click a cell first.');return;}const title=document.getElementById('tt-ev-title').value.trim();if(!title){alert('Enter an event title.');return;}const color=document.getElementById('tt-ev-color').value;const key=T.sel.key;if(!T.events[key])T.events[key]=[];T.events[key].push({title,color});document.getElementById('tt-ev-title').value='';const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
+  window.ttAddEvent=function(){if(!T.sel){alert('Click a cell first.');return;}const title=document.getElementById('tt-ev-title').value.trim();if(!title){alert('Enter an event title.');return;}const color=document.getElementById('tt-ev-color').value;const key=T.sel.key;if(!T.events[key])T.events[key]=[];T.events[key].push({title,color});document.getElementById('tt-ev-title').value='';
+      try{var s=JSON.parse(localStorage.getItem('lc_timetable')||'{}');s.events=T.events;localStorage.setItem('lc_timetable',JSON.stringify(s));}catch(e){}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
   window.ttRmEv=function(key,idx,e){e.stopPropagation();if(T.events[key]){T.events[key].splice(idx,1);if(!T.events[key].length)delete T.events[key];}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
   window.ttClearAll=function(){if(!confirm('Clear all events?'))return;T.events={};renderGrid();renderStats();ttSummary();};
   function ttSummary(){
@@ -1291,6 +1418,7 @@ function cdTick(){
     // Save settings
     const saved=loadData()||{logs:[]};
     saved.lastDate=lastDateVal;saved.length=cycLen;saved.duration=dur;saved.count=count;
+    if(typeof checkAndNotify==='function')setTimeout(checkAndNotify,300);
     saveData(saved);
     // Parse last date
     const p=lastDateVal.split('-');
@@ -1419,6 +1547,303 @@ function cdTick(){
     document.getElementById('cyc-countdown-wrap').style.display='none';
     document.getElementById('cyc-log-rows').innerHTML='<p style="font-size:12px;color:#a05070;font-style:italic">No periods logged yet.</p>';
     cycTimers.forEach(clearInterval);cycTimers=[];
+  };
+})();
+</script>
+
+
+<div class="notif-toast-wrap" id="notif-wrap"></div>
+<div class="notif-perm-bar" id="notif-perm-bar">&#128276; Enable notifications to get reminders a day before events<button class="notif-allow-btn" onclick="notifRequestPerm()">Allow</button><button class="notif-dismiss-perm" onclick="notifDismissPerm()">&#x2715;</button></div>
+
+<script>
+/* ══ NOTIFICATION SYSTEM ══ */
+(function(){
+  var NOTIF_KEY='lc_notif_dismissed';
+  var shown={};
+
+  // Show in-app toast
+  window.showToast=function(title,msg,type,duration){
+    var wrap=document.getElementById('notif-wrap');if(!wrap)return;
+    var toast=document.createElement('div');
+    toast.className='notif-toast'+(type==='cycle'?' cycle':'');
+    toast.innerHTML='<div class="notif-icon">'+(type==='cycle'?'&#127807;':'&#128197;')+'</div><div class="notif-body"><div class="notif-title">'+title+'</div><div class="notif-msg">'+msg+'</div></div><button class="notif-close" onclick="this.parentNode.remove()">&#x2715;</button>';
+    wrap.appendChild(toast);
+    setTimeout(function(){
+      toast.classList.add('dismissing');
+      setTimeout(function(){if(toast.parentNode)toast.parentNode.removeChild(toast);},300);
+    },duration||7000);
+  };
+
+  // Browser notification
+  function sendBrowserNotif(title,body,icon){
+    if(typeof Notification==='undefined')return;
+    if(Notification.permission==='granted'){
+      try{new Notification(title,{body:body,icon:icon||'',badge:icon||''});}catch(e){}
+    }
+  }
+
+  // Request permission
+  window.notifRequestPerm=function(){
+    if(typeof Notification==='undefined')return;
+    Notification.requestPermission().then(function(r){
+      document.getElementById('notif-perm-bar').classList.remove('show');
+      if(r==='granted'){
+        showToast('Notifications enabled','You will be reminded a day before your events and cycle dates.','timetable',5000);
+        checkAndNotify();
+      }
+    });
+  };
+  window.notifDismissPerm=function(){
+    document.getElementById('notif-perm-bar').classList.remove('show');
+    localStorage.setItem(NOTIF_KEY,'1');
+  };
+
+  // Check if we should show permission bar
+  function maybeAskPerm(){
+    if(typeof Notification==='undefined')return;
+    if(Notification.permission==='granted')return;
+    if(Notification.permission==='denied')return;
+    if(localStorage.getItem(NOTIF_KEY))return;
+    setTimeout(function(){document.getElementById('notif-perm-bar').classList.add('show');},3000);
+  }
+
+  // Format date nicely
+  function fmtShort(d){
+    var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();
+  }
+
+  // Check timetable events for tomorrow
+  function checkTimetableNotifs(){
+    // T is in scope via timetable IIFE — read from localStorage backup
+    var ttData=null;
+    try{ttData=JSON.parse(localStorage.getItem('lc_timetable')||'null');}catch(e){}
+    if(!ttData||!ttData.events||!ttData.periods||!ttData.slots)return;
+
+    var now=new Date();
+    var tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    var todayKey=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();
+
+    Object.entries(ttData.events).forEach(function(entry){
+      var k=entry[0],evs=entry[1];
+      var m=k.match(/p(\d+)_d(\d+)_s(\d+)/);if(!m)return;
+      var period=ttData.periods[+m[1]];if(!period)return;
+      var dayObj=period.days[+m[2]];if(!dayObj)return;
+      var day=new Date(dayObj);
+      var slot=ttData.slots[+m[3]]||'';
+      // Check if this event is tomorrow
+      if(day.getFullYear()===tomorrow.getFullYear()&&day.getMonth()===tomorrow.getMonth()&&day.getDate()===tomorrow.getDate()){
+        evs.forEach(function(ev){
+          var notifKey='tt_'+k+'_'+ev.title+'_'+todayKey;
+          if(shown[notifKey])return;
+          shown[notifKey]=true;
+          var msg='Tomorrow ('+fmtShort(tomorrow)+'): '+ev.title+(slot?' at '+slot:'');
+          showToast('Timetable reminder &#128197;',msg,'timetable',10000);
+          sendBrowserNotif('Timetable reminder',msg);
+        });
+      }
+    });
+  }
+
+  // Check cycle dates for tomorrow
+  function checkCycleNotifs(){
+    var cycData=null;
+    try{cycData=JSON.parse(localStorage.getItem('lc_cycles')||'null');}catch(e){}
+    if(!cycData||!cycData.lastDate)return;
+
+    var now=new Date();
+    var tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    var todayKey=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();
+
+    var p=cycData.lastDate.split('-');
+    var lastDate=new Date(+p[0],+p[1]-1,+p[2]);
+    var cycLen=cycData.length||28;
+    var dur=cycData.duration||5;
+    var count=(cycData.count||6)+4;
+
+    // Build upcoming cycles
+    var start=new Date(lastDate);
+    // advance to current cycle
+    while(true){var next=new Date(start);next.setDate(next.getDate()+cycLen);if(next>now)break;start=next;}
+    // go back 1 cycle for context
+    var from=new Date(start);from.setDate(from.getDate()-cycLen);
+
+    for(var i=0;i<count;i++){
+      var cycStart=new Date(from);cycStart.setDate(cycStart.getDate()+i*cycLen);
+      var cycEnd=new Date(cycStart);cycEnd.setDate(cycEnd.getDate()+dur-1);
+      // Notify if period starts tomorrow
+      if(cycStart.getFullYear()===tomorrow.getFullYear()&&cycStart.getMonth()===tomorrow.getMonth()&&cycStart.getDate()===tomorrow.getDate()){
+        var notifKey='cyc_start_'+fmtShort(cycStart)+'_'+todayKey;
+        if(!shown[notifKey]){
+          shown[notifKey]=true;
+          var msg='Your period is expected to start tomorrow ('+fmtShort(tomorrow)+'). Duration: '+dur+' days.';
+          showToast('Period reminder &#127807;',msg,'cycle',12000);
+          sendBrowserNotif('Period reminder',msg);
+        }
+      }
+      // Notify if period ends tomorrow (1 day before end)
+      if(cycEnd.getFullYear()===tomorrow.getFullYear()&&cycEnd.getMonth()===tomorrow.getMonth()&&cycEnd.getDate()===tomorrow.getDate()){
+        var notifKey2='cyc_end_'+fmtShort(cycEnd)+'_'+todayKey;
+        if(!shown[notifKey2]){
+          shown[notifKey2]=true;
+          var msg2='Your period is expected to end tomorrow ('+fmtShort(tomorrow)+').';
+          showToast('Period ending &#127807;',msg2,'cycle',10000);
+          sendBrowserNotif('Period ending tomorrow',msg2);
+        }
+      }
+    }
+  }
+
+  // Main check function — called on load and every hour
+  window.checkAndNotify=function(){
+    checkTimetableNotifs();
+    checkCycleNotifs();
+  };
+
+  // Run checks
+  window.addEventListener('load',function(){
+    maybeAskPerm();
+    setTimeout(checkAndNotify,2000);
+    // Re-check every hour
+    setInterval(checkAndNotify,60*60*1000);
+    // Also re-check at midnight
+    (function schedMidnight(){
+      var now=new Date();
+      var ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+      setTimeout(function(){shown={};checkAndNotify();schedMidnight();},ms);
+    })();
+  });
+})();
+</script>
+
+
+<!-- ══ DONATE BUTTON (fixed bottom-right) ══ -->
+<button class="donate-fixed-btn no-print" onclick="donateOpen()">&#9825; Donate</button>
+
+<!-- ══ DONATE MODAL (PayPal) ══ -->
+<div class="donate-overlay" id="donate-overlay" onclick="if(event.target===this)donateClose()">
+  <div class="donate-panel">
+    <div class="donate-header">
+      <button class="donate-close-btn" onclick="donateClose()">&#x2715;</button>
+      <div style="font-size:28px;margin-bottom:8px;">&#9825;</div>
+      <div class="donate-logo">Support <em>Lifetime Calendar</em></div>
+      <p class="donate-tagline">Your donation helps keep this app free and growing. Every amount makes a difference — thank you, from Baidoo.</p>
+    </div>
+
+    <div class="donate-body">
+      <!-- Preset amounts -->
+      <div class="donate-section-label">Choose an amount</div>
+      <div class="donate-presets">
+        <div class="donate-preset" onclick="donateSetPreset(1)">1</div>
+        <div class="donate-preset" onclick="donateSetPreset(5)">5</div>
+        <div class="donate-preset active" onclick="donateSetPreset(10)">10</div>
+        <div class="donate-preset" onclick="donateSetPreset(20)">20</div>
+      </div>
+
+      <!-- Currency + Custom amount -->
+      <div class="donate-amount-row">
+        <select class="donate-currency-sel" id="donate-currency" onchange="donateUpdateSummary()">
+          <option value="USD">$ USD</option>
+          <option value="GBP">&#xa3; GBP</option>
+          <option value="EUR">&#x20ac; EUR</option>
+        </select>
+        <input class="donate-amount-input" type="number" id="donate-amount" value="10" min="1" placeholder="Enter amount" oninput="donateCustomAmount()"/>
+      </div>
+
+      <!-- Summary -->
+      <div class="donate-summary">
+        <span class="donate-summary-label">You are donating</span>
+        <span class="donate-summary-amount" id="donate-summary-amt">$10.00</span>
+      </div>
+
+      <!-- PayPal button -->
+      <button class="donate-submit" id="donate-paypal-btn" onclick="donateViaPayPal()">
+        <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 6.082-8.558 6.082H9.828L8.6 19.458h3.106l.96-6.104h2.19c5.146 0 8.016-2.74 8.95-7.18a5.74 5.74 0 0 0-.584-.257z"/></svg>
+          Pay with PayPal
+        </span>
+      </button>
+
+      <p class="donate-secure-note">&#128274; Secured by PayPal &nbsp;&middot;&nbsp; Card or PayPal balance &nbsp;&middot;&nbsp; No account needed</p>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+        <div style="flex:1;height:1px;background:rgba(240,169,138,.25);"></div>
+        <span style="font-size:11px;color:#b0907a;">supported currencies</span>
+        <div style="flex:1;height:1px;background:rgba(240,169,138,.25);"></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <span style="font-size:11px;background:rgba(255,255,255,.5);border:1px solid rgba(240,169,138,.3);border-radius:6px;padding:3px 10px;color:#7a5a44;">$ USD</span>
+        <span style="font-size:11px;background:rgba(255,255,255,.5);border:1px solid rgba(240,169,138,.3);border-radius:6px;padding:3px 10px;color:#7a5a44;">&#xa3; GBP</span>
+        <span style="font-size:11px;background:rgba(255,255,255,.5);border:1px solid rgba(240,169,138,.3);border-radius:6px;padding:3px 10px;color:#7a5a44;">&#x20ac; EUR</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ══ DONATE LOGIC — PayPal ══ */
+(function(){
+  var SYMBOLS={USD:'$',GBP:'£',EUR:'€'};
+  var currentPreset=10;
+
+  window.donateOpen=function(){
+    document.getElementById('donate-overlay').classList.add('open');
+    donateUpdateSummary();
+  };
+
+  window.donateClose=function(){
+    document.getElementById('donate-overlay').classList.remove('open');
+  };
+
+  window.donateSetPreset=function(val){
+    currentPreset=val;
+    document.getElementById('donate-amount').value=val;
+    document.querySelectorAll('.donate-preset').forEach(function(el){
+      el.classList.toggle('active',parseInt(el.textContent)===val);
+    });
+    donateUpdateSummary();
+  };
+
+  window.donateCustomAmount=function(){
+    var amt=parseFloat(document.getElementById('donate-amount').value)||0;
+    document.querySelectorAll('.donate-preset').forEach(function(el){
+      el.classList.toggle('active',parseInt(el.textContent)===amt);
+    });
+    donateUpdateSummary();
+  };
+
+  window.donateUpdateSummary=function(){
+    var amt=parseFloat(document.getElementById('donate-amount').value)||0;
+    var cur=document.getElementById('donate-currency').value;
+    var sym=SYMBOLS[cur]||'$';
+    document.getElementById('donate-summary-amt').textContent=sym+amt.toFixed(2)+' '+cur;
+  };
+
+  window.donateViaPayPal=function(){
+    var amt=parseFloat(document.getElementById('donate-amount').value);
+    var cur=document.getElementById('donate-currency').value;
+    var sym=SYMBOLS[cur]||'$';
+
+    if(!amt||amt<1){
+      alert('Please enter a valid amount (minimum 1).');
+      return;
+    }
+
+    // Use permanent PayPal payment link
+    var url='https://www.paypal.com/ncp/payment/FYE8D4EU6GTL2';
+
+    // Open PayPal in new tab
+    window.open(url,'_blank','noopener,noreferrer');
+
+    // Show thank-you toast
+    if(typeof showToast==='function'){
+      showToast(
+        'Redirecting to PayPal ♥',
+        'You are donating '+sym+amt.toFixed(2)+' '+cur+' — thank you so much! BAIDOO!',
+        'timetable',8000
+      );
+    }
   };
 })();
 </script>
