@@ -621,6 +621,110 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 .donate-close-btn:hover{background:rgba(240,169,138,.15);color:#3a2a1e;}
 .donate-header{position:relative;}
 
+
+/* ── HEALTH MONITOR ── */
+.health-btn{border-radius:12px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:var(--fs-sm);font-weight:500;color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;border:1px solid rgba(100,200,160,.5);background:linear-gradient(135deg,rgba(80,180,140,.9),rgba(40,150,100,.85));box-shadow:0 4px 16px rgba(40,150,100,.2),inset 0 1px 0 rgba(255,255,255,.3);}
+.health-btn:hover{transform:translateY(-1px);filter:brightness(1.06);}
+.health-btn:active{transform:scale(.97);}
+
+.health-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:600;display:none;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;}
+.health-overlay.open{display:flex;}
+.health-panel{background:rgba(248,252,250,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(160,220,190,.4);border-radius:24px;width:100%;max-width:860px;margin:auto;font-family:'DM Sans',sans-serif;color:#1a2e28;box-shadow:0 20px 60px rgba(40,120,80,.15);}
+
+.health-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(160,220,190,.3);}
+.health-header-title{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,20px);font-weight:400;color:#1a2e28;}
+.health-close{background:none;border:1px solid rgba(160,220,190,.4);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px;color:#4a8a6a;}
+.health-close:hover{background:rgba(160,220,190,.2);}
+
+/* Demo tabs */
+.health-tabs-wrap{padding:14px 22px 0;border-bottom:1px solid rgba(160,220,190,.2);}
+.health-tabs{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:14px;}
+.h-tab{padding:6px 14px;border-radius:999px;border:1px solid transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.6);color:#6a8a7a;}
+.h-tab:hover{background:rgba(255,255,255,.9);}
+.h-tab.active{color:#fff;border-color:transparent;}
+
+/* Demo accent colours */
+.h-tab[data-demo="baby"].active{background:#FF9AA2;}
+.h-tab[data-demo="toddler"].active{background:#FFB347;}
+.h-tab[data-demo="child"].active{background:#87CEEB;}
+.h-tab[data-demo="adolescent"].active{background:#9B89B4;}
+.h-tab[data-demo="adult-male"].active{background:#4A90D9;}
+.h-tab[data-demo="adult-female"].active{background:#E87D8F;}
+.h-tab[data-demo="elderly"].active{background:#6BAE8A;}
+
+.health-banner{padding:12px 22px;font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,17px);font-weight:400;display:flex;align-items:center;gap:10px;}
+.health-banner-icon{font-size:20px;}
+.health-banner-sub{font-family:'DM Sans',sans-serif;font-size:12px;opacity:.8;margin-left:4px;}
+
+/* Stat cards */
+.health-body{padding:16px 22px;max-height:55vh;overflow-y:auto;}
+.health-section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#6a8a7a;margin:14px 0 8px;border-bottom:1px solid rgba(160,220,190,.25);padding-bottom:5px;}
+.health-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:4px;}
+.h-card{background:#f0f7f4;border-radius:10px;padding:11px 13px;border:1px solid rgba(160,220,190,.3);}
+.h-card-metric{font-size:11px;font-weight:500;color:#4a7a6a;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;}
+.h-card-value{font-family:'Playfair Display',serif;font-size:15px;color:#1a2e28;margin-bottom:3px;}
+.h-card-note{font-size:10px;color:#7a9a8a;line-height:1.5;}
+
+/* Personal profile */
+.health-profile{padding:16px 22px;border-top:2px dashed rgba(160,220,190,.35);margin-top:4px;}
+.health-profile-title{font-family:'Playfair Display',serif;font-size:clamp(15px,2vw,18px);color:#1a2e28;margin-bottom:4px;}
+.health-profile-sub{font-size:12px;color:#7a9a8a;margin-bottom:14px;}
+.h-profile-section{margin-bottom:14px;}
+.h-profile-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:#6a8a7a;margin-bottom:6px;}
+.h-tag-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.h-tag-input{flex:1;min-width:160px;background:rgba(255,255,255,.7);border:1px solid rgba(160,220,190,.4);border-radius:10px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:#1a2e28;outline:none;}
+.h-tag-input:focus{border-color:#6BAE8A;box-shadow:0 0 0 3px rgba(107,174,138,.12);}
+.h-tag-add{background:linear-gradient(135deg,rgba(80,180,140,.9),rgba(40,150,100,.85));border:none;border-radius:10px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#fff;cursor:pointer;}
+.h-tag-add:hover{filter:brightness(1.08);}
+.h-tags-wrap{display:flex;gap:6px;flex-wrap:wrap;min-height:28px;}
+.h-tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:500;}
+.h-tag.condition{background:rgba(107,174,138,.15);border:1px solid rgba(107,174,138,.4);color:#1a5a3a;}
+.h-tag.allergy{background:rgba(255,160,50,.15);border:1px solid rgba(255,160,50,.45);color:#7a3a00;}
+.h-tag button{background:none;border:none;cursor:pointer;font-size:13px;padding:0;line-height:1;opacity:.6;}
+.h-tag button:hover{opacity:1;}
+.health-disclaimer{font-size:10px;color:#9aaa9a;text-align:center;padding:10px 22px 16px;line-height:1.6;border-top:1px solid rgba(160,220,190,.2);}
+
+
+/* ── HEALTH CARD INPUT DROPDOWN ── */
+.h-card-input-row{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+.h-card-select{flex:1;min-width:80px;background:rgba(255,255,255,.7);border:1px solid rgba(160,220,190,.45);border-radius:8px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;color:#1a2e28;outline:none;cursor:pointer;}
+.h-card-select:focus{border-color:#6BAE8A;box-shadow:0 0 0 2px rgba(107,174,138,.15);}
+.h-card-custom-input{width:70px;background:rgba(255,255,255,.7);border:1px solid rgba(160,220,190,.45);border-radius:8px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;color:#1a2e28;outline:none;}
+.h-card-status{font-size:10px;font-weight:600;border-radius:999px;padding:2px 8px;margin-top:4px;display:inline-block;}
+.h-card-status.normal{background:rgba(107,174,138,.2);color:#1a5a3a;}
+.h-card-status.low{background:rgba(255,200,50,.2);color:#7a5a00;}
+.h-card-status.high{background:rgba(220,80,60,.18);color:#7a1a10;}
+.h-card-status.unknown{background:rgba(160,160,160,.15);color:#5a5a5a;}
+
+/* ── HEALTH PROFILE DROPDOWN ── */
+.h-profile-select-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.h-profile-select{flex:1;min-width:160px;background:rgba(255,255,255,.7);border:1px solid rgba(160,220,190,.4);border-radius:10px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:#1a2e28;outline:none;cursor:pointer;}
+.h-profile-select:focus{border-color:#6BAE8A;box-shadow:0 0 0 3px rgba(107,174,138,.12);}
+.h-allergy-select{border-color:rgba(255,160,50,.45);}
+.h-allergy-select:focus{border-color:rgba(220,120,20,.7);box-shadow:0 0 0 3px rgba(255,160,50,.12);}
+
+/* ── VITAL DASHBOARD ON CALENDAR PAGE ── */
+.vital-dashboard{max-width:700px;margin:0 auto clamp(.6rem,2vw,1.25rem);}
+.vital-dashboard-card{background:var(--card-bg);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--card-border);border-radius:var(--radius-card);padding:var(--pad-card);box-shadow:0 8px 40px var(--card-shadow),inset 0 1px 0 rgba(255,255,255,.15);}
+.vital-dashboard-title{font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,17px);color:var(--text-dark);margin-bottom:4px;}
+.vital-dashboard-sub{font-size:var(--fs-xs);color:var(--text-soft);margin-bottom:1rem;}
+.vital-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(90px,18vw,120px),1fr));gap:clamp(8px,1.5vw,14px);}
+.vital-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.vital-circle-wrap{position:relative;width:clamp(72px,14vw,96px);height:clamp(72px,14vw,96px);}
+.vital-circle-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
+.vital-track{fill:none;stroke:rgba(200,200,200,.25);}
+.vital-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1),stroke .4s;}
+.vital-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.vital-val{font-family:'Playfair Display',serif;font-size:clamp(11px,2vw,14px);font-weight:500;color:var(--text-dark);line-height:1;}
+.vital-unit{font-size:clamp(7px,1vw,9px);color:var(--text-soft);margin-top:1px;}
+.vital-name{font-size:clamp(8px,1.2vw,10px);font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-soft);text-align:center;}
+.vital-status-dot{width:6px;height:6px;border-radius:50%;}
+.vital-status-dot.normal{background:#6BAE8A;}
+.vital-status-dot.low{background:#F0B429;}
+.vital-status-dot.high{background:#E05C40;}
+.vital-status-dot.unknown{background:#aaa;}
+.vital-empty{font-size:var(--fs-xs);color:var(--text-soft);text-align:center;font-style:italic;padding:1rem 0;}
+
 @media print{
   .orb,.theme-bar,.glass-card.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap,.cd-banner-outer,.lc-auth-screen,.lc-onboard-screen,.lc-user-pill{display:none!important;}
   body{background:white!important;color:#111!important;}
@@ -846,6 +950,7 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
         <button class="apply-btn" id="apply-btn">Apply</button>
         <button class="tt-launch-btn" onclick="ttOpen()">&#128197; Timetable</button>
         <button class="cycle-btn" onclick="cycleOpen()">&#127807; Cycle Tracker</button>
+        <button class="health-btn" onclick="healthOpen()">&#128138; Health Monitor</button>
         <button class="print-btn" id="open-print-btn">&#128424; Print</button>
       </div>
     </div>
@@ -872,6 +977,18 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
       </div>
     </div>
   </div>
+
+
+<!-- ══ VITAL DASHBOARD ══ -->
+<div class="vital-dashboard no-print" id="vital-dashboard" style="display:none">
+  <div class="vital-dashboard-card">
+    <div class="vital-dashboard-title">&#128138; My Vital Signs</div>
+    <div class="vital-dashboard-sub" id="vital-demo-label">Update your values in the Health Monitor to see your vitals here.</div>
+    <div class="vital-grid" id="vital-grid">
+      <p class="vital-empty">No vitals recorded yet — open Health Monitor and enter your values.</p>
+    </div>
+  </div>
+</div>
 
   <!-- CALENDAR CARD -->
   <div class="glass-card" id="main-cal">
@@ -1845,6 +1962,540 @@ function cdTick(){
       );
     }
   };
+})();
+</script>
+
+
+<!-- ══ HEALTH MONITOR MODAL ══ -->
+<div class="health-overlay" id="health-overlay" onclick="if(event.target===this)healthClose()">
+  <div class="health-panel">
+    <div class="health-header">
+      <div class="health-header-title">&#128138; Health Monitoring Dashboard</div>
+      <button class="health-close" onclick="healthClose()">&#x2715; Close</button>
+    </div>
+
+    <div class="health-tabs-wrap">
+      <div class="health-tabs" id="h-tabs">
+        <div class="h-tab active" data-demo="baby" onclick="hSetTab('baby')">&#128036; Baby <small>0–12m</small></div>
+        <div class="h-tab" data-demo="toddler" onclick="hSetTab('toddler')">&#128054; Toddler <small>1–3y</small></div>
+        <div class="h-tab" data-demo="child" onclick="hSetTab('child')">&#127774; Child <small>4–12y</small></div>
+        <div class="h-tab" data-demo="adolescent" onclick="hSetTab('adolescent')">&#127939; Adolescent <small>13–17y</small></div>
+        <div class="h-tab" data-demo="adult-male" onclick="hSetTab('adult-male')">&#128104; Adult Male <small>18–64</small></div>
+        <div class="h-tab" data-demo="adult-female" onclick="hSetTab('adult-female')">&#128105; Adult Female <small>18–64</small></div>
+        <div class="h-tab" data-demo="elderly" onclick="hSetTab('elderly')">&#129491; Elderly <small>65+</small></div>
+      </div>
+    </div>
+
+    <div class="health-banner" id="h-banner" style="background:#FFE4E6;color:#9a2030;">
+      <span class="health-banner-icon">&#128036;</span>
+      <span><strong>Baby</strong><span class="health-banner-sub">0–12 months</span></span>
+    </div>
+
+    <div class="health-body" id="h-body"></div>
+
+    <!-- Personal Profile -->
+    <div class="health-profile">
+      <div class="health-profile-title">Personal Health Profile</div>
+      <div class="health-profile-sub">Select from common conditions and allergies for your demographic, or type your own. Stored in memory only.</div>
+      <div class="h-profile-section">
+        <div class="h-profile-label">&#128203; Health Conditions</div>
+        <div class="h-profile-select-row">
+          <select class="h-profile-select" id="h-cond-select">
+            <option value="">-- Select a common condition --</option>
+          </select>
+          <button class="h-tag-add" onclick="hAddFromSelect('condition')">+ Add</button>
+        </div>
+        <div class="h-tag-row">
+          <input class="h-tag-input" id="h-cond-input" placeholder="Or type a custom condition..."/>
+          <button class="h-tag-add" onclick="hAddTag('condition')">+ Custom</button>
+        </div>
+        <div class="h-tags-wrap" id="h-cond-tags"></div>
+      </div>
+      <div class="h-profile-section">
+        <div class="h-profile-label">&#9888;&#65039; Allergies</div>
+        <div class="h-profile-select-row">
+          <select class="h-profile-select h-allergy-select" id="h-allergy-select">
+            <option value="">-- Select a common allergy --</option>
+          </select>
+          <button class="h-tag-add" style="background:linear-gradient(135deg,rgba(255,160,50,.9),rgba(220,120,20,.85));" onclick="hAddFromSelect('allergy')">+ Add</button>
+        </div>
+        <div class="h-tag-row">
+          <input class="h-tag-input" id="h-allergy-input" placeholder="Or type a custom allergy..."/>
+          <button class="h-tag-add" style="background:linear-gradient(135deg,rgba(255,160,50,.9),rgba(220,120,20,.85));" onclick="hAddTag('allergy')">+ Custom</button>
+        </div>
+        <div class="h-tags-wrap" id="h-allergy-tags"></div>
+      </div>
+    </div>
+
+    <div class="health-disclaimer">&#9432; For reference only. Values are population-based ranges and may not apply to every individual. This tool does not store data and is not a substitute for professional clinical assessment.</div>
+  </div>
+</div>
+
+
+<script>
+/* ══ HEALTH MONITOR ══ */
+(function(){
+
+var DEMOS={
+  'baby':{
+    label:'Baby',age:'0–12 months',icon:'&#128036;',
+    banner:'#FFE4E6',bannerText:'#9a2030',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'100–160 bpm',n:'Tachycardia >180; bradycardia <80 at rest'},
+        {m:'Blood Pressure (systolic)',v:'65–90 mmHg',n:'Rises through first year; NIBP cuff size critical'},
+        {m:'Capillary Refill',v:'< 2 seconds',n:'>3s suggests poor perfusion'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'30–60 /min',n:'Obligate nasal breather; apnoea >20s is abnormal'},
+        {m:'SpO₂ (pulse ox)',v:'95–100 %',n:'<94% warrants investigation'},
+        {m:'Breathing Pattern',v:'Periodic (normal)',n:'Short pauses <10s are normal in newborns'},
+      ]},
+      {title:'Temperature & Weight',cards:[
+        {m:'Temperature',v:'36.5–37.5 °C',n:'>38°C in <3m = emergency referral'},
+        {m:'Birth Weight',v:'2.5–4.0 kg',n:'Loses ≤10% in first week; regains by day 14'},
+        {m:'Head Circumference',v:'33–37 cm at birth',n:'Grows ~2 cm/month in first 3 months'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'14–24 g/dL (newborn)',n:'High due to fetal HbF; drops to ~10–11 by 3–6m (physiological nadir)'},
+        {m:'Blood Glucose',v:'2.6–6.0 mmol/L',n:'<2.6 = neonatal hypoglycaemia; feed immediately'},
+        {m:'Bilirubin (total)',v:'< 200 µmol/L (day 5)',n:'Jaundice >300 requires phototherapy evaluation'},
+      ]},
+      {title:'Developmental Milestones',cards:[
+        {m:'Social Smile',v:'By 6–8 weeks',n:'Absence warrants developmental review'},
+        {m:'Head Control',v:'By 4 months',n:'Consistent head lag after 4m is a red flag'},
+        {m:'Sitting (supported)',v:'By 6 months',n:'Unsupported by 9 months'},
+        {m:'First Words',v:'By 12 months',n:'Mama/dada with meaning; babbling from 6m'},
+      ]},
+    ]
+  },
+  'toddler':{
+    label:'Toddler',age:'1–3 years',icon:'&#128054;',
+    banner:'#FFF3E0',bannerText:'#7a4a00',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'90–150 bpm',n:'Higher with fever or distress; <80 bradycardic'},
+        {m:'Blood Pressure',v:'80–100 / 50–65 mmHg',n:'Hypertension rare but rising; obesity a risk'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'24–40 /min',n:'Still obligate nasal breathers; URI causes distress quickly'},
+        {m:'SpO₂',v:'96–100 %',n:'<94% significant; croup and bronchiolitis common'},
+      ]},
+      {title:'Metabolic & Growth',cards:[
+        {m:'Temperature',v:'36.5–37.5 °C',n:'>39°C with stiff neck = meningitis until excluded'},
+        {m:'Weight gain',v:'~2 kg/year',n:'Growth faltering if crossing centiles downward'},
+        {m:'BMI',v:'Age-specific centile',n:'Above 97th centile = obesity risk flag'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'11.0–14.0 g/dL',n:'Iron deficiency anaemia peaks at 12–24m; check diet'},
+        {m:'Blood Glucose',v:'3.3–6.0 mmol/L',n:'Fasting <3.3 investigate; ketotic hypoglycaemia common'},
+        {m:'Lead (blood)',v:'< 5 µg/dL',n:'Any elevation requires environmental investigation'},
+      ]},
+      {title:'Developmental',cards:[
+        {m:'Vocabulary',v:'50+ words by 2y',n:'2-word phrases by 24m; no words at 18m = refer'},
+        {m:'Walking',v:'By 15 months',n:'Not walking by 18m = developmental review'},
+        {m:'Toilet training',v:'18m–3 years',n:'Readiness varies; daytime control usually first'},
+      ]},
+    ]
+  },
+  'child':{
+    label:'Child',age:'4–12 years',icon:'&#127774;',
+    banner:'#E3F2FD',bannerText:'#0a3a6a',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'70–120 bpm',n:'Decreases with age; athletic children may be lower'},
+        {m:'Blood Pressure',v:'90–110 / 55–75 mmHg',n:'Rising trend; BMI-linked hypertension increasing in children'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'18–30 /min',n:'Approaches adult rates by age 12; asthma very common'},
+        {m:'SpO₂',v:'97–100 %',n:'<95% persistent warrants pulmonology referral'},
+        {m:'Peak Flow (PEFR)',v:'Age/height dependent',n:'Used to monitor asthma; predicted by height nomograms'},
+      ]},
+      {title:'Metabolic & Growth',cards:[
+        {m:'Temperature',v:'36.5–37.5 °C',n:'Febrile convulsions rare >5y; source of fever important'},
+        {m:'BMI',v:'5th–85th centile',n:'Overweight 85–95th; obesity >95th centile'},
+        {m:'Height velocity',v:'5–7 cm/year',n:'Growth spurts precede puberty; plot on centile charts'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'11.5–15.5 g/dL',n:'Lower limit rises with age; screen for iron deficiency'},
+        {m:'Fasting Glucose',v:'3.9–5.5 mmol/L',n:'T1DM often presents in school-age children'},
+        {m:'Cholesterol (total)',v:'< 4.4 mmol/L',n:'Familial hypercholesterolaemia screen if family history'},
+        {m:'TSH',v:'0.6–5.5 mIU/L',n:'Hypothyroidism affects growth and cognition'},
+      ]},
+      {title:'Sleep',cards:[
+        {m:'Sleep Duration',v:'9–11 hours/night',n:'Short sleep linked to obesity, ADHD-like symptoms'},
+        {m:'Sleep Onset',v:'Within 20–30 min',n:'Delayed sleep phase emerges in late childhood'},
+      ]},
+    ]
+  },
+  'adolescent':{
+    label:'Adolescent',age:'13–17 years',icon:'&#127939;',
+    banner:'#EDE7F6',bannerText:'#3a1a7a',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'60–100 bpm',n:'Athletes may be 45–60; eating disorders cause bradycardia'},
+        {m:'Blood Pressure',v:'100–120 / 65–80 mmHg',n:'Hypertension increasingly common; screen at every visit'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'12–20 /min',n:'Adult-equivalent; asthma and exercise-induced bronchospasm common'},
+        {m:'SpO₂',v:'97–100 %',n:'Vaping now a significant cause of respiratory compromise'},
+      ]},
+      {title:'Blood Labs (sex-split)',cards:[
+        {m:'Haemoglobin (Male)',v:'13.0–16.0 g/dL',n:'Rises with testosterone; iron demand increases with muscle mass'},
+        {m:'Haemoglobin (Female)',v:'12.0–15.0 g/dL',n:'Menstrual losses increase iron deficiency risk'},
+        {m:'Fasting Glucose',v:'3.9–5.5 mmol/L',n:'T2DM risk rising with obesity; screen high-risk teens'},
+        {m:'TSH',v:'0.5–4.5 mIU/L',n:'Autoimmune thyroiditis peaks in adolescent females'},
+      ]},
+      {title:'Hormones',cards:[
+        {m:'Testosterone (Male)',v:'8–35 nmol/L',n:'Rises steeply through Tanner stages 3–5'},
+        {m:'Oestradiol (Female)',v:'70–800 pmol/L',n:'Cyclical; key for bone mineralisation'},
+        {m:'LH / FSH',v:'Tanner-stage dependent',n:'Baseline needed before diagnosing PCOS or delayed puberty'},
+      ]},
+      {title:'Mental Health Flags',cards:[
+        {m:'Sleep Duration',v:'8–10 hours/night',n:'Chronic deprivation linked to depression and poor academics'},
+        {m:'PHQ-A Score',v:'< 5 (minimal)',n:'Screen routinely; ≥10 requires clinical follow-up'},
+        {m:'BMI',v:'18.5–24.9 (adult scale 16+)',n:'Eating disorder risk highest in teenage females'},
+      ]},
+    ]
+  },
+  'adult-male':{
+    label:'Adult Male',age:'18–64 years',icon:'&#128104;',
+    banner:'#E3F0FB',bannerText:'#0a2a5a',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'60–100 bpm',n:'Athletes 45–60; >100 persistent warrants investigation'},
+        {m:'Blood Pressure',v:'< 120 / 80 mmHg',n:'Stage 1 HTN: 130–139/80–89; cardiovascular risk higher in men'},
+        {m:'Total Cholesterol',v:'< 5.0 mmol/L',n:'LDL <3.0; HDL >1.0; non-HDL preferred metric'},
+        {m:'Triglycerides',v:'< 1.7 mmol/L',n:'>5.6 mmol/L risk of pancreatitis'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'12–20 /min',n:'Tachypnoea >20 at rest warrants evaluation'},
+        {m:'SpO₂',v:'95–100 %',n:'<94% chronic = COPD, sleep apnoea screening needed'},
+        {m:'FEV1/FVC',v:'> 0.70',n:'Obstruction if <0.70; spirometry gold standard'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'13.5–17.5 g/dL',n:'<13.5 = anaemia in adult males; investigate cause'},
+        {m:'Fasting Glucose',v:'3.9–5.5 mmol/L',n:'5.6–6.9 = impaired; ≥7.0 = diabetes mellitus'},
+        {m:'HbA1c',v:'< 42 mmol/mol (6.0%)',n:'42–47 = prediabetes; ≥48 = diabetes'},
+        {m:'eGFR',v:'> 90 mL/min/1.73m²',n:'60–90 = mildly reduced; follow trend not single value'},
+        {m:'Testosterone',v:'10–35 nmol/L',n:'<8 = hypogonadism; check AM fasting sample'},
+        {m:'PSA',v:'< 3.0 ng/mL (<50y)',n:'Age-adjusted; rising velocity more important than single value'},
+      ]},
+      {title:'Metabolic',cards:[
+        {m:'BMI',v:'18.5–24.9 kg/m²',n:'Waist >94 cm = increased metabolic risk'},
+        {m:'Waist Circumference',v:'< 94 cm',n:'>102 cm = substantially increased cardiometabolic risk'},
+        {m:'Resting Metabolic Rate',v:'1,600–2,000 kcal/day',n:'Decreases ~1–2% per decade after 30'},
+      ]},
+      {title:'Sleep',cards:[
+        {m:'Sleep Duration',v:'7–9 hours/night',n:'<6h linked to hypertension, diabetes, all-cause mortality'},
+        {m:'AHI (if screened)',v:'< 5 events/hour',n:'5–14 = mild OSA; ≥30 = severe; CPAP threshold'},
+      ]},
+    ]
+  },
+  'adult-female':{
+    label:'Adult Female',age:'18–64 years',icon:'&#128105;',
+    banner:'#FCE4EC',bannerText:'#7a1030',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'60–100 bpm',n:'Resting HR slightly higher than males on average'},
+        {m:'Blood Pressure',v:'< 120 / 80 mmHg',n:'Risk rises post-menopause; OCP can elevate BP'},
+        {m:'Total Cholesterol',v:'< 5.0 mmol/L',n:'HDL typically higher than males (>1.2); protective pre-menopause'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'12–20 /min',n:'Slightly higher tidal volume sensitivity to CO₂'},
+        {m:'SpO₂',v:'95–100 %',n:'Progesterone is a respiratory stimulant — affects dyspnoea perception'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'12.0–16.0 g/dL',n:'<12 = anaemia; menstrual losses key cause; check ferritin'},
+        {m:'Ferritin',v:'15–150 µg/L',n:'<15 = depleted stores even with normal Hb'},
+        {m:'Fasting Glucose',v:'3.9–5.5 mmol/L',n:'GDM screen at 24–28 weeks in pregnancy'},
+        {m:'HbA1c',v:'< 42 mmol/mol',n:'PCOS and gestational diabetes increase T2DM risk'},
+        {m:'TSH',v:'0.5–4.5 mIU/L',n:'Hypothyroidism 5–10× more common in women; affects fertility'},
+        {m:'Oestradiol',v:'Cycle-dependent',n:'Follicular 77–1476 pmol/L; postmenopausal <110 pmol/L'},
+      ]},
+      {title:'Reproductive & Bone',cards:[
+        {m:'Cycle Length',v:'21–35 days',n:'Variability >7 days = irregular; investigate if <21 or >35'},
+        {m:'CA-125',v:'< 35 U/mL',n:'Not a screening test; useful in known ovarian pathology'},
+        {m:'Bone Density (DEXA)',v:'T-score > -1.0',n:'-1.0 to -2.5 = osteopenia; < -2.5 = osteoporosis'},
+        {m:'Vitamin D',v:'50–125 nmol/L',n:'Deficiency (<30) common; supplement in pregnancy and menopause'},
+      ]},
+      {title:'Sleep & Mental Health',cards:[
+        {m:'Sleep Duration',v:'7–9 hours/night',n:'Hormonal fluctuations (PMS, perimenopause) disrupt sleep'},
+        {m:'PHQ-9',v:'< 5 (minimal)',n:'Perinatal depression affects 10–20%; screen at each visit'},
+      ]},
+    ]
+  },
+  'elderly':{
+    label:'Elderly',age:'65+ years',icon:'&#129491;',
+    banner:'#E8F5E9',bannerText:'#1a4a2a',
+    sections:[
+      {title:'Cardiovascular',cards:[
+        {m:'Heart Rate',v:'60–100 bpm',n:'AF common; pacemaker dependency; SBP rises with age'},
+        {m:'Blood Pressure',v:'< 130 / 80 mmHg',n:'Isolated systolic HTN common; orthostatic drop >20 mmHg = risk'},
+        {m:'Orthostatic BP',v:'Drop < 20 mmHg systolic',n:'Falls risk; check lying-to-standing at each visit'},
+      ]},
+      {title:'Respiratory',cards:[
+        {m:'Respiratory Rate',v:'12–20 /min',n:'>20 = early deterioration marker in elderly; often missed'},
+        {m:'SpO₂',v:'94–98 %',n:'Baseline lower than adults; 94% may be normal for some COPD patients'},
+        {m:'FEV1 decline',v:'~30 mL/year',n:'Accelerated decline = smoking, occupational exposure'},
+      ]},
+      {title:'Temperature',cards:[
+        {m:'Core Temperature',v:'36.0–37.2 °C',n:'Lower baseline; sepsis may present without fever in elderly'},
+      ]},
+      {title:'Blood Labs',cards:[
+        {m:'Haemoglobin',v:'11.5–16.0 g/dL',n:'Anaemia of chronic disease common; investigate any new anaemia'},
+        {m:'eGFR',v:'> 60 mL/min/1.73m²',n:'Declines with age; drug dosing critical — check BNF/local guidance'},
+        {m:'Creatinine',v:'60–110 µmol/L',n:'Muscle mass reduction masks creatinine; use eGFR not creatinine alone'},
+        {m:'Fasting Glucose',v:'4.0–7.0 mmol/L',n:'T2DM management less aggressive in frail elderly; avoid hypoglycaemia'},
+        {m:'HbA1c target',v:'53–64 mmol/mol (7–8%)',n:'Tighter control increases hypoglycaemia and fall risk'},
+        {m:'TSH',v:'0.5–6.0 mIU/L',n:'Reference range shifts upward; subclinical hypothyroidism often not treated'},
+        {m:'Vitamin B12',v:'> 200 pg/mL',n:'Deficiency causes dementia-mimicking symptoms; metformin depletes B12'},
+        {m:'Vitamin D',v:'50–125 nmol/L',n:'Deficiency nearly universal; supplement routinely; bone and fall prevention'},
+      ]},
+      {title:'Frailty & Function',cards:[
+        {m:'Gait Speed',v:'> 1.0 m/s',n:'<0.8 m/s = frailty marker; fall and mortality predictor'},
+        {m:'Grip Strength',v:'> 26 kg (M) / > 16 kg (F)',n:'Sarcopaenia screen; below threshold = functional decline risk'},
+        {m:'MMSE / MoCA',v:'MMSE ≥ 24 / MoCA ≥ 26',n:'Annual cognitive screening recommended from 70; compare over time'},
+        {m:'Barthel Index',v:'100 = fully independent',n:'<60 = significant dependence; triggers care planning'},
+      ]},
+      {title:'Sleep',cards:[
+        {m:'Sleep Duration',v:'7–8 hours/night',n:'Sleep architecture changes; deep sleep decreases; napping common'},
+        {m:'Sleep Efficiency',v:'> 75%',n:'Fragmented sleep increases dementia and fall risk'},
+      ]},
+    ]
+  }
+};
+
+var currentDemo='baby';
+var conditions=[],allergies=[];
+
+window.healthOpen=function(){document.getElementById('health-overlay').classList.add('open');hRender();};
+window.healthClose=function(){document.getElementById('health-overlay').classList.remove('open');};
+
+window.hSetTab=function(demo){
+  currentDemo=demo;
+  document.querySelectorAll('.h-tab').forEach(function(t){t.classList.toggle('active',t.dataset.demo===demo);});
+  hRender();
+};
+
+function hRender(){
+  var d=DEMOS[currentDemo];if(!d)return;
+  var banner=document.getElementById('h-banner');
+  banner.style.background=d.banner;banner.style.color=d.bannerText;
+  banner.innerHTML='<span class="health-banner-icon">'+d.icon+'</span><span><strong>'+d.label+'</strong><span class="health-banner-sub"> &nbsp;'+d.age+'</span></span>';
+  var body=document.getElementById('h-body');body.innerHTML='';
+  d.sections.forEach(function(sec){
+    var st=document.createElement('div');st.className='health-section-title';st.textContent=sec.title;body.appendChild(st);
+    var grid=document.createElement('div');grid.className='health-cards';
+    sec.cards.forEach(function(card){
+      var cardKey=currentDemo+'_'+card.m.replace(/[^a-zA-Z0-9]/g,'_');
+      var savedVal=hVitals[cardKey]||'';
+      // Build options from card range hints
+      var opts=hBuildOpts(card);
+      var selHtml='<select class="h-card-select" onchange="hSaveVital(&quot;'+cardKey+'&quot;,this.value,&quot;'+encodeURIComponent(card.v)+'&quot;,&quot;'+encodeURIComponent(card.m)+'&quot;)">';
+      selHtml+='<option value="">-- Enter your value --</option>';
+      opts.forEach(function(o){selHtml+='<option value="'+o+'"'+(savedVal===o?' selected':'')+'>'+o+'</option>';});
+      selHtml+='<option value="__custom__">Custom value...</option>';
+      selHtml+='</select>';
+      var customHtml='<input class="h-card-custom-input" id="ci_'+cardKey+'" placeholder="value" style="display:'+(savedVal&&!opts.includes(savedVal)?'inline-block':'none')+'" value="'+(savedVal&&!opts.includes(savedVal)?savedVal:''+'')+'" oninput="hSaveVitalCustom(&quot;'+cardKey+'&quot;,this.value,&quot;'+encodeURIComponent(card.v)+'&quot;,&quot;'+encodeURIComponent(card.m)+'&quot;)"/>';
+      var status=savedVal?hGetStatus(savedVal,card.v):'unknown';
+      var statusLabel={'normal':'&#10003; Normal','low':'&#9660; Below range','high':'&#9650; Above range','unknown':'No value entered'}[status]||'';
+      var c=document.createElement('div');c.className='h-card';
+      c.innerHTML='<div class="h-card-metric">'+card.m+'</div>'
+        +'<div class="h-card-value">'+card.v+'</div>'
+        +'<div class="h-card-note">'+card.n+'</div>'
+        +'<div class="h-card-input-row">'+selHtml+customHtml+'</div>'
+        +(savedVal?'<span class="h-card-status '+status+'">'+statusLabel+'</span>':'');
+      grid.appendChild(c);
+    });
+    body.appendChild(grid);
+  });
+  hPopulateProfileDropdowns();
+  hUpdateVitalDashboard();
+}
+
+function hBuildOpts(card){
+  // Generate sensible option list from reference range string
+  var v=card.v;var opts=[];
+  // Heart rate
+  if(/bpm/i.test(v)){for(var i=40;i<=200;i+=5)opts.push(i+' bpm');}
+  // SpO2
+  else if(/SpO|%/.test(card.m+v)&&/%/.test(v)&&!/cholesterol|BMI|FEV/i.test(card.m)){for(var i=85;i<=100;i++)opts.push(i+'%');}
+  // Temperature
+  else if(/°C/.test(v)){for(var t=34;t<=41;t+=0.1)opts.push(t.toFixed(1)+' °C');}
+  // Respiratory rate
+  else if(/\/min/.test(v)){for(var i=8;i<=80;i+=2)opts.push(i+' /min');}
+  // Blood pressure
+  else if(/mmHg/.test(v)){['70/40','80/50','90/60','100/65','110/70','120/80','130/85','140/90','150/95','160/100','170/110','180/120'].forEach(function(x){opts.push(x+' mmHg');});}
+  // Glucose
+  else if(/mmol\/L/.test(v)&&/glucose|sugar/i.test(card.m)){for(var i=2;i<=20;i+=0.5)opts.push(i.toFixed(1)+' mmol/L');}
+  // Haemoglobin
+  else if(/g\/dL/.test(v)){for(var i=5;i<=20;i+=0.5)opts.push(i.toFixed(1)+' g/dL');}
+  // HbA1c mmol/mol
+  else if(/mmol\/mol/.test(v)){for(var i=20;i<=100;i+=2)opts.push(i+' mmol/mol');}
+  // BMI
+  else if(/BMI|kg\/m/.test(card.m+v)){for(var i=14;i<=50;i+=0.5)opts.push(i.toFixed(1)+' kg/m²');}
+  // Sleep hours
+  else if(/hour/i.test(v)){for(var i=3;i<=12;i+=0.5)opts.push(i+' hrs');}
+  // Waist cm
+  else if(/cm/.test(v)){for(var i=50;i<=160;i+=2)opts.push(i+' cm');}
+  // Weight kg
+  else if(/kg/.test(v)&&!/kg\/m/.test(v)){for(var i=2;i<=200;i+=1)opts.push(i+' kg');}
+  // Cholesterol
+  else if(/mmol\/L/.test(v)){for(var i=1;i<=12;i+=0.5)opts.push(i.toFixed(1)+' mmol/L');}
+  return opts;
+}
+
+var hVitals={};
+window.hSaveVital=function(key,val,rangeEnc,metricEnc){
+  if(val==='__custom__'){
+    var ci=document.getElementById('ci_'+key);if(ci)ci.style.display='inline-block';return;
+  }
+  hVitals[key]=val;
+  hRender();
+};
+window.hSaveVitalCustom=function(key,val,rangeEnc,metricEnc){
+  hVitals[key]=val;
+  hUpdateVitalDashboard();
+};
+
+function hGetStatus(val,rangeStr){
+  // Extract numbers from value
+  var numMatch=val.match(/([\d.]+)/);if(!numMatch)return'unknown';
+  var num=parseFloat(numMatch[1]);
+  // Extract range numbers
+  var nums=rangeStr.match(/([\d.]+)/g);if(!nums||nums.length<1)return'unknown';
+  var mn=parseFloat(nums[0]),mx=nums.length>1?parseFloat(nums[nums.length-1]):null;
+  // Handle "< X" or "> X" patterns
+  if(/^</.test(rangeStr.trim()))return num<mn?'normal':'high';
+  if(/^>/.test(rangeStr.trim()))return num>mn?'normal':'low';
+  if(mx===null)return'unknown';
+  if(num<mn)return'low';
+  if(num>mx)return'high';
+  return'normal';
+}
+
+// Conditions & allergies by demographic
+var COND_BY_DEMO={
+  'baby':['Neonatal Jaundice','Colic','Reflux (GER)','Cradle Cap','Eczema','Congenital Heart Defect','RSV/Bronchiolitis','Neonatal Hypoglycaemia','Hip Dysplasia','Tongue Tie','Croup','Febrile Seizure'],
+  'toddler':['Iron Deficiency Anaemia','Otitis Media (Ear Infection)','Asthma','Eczema','Speech Delay','Autism Spectrum (early signs)','Febrile Seizures','Hand Foot Mouth Disease','Croup','Constipation','Viral Wheeze','Toddler Diarrhoea'],
+  'child':['Asthma','ADHD','Type 1 Diabetes','Eczema','Anxiety Disorder','Coeliac Disease','Migraine','Epilepsy','Scoliosis','Obesity','Enuresis (Bedwetting)','Growing Pains'],
+  'adolescent':['Acne','Depression','Anxiety','Eating Disorders (Anorexia/Bulimia)','PCOS','Type 2 Diabetes','Scoliosis','Hypertension','Asthma','Substance Use Disorder','ADHD','Dysmenorrhoea'],
+  'adult-male':['Hypertension','Type 2 Diabetes','Hypercholesterolaemia','Obstructive Sleep Apnoea','Gout','Erectile Dysfunction','Benign Prostatic Hyperplasia','COPD','Coronary Artery Disease','Kidney Stones','Depression','Liver Disease (NAFLD)'],
+  'adult-female':['Hypothyroidism','PCOS','Endometriosis','Iron Deficiency Anaemia','Migraines','Depression/Anxiety','Osteopenia','Urinary Tract Infections','Irritable Bowel Syndrome','Breast Cysts','Hypertension','Autoimmune Conditions'],
+  'elderly':['Hypertension','Type 2 Diabetes','Osteoarthritis','Osteoporosis','Dementia/Alzheimers','Atrial Fibrillation','Chronic Kidney Disease','COPD','Heart Failure','Cataracts','Parkinson\'s Disease','Depression/Social Isolation']
+};
+var ALLERGY_BY_DEMO={
+  'baby':['Cow\'s Milk Protein','Soy','Egg','Wheat (Gluten)','Peanut','Tree Nuts','Latex','Penicillin','Sesame','Fish','Shellfish','Fragrance/Perfume'],
+  'toddler':['Peanut','Tree Nuts','Egg','Cow\'s Milk','Wheat (Gluten)','Soy','Sesame','Penicillin','Amoxicillin','Strawberry','Fish','Shellfish'],
+  'child':['Peanut','Tree Nuts','Egg','Wheat (Gluten)','Dust Mites','Pet Dander','Bee/Wasp Venom','Penicillin','Ibuprofen','Latex','Shellfish','Mould'],
+  'adolescent':['Peanut','Tree Nuts','Shellfish','Penicillin','Sulphonamides','Latex','Aspirin/NSAIDs','Nickel (jewellery)','Fragrance','Grass Pollen','Dust Mites','Insect Venom'],
+  'adult-male':['Penicillin','Sulphonamides','Aspirin/NSAIDs','Shellfish','Peanut','Latex','ACE Inhibitors (Lisinopril)','Statins','Iodine (contrast dye)','Codeine/Opioids','Insect Venom','Nickel'],
+  'adult-female':['Penicillin','Sulphonamides','Aspirin/NSAIDs','Latex','Nickel','Fragrance/Perfume','Shellfish','Peanut','Iodine','Codeine','Progesterone (hormonal)','Hair Dye (PPD)'],
+  'elderly':['Penicillin','Sulphonamides','NSAIDs/Aspirin','ACE Inhibitors','Statins','Codeine/Opioids','Iodine (contrast)','Latex','Beta-blockers','Warfarin (drug interaction)','Metformin','Shellfish']
+};
+
+window.hAddTag=function(type){
+  var inputId=type==='condition'?'h-cond-input':'h-allergy-input';
+  var val=document.getElementById(inputId).value.trim();
+  if(!val)return;
+  if(type==='condition')conditions.push(val);else allergies.push(val);
+  document.getElementById(inputId).value='';
+  hRenderTags();
+};
+
+window.hAddFromSelect=function(type){
+  var selId=type==='condition'?'h-cond-select':'h-allergy-select';
+  var sel=document.getElementById(selId);
+  var val=sel.value;if(!val)return;
+  if(type==='condition')conditions.push(val);else allergies.push(val);
+  sel.value='';
+  hRenderTags();
+};
+
+function hPopulateProfileDropdowns(){
+  var conds=COND_BY_DEMO[currentDemo]||[];
+  var allys=ALLERGY_BY_DEMO[currentDemo]||[];
+  var cs=document.getElementById('h-cond-select');
+  var as=document.getElementById('h-allergy-select');
+  if(cs){cs.innerHTML='<option value="">-- Select common condition for '+DEMOS[currentDemo].label+' --</option>';conds.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});}
+  if(as){as.innerHTML='<option value="">-- Select common allergy for '+DEMOS[currentDemo].label+' --</option>';allys.forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a;as.appendChild(o);});}
+}
+
+function hRenderTags(){
+  var cw=document.getElementById('h-cond-tags');
+  var aw=document.getElementById('h-allergy-tags');
+  cw.innerHTML=conditions.length?'':'<span style="font-size:12px;color:#9aaa9a;font-style:italic">No conditions added yet.</span>';
+  aw.innerHTML=allergies.length?'':'<span style="font-size:12px;color:#9aaa9a;font-style:italic">No allergies added yet.</span>';
+  conditions.forEach(function(c,i){
+    var t=document.createElement('span');t.className='h-tag condition';
+    t.innerHTML=c+'<button onclick="hRemoveTag(&quot;condition&quot;,'+i+')" title="Remove">&#x2715;</button>';
+    cw.appendChild(t);
+  });
+  allergies.forEach(function(a,i){
+    var t=document.createElement('span');t.className='h-tag allergy';
+    t.innerHTML=a+'<button onclick="hRemoveTag(&quot;allergy&quot;,'+i+')" title="Remove">&#x2715;</button>';
+    aw.appendChild(t);
+  });
+}
+
+window.hRemoveTag=function(type,idx){
+  if(type==='condition')conditions.splice(idx,1);else allergies.splice(idx,1);
+  hRenderTags();
+};
+
+// Init tags display
+window.hUpdateVitalDashboard=function(){
+  var grid=document.getElementById('vital-grid');
+  var dash=document.getElementById('vital-dashboard');
+  var lbl=document.getElementById('vital-demo-lbl');
+  if(!grid||!dash)return;
+  // Collect all entered vitals
+  var entries=[];
+  Object.keys(hVitals).forEach(function(k){
+    if(!hVitals[k])return;
+    // find card def
+    var parts=k.split('_');var demo=parts[0];
+    var d=DEMOS[demo];if(!d)return;
+    d.sections.forEach(function(sec){
+      sec.cards.forEach(function(card){
+        var cardKey=demo+'_'+card.m.replace(/[^a-zA-Z0-9]/g,'_');
+        if(cardKey===k&&hVitals[k]){
+          entries.push({name:card.m,val:hVitals[k],range:card.v,status:hGetStatus(hVitals[k],card.v),demo:demo});
+        }
+      });
+    });
+  });
+  if(!entries.length){
+    grid.innerHTML='<p class="vital-empty">No vitals recorded yet — open Health Monitor and enter your values.</p>';
+    dash.style.display='none';return;
+  }
+  dash.style.display='block';
+  grid.innerHTML='';
+  var colorMap={'normal':'#6BAE8A','low':'#F0B429','high':'#E05C40','unknown':'#aaa'};
+  var r=44,cx=48,cy=48,circ=2*Math.PI*r;
+  entries.forEach(function(e){
+    // Compute fill percent
+    var pct=0.5;
+    var nums=e.range.match(/([\d.]+)/g);
+    var eNums=e.val.match(/([\d.]+)/);
+    if(nums&&eNums){
+      var eNum=parseFloat(eNums[1]);
+      var mn=parseFloat(nums[0]),mx=nums.length>1?parseFloat(nums[nums.length-1]):mn*1.5;
+      if(/^</.test(e.range.trim()))pct=Math.min(1,eNum/(mn*1.5));
+      else if(/^>/.test(e.range.trim()))pct=Math.min(1,eNum/(mn*1.2));
+      else pct=Math.min(1,Math.max(0,(eNum-mn*0.5)/((mx-mn*0.5)*1.2)));
+    }
+    var col=colorMap[e.status]||'#aaa';
+    var offset=circ-(pct*circ);
+    var item=document.createElement('div');item.className='vital-item';
+    item.innerHTML='<div class="vital-circle-wrap"><svg viewBox="0 0 96 96"><circle class="vital-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="8"/><circle class="vital-fill" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="'+col+'" stroke-width="8" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="vital-center"><span class="vital-val">'+e.val.replace(/[a-zA-Z°²\/µ%]/g,'').trim().substring(0,6)+'</span><span class="vital-unit">'+e.val.replace(/[0-9.\s]/g,'').trim().substring(0,5)+'</span></div></div><div class="vital-name">'+e.name+'</div><div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>';
+    grid.appendChild(item);
+  });
+};
+
+window.addEventListener('load',function(){hRenderTags();});
+
 })();
 </script>
 
