@@ -712,7 +712,7 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 .vital-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
 .vital-circle-wrap{position:relative;width:clamp(72px,14vw,96px);height:clamp(72px,14vw,96px);}
 .vital-circle-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
-.vital-track{fill:none;stroke:rgba(200,200,200,.25);}
+.vital-track{fill:none;stroke:rgba(200,200,200,.3);}
 .vital-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1),stroke .4s;}
 .vital-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .vital-val{font-family:'Playfair Display',serif;font-size:clamp(11px,2vw,14px);font-weight:500;color:var(--text-dark);line-height:1;}
@@ -759,7 +759,7 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
     <!-- Sign In -->
     <div id="lc-signin-form">
       <div class="lc-form">
-        <div class="lc-field"><label>Name</label><input type="text" id="si-name" placeholder="Your name" autocomplete="username"/></div>
+        <div class="lc-field"><label>Name</label><input type="email" id="si-name" placeholder="Your email address" autocomplete="email"/></div>
         <div class="lc-field"><label>Password</label><input type="password" id="si-pass" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password"/></div>
         <p class="lc-err" id="si-err">Name or password incorrect.</p>
         <button class="lc-submit" onclick="lcSignIn()">Sign In &#8594;</button>
@@ -2473,7 +2473,7 @@ window.hUpdateVitalDashboard=function(){
   dash.style.display='block';
   grid.innerHTML='';
   var colorMap={'normal':'#6BAE8A','low':'#F0B429','high':'#E05C40','unknown':'#aaa'};
-  var r=44,cx=48,cy=48,circ=2*Math.PI*r;
+  var r=38,cx=48,cy=48,circ=2*Math.PI*r;
   entries.forEach(function(e){
     // Compute fill percent
     var pct=0.5;
@@ -2489,7 +2489,7 @@ window.hUpdateVitalDashboard=function(){
     var col=colorMap[e.status]||'#aaa';
     var offset=circ-(pct*circ);
     var item=document.createElement('div');item.className='vital-item';
-    item.innerHTML='<div class="vital-circle-wrap"><svg viewBox="0 0 96 96"><circle class="vital-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="8"/><circle class="vital-fill" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="'+col+'" stroke-width="8" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="vital-center"><span class="vital-val">'+e.val.replace(/[a-zA-Z°²\/µ%]/g,'').trim().substring(0,6)+'</span><span class="vital-unit">'+e.val.replace(/[0-9.\s]/g,'').trim().substring(0,5)+'</span></div></div><div class="vital-name">'+e.name+'</div><div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>';
+    item.innerHTML='<div class="vital-circle-wrap"><svg viewBox="0 0 96 96"><circle class="vital-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="14"/><circle class="vital-fill" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="'+col+'" stroke-width="14" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="vital-center"><span class="vital-val">'+e.val.replace(/[a-zA-Z°²\/µ%]/g,'').trim().substring(0,6)+'</span><span class="vital-unit">'+e.val.replace(/[0-9.\s]/g,'').trim().substring(0,5)+'</span></div></div><div class="vital-name">'+e.name+'</div><div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>';
     grid.appendChild(item);
   });
 };
@@ -2497,6 +2497,212 @@ window.hUpdateVitalDashboard=function(){
 window.addEventListener('load',function(){hRenderTags();});
 
 })();
+</script>
+
+
+<script type="module">
+/* ══ FIREBASE INTEGRATION ══ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDrjWiO-60aMmyGU35262J8dwKU6dP1irw",
+  authDomain: "lifetime-calendar-4ef05.firebaseapp.com",
+  projectId: "lifetime-calendar-4ef05",
+  storageBucket: "lifetime-calendar-4ef05.firebasestorage.app",
+  messagingSenderId: "523280458304",
+  appId: "1:523280458304:web:3cd662e36859bfb004b5a5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── Save user data to Firestore
+async function saveUserData(uid, data) {
+  try {
+    await setDoc(doc(db, 'users', uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  } catch(e) { console.warn('Firebase save error:', e); }
+}
+
+// ── Load user data from Firestore
+async function loadUserData(uid) {
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    return snap.exists() ? snap.data() : null;
+  } catch(e) { console.warn('Firebase load error:', e); return null; }
+}
+
+// ── Apply loaded config to the calendar
+function applyFirebaseData(data, name) {
+  if (!data) return;
+  const sdEl = document.getElementById('start-date');
+  const eyEl = document.getElementById('end-year-in');
+  if (data.cfg) {
+    if (sdEl && data.cfg.startDate) sdEl.value = data.cfg.startDate;
+    if (eyEl && data.cfg.years) eyEl.value = data.cfg.years;
+  }
+  // Hide auth screens, show app
+  const a = document.getElementById('lc-auth-screen');
+  const o = document.getElementById('lc-onboard-screen');
+  if (a) a.classList.add('hidden');
+  if (o) o.classList.add('hidden');
+  // Show user pill
+  const pill = document.getElementById('lc-user-pill');
+  const nEl = document.getElementById('lc-user-name-pill');
+  const avEl = document.getElementById('lc-avatar');
+  if (pill) pill.style.display = 'flex';
+  if (nEl) nEl.textContent = name || 'User';
+  if (avEl) avEl.textContent = (name || 'U').charAt(0).toUpperCase();
+  // Trigger calendar render
+  function doApply() {
+    if (typeof autoApply === 'function') autoApply();
+    setTimeout(() => { if (typeof cdAutoUpdate === 'function') cdAutoUpdate(); }, 400);
+  }
+  if (document.readyState === 'complete') doApply();
+  else window.addEventListener('load', doApply);
+}
+
+// ── Sign Up
+window.lcSignUp = async function() {
+  const name = (document.getElementById('su-name').value || '').trim();
+  const email = (document.getElementById('su-email').value || '').trim();
+  const pass = document.getElementById('su-pass').value || '';
+  const err = document.getElementById('su-err');
+  if (!name || !email || !pass) { showFBErr('su-err', 'Please fill in all fields.'); return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await saveUserData(cred.user.uid, { name, email, createdAt: serverTimestamp() });
+    hideFBErr('su-err');
+    lcGoOnboard(name);
+  } catch(e) {
+    showFBErr('su-err', getFBErrMsg(e.code));
+  }
+};
+
+// ── Sign In
+window.lcSignIn = async function() {
+  const name = (document.getElementById('si-name').value || '').trim();
+  const pass = document.getElementById('si-pass').value || '';
+  const err = document.getElementById('si-err');
+  // We need email — fetch from name lookup or use name as email
+  // Support both: if name contains @, treat as email; otherwise look up
+  let email = name.includes('@') ? name : null;
+  if (!email) {
+    // Try signing in with name@lifetime.app as convention, or show message
+    showFBErr('si-err', 'Please enter your email address in the Name field.');
+    document.getElementById('si-name').placeholder = 'Your email address';
+    return;
+  }
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    const data = await loadUserData(cred.user.uid);
+    const displayName = data?.name || email.split('@')[0];
+    hideFBErr('si-err');
+    if (data?.cfg) {
+      applyFirebaseData(data, displayName);
+    } else {
+      lcGoOnboard(displayName);
+    }
+  } catch(e) {
+    showFBErr('si-err', getFBErrMsg(e.code));
+  }
+};
+
+// ── Sign Out
+window.lcSignOut = async function() {
+  try { await signOut(auth); } catch(e) {}
+  location.reload();
+};
+
+// ── Onboarding Done — save config to Firebase
+window.lcOnboardDone = async function() {
+  const sd = document.getElementById('ob-start-date').value;
+  const yr = parseInt(document.getElementById('ob-years').value) || 127;
+  if (!sd) { alert('Please enter a start date.'); return; }
+  const user = auth.currentUser;
+  if (user) {
+    const data = await loadUserData(user.uid);
+    await saveUserData(user.uid, { cfg: { startDate: sd, years: yr } });
+    applyFirebaseData({ cfg: { startDate: sd, years: yr } }, data?.name || 'User');
+  } else {
+    // fallback localStorage
+    const sdEl = document.getElementById('start-date');
+    const eyEl = document.getElementById('end-year-in');
+    if (sdEl) sdEl.value = sd;
+    if (eyEl) eyEl.value = yr;
+    document.getElementById('lc-onboard-screen').classList.add('hidden');
+    if (typeof autoApply === 'function') autoApply();
+  }
+};
+
+// ── Auto-save config changes to Firebase
+window.autoApply = function() {
+  const rd = document.getElementById('start-date').value;
+  const ey = parseInt(document.getElementById('end-year-in').value);
+  if (rd && !isNaN(ey) && ey >= 1) {
+    if (typeof applyConfig === 'function') applyConfig();
+    const user = auth.currentUser;
+    if (user) saveUserData(user.uid, { cfg: { startDate: rd, years: ey } });
+  }
+};
+
+// ── Auth state observer — auto-restore session
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const data = await loadUserData(user.uid);
+    const displayName = data?.name || user.email?.split('@')[0] || 'User';
+    if (data?.cfg) {
+      applyFirebaseData(data, displayName);
+    } else {
+      lcGoOnboard(displayName);
+    }
+  }
+  // else: auth screen stays visible
+});
+
+// ── Helpers
+function showFBErr(id, msg) { const e = document.getElementById(id); if(e){e.style.display='block';e.textContent=msg;} }
+function hideFBErr(id) { const e = document.getElementById(id); if(e) e.style.display='none'; }
+function getFBErrMsg(code) {
+  const msgs = {
+    'auth/email-already-in-use': 'Email already registered. Try signing in.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/wrong-password': 'Incorrect password. Please try again.',
+    'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
+    'auth/invalid-credential': 'Email or password is incorrect.',
+  };
+  return msgs[code] || 'Something went wrong. Please try again.';
+}
+
+// ── Save health vitals to Firebase
+window.hSaveVital = async function(key, val, rangeEnc, metricEnc) {
+  if (val === '__custom__') {
+    const ci = document.getElementById('ci_' + key); if(ci) ci.style.display = 'inline-block'; return;
+  }
+  hVitals[key] = val;
+  const user = auth.currentUser;
+  if (user) saveUserData(user.uid, { vitals: hVitals });
+  if (typeof hRender === 'function') hRender();
+};
+
+// ── Save cycle data to Firebase
+const origCycleSave = window.cycleCalculate;
+window.cycleCalculate = async function(silent) {
+  if (typeof origCycleSave === 'function') origCycleSave(silent);
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const cycData = JSON.parse(localStorage.getItem('lc_cycles') || 'null');
+      if (cycData) saveUserData(user.uid, { cycles: cycData });
+    } catch(e) {}
+  }
+};
+
+console.log('Firebase initialized successfully');
 </script>
 
 </body>
