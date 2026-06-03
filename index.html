@@ -1378,7 +1378,11 @@ function cdTick(){
     const start=getStart();
     T.mode=mode;T.slots=buildSlots();T.periods=buildPeriods(mode,start,count);T.cur=0;T.events={};T.built=true;T.sel=null;
     // persist for notification system
-    try{localStorage.setItem('lc_timetable',JSON.stringify({mode:T.mode,slots:T.slots,periods:T.periods.map(function(p){return{label:p.label,days:p.days.map(function(d){return d.toISOString();}),yearMode:p.yearMode||false};}),events:{}}));}catch(e){}
+    try{
+      var ttSnapshot={mode:T.mode,slots:T.slots,periods:T.periods.map(function(p){return{label:p.label,days:p.days.map(function(d){return d.toISOString();}),yearMode:p.yearMode||false};}),events:{}};
+      localStorage.setItem('lc_timetable',JSON.stringify(ttSnapshot));
+      if(typeof window._fbSaveTimetable==='function')window._fbSaveTimetable(ttSnapshot);
+    }catch(e){}
     renderNav();renderGrid();renderStats();ttTab('view');document.getElementById('tt-status').textContent='Built '+T.periods.length+' period(s), '+T.slots.length+' slot(s)/day.';
   };
   function renderNav(){
@@ -1418,7 +1422,11 @@ function cdTick(){
   function updateSelInfo(){if(!T.sel){document.getElementById('tt-sel-info').textContent='Click any cell to select it.';return;}const p=T.periods[T.cur];const day=p&&p.days[T.sel.di];const slot=T.slots[T.sel.si];if(day&&slot)document.getElementById('tt-sel-info').textContent='Selected: '+DOW_S[day.getDay()]+' '+fmtD(day)+' \u00b7 '+slot;}
   window.ttClearSel=function(){T.sel=null;document.querySelectorAll('.tt-cell').forEach(el=>el.classList.remove('selected'));updateSelInfo();};
   window.ttAddEvent=function(){if(!T.sel){alert('Click a cell first.');return;}const title=document.getElementById('tt-ev-title').value.trim();if(!title){alert('Enter an event title.');return;}const color=document.getElementById('tt-ev-color').value;const key=T.sel.key;if(!T.events[key])T.events[key]=[];T.events[key].push({title,color});document.getElementById('tt-ev-title').value='';
-      try{var s=JSON.parse(localStorage.getItem('lc_timetable')||'{}');s.events=T.events;localStorage.setItem('lc_timetable',JSON.stringify(s));}catch(e){}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
+      try{
+        var s=JSON.parse(localStorage.getItem('lc_timetable')||'{}');s.events=T.events;
+        localStorage.setItem('lc_timetable',JSON.stringify(s));
+        if(typeof window._fbSaveTimetable==='function')window._fbSaveTimetable(s);
+      }catch(e){}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
   window.ttRmEv=function(key,idx,e){e.stopPropagation();if(T.events[key]){T.events[key].splice(idx,1);if(!T.events[key].length)delete T.events[key];}const saved=T.sel;renderGrid();renderStats();if(saved)ttSelCell(saved.di,saved.si,saved.key);};
   window.ttClearAll=function(){if(!confirm('Clear all events?'))return;T.events={};renderGrid();renderStats();ttSummary();};
   function ttSummary(){
@@ -1536,6 +1544,10 @@ function cdTick(){
     const saved=loadData()||{logs:[]};
     saved.lastDate=lastDateVal;saved.length=cycLen;saved.duration=dur;saved.count=count;
     if(typeof checkAndNotify==='function')setTimeout(checkAndNotify,300);
+    // Save to Firebase
+    if(typeof window._fbSaveCycleData==='function'){
+      try{var cd=JSON.parse(localStorage.getItem('lc_cycles')||'null');if(cd)window._fbSaveCycleData(cd);}catch(e){}
+    }
     saveData(saved);
     // Parse last date
     const p=lastDateVal.split('-');
@@ -2352,24 +2364,37 @@ window.hSaveVital=function(key,val,rangeEnc,metricEnc){
     var ci=document.getElementById('ci_'+key);if(ci)ci.style.display='inline-block';return;
   }
   hVitals[key]=val;
+  if(typeof window._fbSaveVitals==='function')window._fbSaveVitals(hVitals);
   hRender();
 };
 window.hSaveVitalCustom=function(key,val,rangeEnc,metricEnc){
   hVitals[key]=val;
+  if(typeof window._fbSaveVitals==='function')window._fbSaveVitals(hVitals);
   hUpdateVitalDashboard();
 };
 
 function hGetStatus(val,rangeStr){
-  // Extract numbers from value
-  var numMatch=val.match(/([\d.]+)/);if(!numMatch)return'unknown';
+  if(!val||!rangeStr)return'unknown';
+  // Extract first number from the user's entered value
+  var numMatch=val.replace(/,/g,'').match(/([\d.]+)/);
+  if(!numMatch)return'unknown';
   var num=parseFloat(numMatch[1]);
-  // Extract range numbers
-  var nums=rangeStr.match(/([\d.]+)/g);if(!nums||nums.length<1)return'unknown';
-  var mn=parseFloat(nums[0]),mx=nums.length>1?parseFloat(nums[nums.length-1]):null;
-  // Handle "< X" or "> X" patterns
-  if(/^</.test(rangeStr.trim()))return num<mn?'normal':'high';
-  if(/^>/.test(rangeStr.trim()))return num>mn?'normal':'low';
-  if(mx===null)return'unknown';
+  if(isNaN(num))return'unknown';
+  // Handle "< X" pattern
+  if(/^\s*</.test(rangeStr)){
+    var lim=rangeStr.match(/([\d.]+)/);
+    return(lim&&num<parseFloat(lim[1]))?'normal':'high';
+  }
+  // Handle "> X" pattern
+  if(/^\s*>/.test(rangeStr)){
+    var lim=rangeStr.match(/([\d.]+)/);
+    return(lim&&num>parseFloat(lim[1]))?'normal':'low';
+  }
+  // Extract all numbers from range (handles en-dash, hyphen, "to")
+  var nums=rangeStr.replace(/[–—]/g,'-').match(/([\d.]+)/g);
+  if(!nums||nums.length<2)return'unknown';
+  var mn=parseFloat(nums[0]),mx=parseFloat(nums[nums.length-1]);
+  if(isNaN(mn)||isNaN(mx))return'unknown';
   if(num<mn)return'low';
   if(num>mx)return'high';
   return'normal';
@@ -2423,6 +2448,7 @@ function hPopulateProfileDropdowns(){
 }
 
 function hRenderTags(){
+  if(typeof window._fbSaveHealthProfile==='function')window._fbSaveHealthProfile(conditions,allergies);
   var cw=document.getElementById('h-cond-tags');
   var aw=document.getElementById('h-allergy-tags');
   cw.innerHTML=conditions.length?'':'<span style="font-size:12px;color:#9aaa9a;font-style:italic">No conditions added yet.</span>';
@@ -2448,20 +2474,17 @@ window.hRemoveTag=function(type,idx){
 window.hUpdateVitalDashboard=function(){
   var grid=document.getElementById('vital-grid');
   var dash=document.getElementById('vital-dashboard');
-  var lbl=document.getElementById('vital-demo-lbl');
   if(!grid||!dash)return;
-  // Collect all entered vitals
   var entries=[];
-  Object.keys(hVitals).forEach(function(k){
-    if(!hVitals[k])return;
-    // find card def
-    var parts=k.split('_');var demo=parts[0];
+  if(typeof DEMOS==='undefined')return;
+  Object.keys(DEMOS).forEach(function(demo){
     var d=DEMOS[demo];if(!d)return;
     d.sections.forEach(function(sec){
       sec.cards.forEach(function(card){
         var cardKey=demo+'_'+card.m.replace(/[^a-zA-Z0-9]/g,'_');
-        if(cardKey===k&&hVitals[k]){
-          entries.push({name:card.m,val:hVitals[k],range:card.v,status:hGetStatus(hVitals[k],card.v),demo:demo});
+        var val=hVitals[cardKey];
+        if(val&&val.trim()){
+          entries.push({name:card.m,val:val,range:card.v,status:hGetStatus(val,card.v)});
         }
       });
     });
@@ -2472,27 +2495,43 @@ window.hUpdateVitalDashboard=function(){
   }
   dash.style.display='block';
   grid.innerHTML='';
-  var colorMap={'normal':'#6BAE8A','low':'#F0B429','high':'#E05C40','unknown':'#aaa'};
-  var r=38,cx=48,cy=48,circ=2*Math.PI*r;
+  var colorMap={normal:'#6BAE8A',low:'#F0B429',high:'#E05C40',unknown:'#bbb'};
+  var statusLabels={normal:'Normal',low:'Low',high:'High',unknown:''};
+  var R=38,CX=48,CY=48,CIRC=2*Math.PI*R;
   entries.forEach(function(e){
-    // Compute fill percent
     var pct=0.5;
-    var nums=e.range.match(/([\d.]+)/g);
-    var eNums=e.val.match(/([\d.]+)/);
-    if(nums&&eNums){
-      var eNum=parseFloat(eNums[1]);
-      var mn=parseFloat(nums[0]),mx=nums.length>1?parseFloat(nums[nums.length-1]):mn*1.5;
-      if(/^</.test(e.range.trim()))pct=Math.min(1,eNum/(mn*1.5));
-      else if(/^>/.test(e.range.trim()))pct=Math.min(1,eNum/(mn*1.2));
-      else pct=Math.min(1,Math.max(0,(eNum-mn*0.5)/((mx-mn*0.5)*1.2)));
+    var rangeNums=e.range.replace(/–|—/g,'-').match(/([\d.]+)/g);
+    var valNum=e.val.replace(/,/g,'').match(/([\d.]+)/);
+    if(rangeNums&&valNum){
+      var n=parseFloat(valNum[1]);
+      if(/^\s*</.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim||1));}
+      else if(/^\s*>/.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim*1.2||1));}
+      else if(rangeNums.length>=2){
+        var mn=parseFloat(rangeNums[0]),mx=parseFloat(rangeNums[rangeNums.length-1]);
+        if(mx>mn)pct=Math.min(1,Math.max(0.05,(n-mn)/(mx-mn)));
+      }
     }
-    var col=colorMap[e.status]||'#aaa';
-    var offset=circ-(pct*circ);
+    var col=colorMap[e.status]||'#bbb';
+    var offset=CIRC*(1-pct);
+    var dispVal=e.val.replace(/[a-zA-Z°²\/µ%,]/g,'').trim().substring(0,7);
+    var dispUnit=e.val.replace(/[\d.\s,\-]/g,'').trim().substring(0,5);
     var item=document.createElement('div');item.className='vital-item';
-    item.innerHTML='<div class="vital-circle-wrap"><svg viewBox="0 0 96 96"><circle class="vital-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="14"/><circle class="vital-fill" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="'+col+'" stroke-width="14" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="vital-center"><span class="vital-val">'+e.val.replace(/[a-zA-Z°²\/µ%]/g,'').trim().substring(0,6)+'</span><span class="vital-unit">'+e.val.replace(/[0-9.\s]/g,'').trim().substring(0,5)+'</span></div></div><div class="vital-name">'+e.name+'</div><div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>';
+    var svgStr='<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">'
+      +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="rgba(200,200,200,.3)" stroke-width="14"/>'
+      +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="14" stroke-linecap="round"'
+      +' stroke-dasharray="'+CIRC+'" stroke-dashoffset="'+offset+'"'
+      +' transform="rotate(-90 '+CX+' '+CY+')"'
+      +'/></svg>';
+    item.innerHTML='<div class="vital-circle-wrap">'+svgStr
+      +'<div class="vital-center"><span class="vital-val">'+dispVal+'</span><span class="vital-unit">'+dispUnit+'</span></div>'
+      +'</div>'
+      +'<div class="vital-name">'+e.name+'</div>'
+      +'<div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>'
+      +(e.status&&e.status!=='unknown'?'<div style="font-size:9px;color:'+col+';font-weight:600;letter-spacing:.04em;margin-top:1px;">'+statusLabels[e.status]+'</div>':'');
     grid.appendChild(item);
   });
 };
+
 
 window.addEventListener('load',function(){hRenderTags();});
 
@@ -2542,6 +2581,27 @@ function applyFirebaseData(data, name) {
   if (data.cfg) {
     if (sdEl && data.cfg.startDate) sdEl.value = data.cfg.startDate;
     if (eyEl && data.cfg.years) eyEl.value = data.cfg.years;
+  }
+  // Restore vitals
+  if (data.vitals && typeof hVitals !== 'undefined') {
+    Object.assign(hVitals, data.vitals);
+    if (typeof hUpdateVitalDashboard === 'function') setTimeout(hUpdateVitalDashboard, 500);
+  }
+  // Restore cycles to localStorage
+  if (data.cycles) {
+    try { localStorage.setItem('lc_cycles', JSON.stringify(data.cycles)); } catch(e) {}
+  }
+  // Restore timetable to localStorage
+  if (data.timetable) {
+    try { localStorage.setItem('lc_timetable', JSON.stringify(data.timetable)); } catch(e) {}
+  }
+  // Restore health profile
+  if (data.healthProfile) {
+    try {
+      if (data.healthProfile.conditions) conditions = data.healthProfile.conditions;
+      if (data.healthProfile.allergies) allergies = data.healthProfile.allergies;
+      if (typeof hRenderTags === 'function') setTimeout(hRenderTags, 600);
+    } catch(e) {}
   }
   // Hide auth screens, show app
   const a = document.getElementById('lc-auth-screen');
@@ -2678,29 +2738,29 @@ function getFBErrMsg(code) {
   return msgs[code] || 'Something went wrong. Please try again.';
 }
 
-// ── Save health vitals to Firebase
-window.hSaveVital = async function(key, val, rangeEnc, metricEnc) {
-  if (val === '__custom__') {
-    const ci = document.getElementById('ci_' + key); if(ci) ci.style.display = 'inline-block'; return;
+// ── Expose Firebase save to global scope for health vitals
+window._fbSaveVitals = async function(vitals) {
+  if (auth.currentUser) {
+    await saveUserData(auth.currentUser.uid, { vitals: vitals });
   }
-  hVitals[key] = val;
-  const user = auth.currentUser;
-  if (user) saveUserData(user.uid, { vitals: hVitals });
-  if (typeof hRender === 'function') hRender();
+};
+window._fbSaveCycleData = async function(data) {
+  if (auth.currentUser) {
+    await saveUserData(auth.currentUser.uid, { cycles: data });
+  }
+};
+window._fbSaveTimetable = async function(data) {
+  if (auth.currentUser) {
+    await saveUserData(auth.currentUser.uid, { timetable: data });
+  }
+};
+window._fbSaveHealthProfile = async function(conditions, allergies) {
+  if (auth.currentUser) {
+    await saveUserData(auth.currentUser.uid, { healthProfile: { conditions, allergies } });
+  }
 };
 
-// ── Save cycle data to Firebase
-const origCycleSave = window.cycleCalculate;
-window.cycleCalculate = async function(silent) {
-  if (typeof origCycleSave === 'function') origCycleSave(silent);
-  const user = auth.currentUser;
-  if (user) {
-    try {
-      const cycData = JSON.parse(localStorage.getItem('lc_cycles') || 'null');
-      if (cycData) saveUserData(user.uid, { cycles: cycData });
-    } catch(e) {}
-  }
-};
+// cycle saving is handled via _fbSaveCycleData called from cycleCalculate
 
 console.log('Firebase initialized successfully');
 </script>
