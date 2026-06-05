@@ -24,13 +24,17 @@ var lcShowTab,lcSignIn,lcSignUp,lcGoOnboard,lcOnboardDone,lcSignOut;
   lcShowTab=function(t){
     var sf=document.getElementById('lc-signin-form');
     var uf=document.getElementById('lc-signup-form');
+    var af=document.getElementById('lc-admin-signup-form');
     var ts=document.getElementById('tab-signin');
     var tu=document.getElementById('tab-signup');
+    var ta=document.getElementById('tab-admin-signup');
     if(sf)sf.style.display=t==='signin'?'block':'none';
     if(uf)uf.style.display=t==='signup'?'block':'none';
+    if(af)af.style.display=t==='admin-signup'?'block':'none';
     if(ts)ts.classList.toggle('active',t==='signin');
     if(tu)tu.classList.toggle('active',t==='signup');
-    hideErr('si-err');hideErr('su-err');
+    if(ta)ta.classList.toggle('active',t==='admin-signup');
+    hideErr('si-err');hideErr('su-err');hideErr('asu-err');
   };
 
   lcSignUp=function(){
@@ -725,6 +729,118 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 .vital-status-dot.unknown{background:#aaa;}
 .vital-empty{font-size:var(--fs-xs);color:var(--text-soft);text-align:center;font-style:italic;padding:1rem 0;}
 
+
+/* ── VITAL DASHBOARD TABS ── */
+.vital-dash-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
+.vital-demo-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.vital-demo-tab{padding:4px 12px;border-radius:999px;border:1px solid rgba(160,220,190,.35);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--text-soft);cursor:pointer;transition:all .18s;background:rgba(255,255,255,.4);}
+.vital-demo-tab:hover{background:rgba(160,220,190,.2);}
+.vital-demo-tab.active{color:#fff;border-color:transparent;}
+.vital-demo-tab[data-demo="baby"].active{background:#FF9AA2;}
+.vital-demo-tab[data-demo="toddler"].active{background:#FFB347;}
+.vital-demo-tab[data-demo="child"].active{background:#87CEEB;}
+.vital-demo-tab[data-demo="adolescent"].active{background:#9B89B4;}
+.vital-demo-tab[data-demo="adult-male"].active{background:#4A90D9;}
+.vital-demo-tab[data-demo="adult-female"].active{background:#E87D8F;}
+.vital-demo-tab[data-demo="elderly"].active{background:#6BAE8A;}
+
+.vital-demo-panel{display:none;}
+.vital-demo-panel.active{display:block;}
+.vital-demo-banner{display:flex;align-items:center;gap:8px;border-radius:10px;padding:7px 14px;margin-bottom:10px;font-family:'Playfair Display',serif;font-size:13px;}
+
+/* Notification strip */
+.vital-notif-strip{margin-top:1rem;padding-top:1rem;border-top:1px dashed rgba(160,220,190,.4);}
+.vital-notif-title{font-size:var(--fs-xs);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text-soft);margin-bottom:8px;}
+.vital-notif-cards{display:flex;gap:8px;flex-wrap:wrap;}
+.vital-notif-card{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.45);border:1px solid rgba(200,200,200,.3);border-radius:12px;padding:10px 12px;flex:1;min-width:180px;max-width:280px;}
+.vital-notif-card.timetable{border-color:rgba(240,169,138,.4);background:rgba(255,248,240,.6);}
+.vital-notif-card.cycle{border-color:rgba(255,182,193,.45);background:rgba(255,245,248,.6);}
+.vital-notif-card.urgent{border-color:rgba(220,80,60,.35);background:rgba(255,235,230,.6);}
+.vital-notif-icon{font-size:18px;flex-shrink:0;}
+.vital-notif-body{}
+.vital-notif-card-title{font-size:12px;font-weight:500;color:var(--text-dark);margin-bottom:2px;}
+.vital-notif-card-msg{font-size:11px;color:var(--text-soft);line-height:1.5;}
+.vital-notif-card-time{font-size:10px;color:var(--text-soft);margin-top:3px;font-style:italic;}
+.vital-notif-empty{font-size:12px;color:var(--text-soft);font-style:italic;}
+
+
+/* ── ADMIN SIGN UP TAB ── */
+.lc-tab.admin-tab{border:1px solid rgba(255,165,0,.35);color:#8a5a00;}
+.lc-tab.admin-tab.active{color:#3a2a1e;border-bottom-color:#e8843a;border-color:transparent;}
+.admin-token-hint{font-size:10px;color:#b0907a;margin-top:4px;font-style:italic;}
+.admin-level-field select{background:rgba(255,255,255,.65);border:1px solid rgba(240,169,138,.45);border-radius:12px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#3a2a1e;outline:none;width:100%;transition:all .2s;}
+.admin-level-field select:focus{border-color:#e8843a;box-shadow:0 0 0 3px rgba(232,132,58,.12);}
+.admin-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(232,132,58,.15);border:1px solid rgba(232,132,58,.35);border-radius:999px;padding:2px 10px;font-size:10px;font-weight:600;color:#7a3010;letter-spacing:.06em;text-transform:uppercase;}
+
+/* ── ADMIN DASHBOARD ── */
+.admin-screen{position:fixed;inset:0;z-index:950;background:#f5f0eb;overflow-y:auto;display:none;}
+.admin-screen.open{display:block;}
+.admin-nav{background:linear-gradient(135deg,rgba(240,169,138,.95),rgba(232,132,58,.9));padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 2px 20px rgba(200,100,50,.2);}
+.admin-nav-title{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,22px);color:#fff;display:flex;align-items:center;gap:8px;}
+.admin-nav-right{display:flex;align-items:center;gap:10px;}
+.admin-level-badge{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 12px;font-size:12px;color:#fff;font-weight:500;}
+.admin-signout-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:6px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+.admin-signout-btn:hover{background:rgba(255,255,255,.35);}
+
+.admin-body{max-width:1100px;margin:0 auto;padding:clamp(1rem,3vw,2rem);}
+.admin-stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:2rem;}
+.admin-stat-card{background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 12px rgba(200,130,80,.1);}
+.admin-stat-icon{font-size:24px;margin-bottom:6px;}
+.admin-stat-num{font-family:'Playfair Display',serif;font-size:clamp(24px,4vw,34px);font-weight:500;color:#3a2a1e;line-height:1;}
+.admin-stat-label{font-size:12px;color:#b0907a;margin-top:4px;font-weight:500;}
+.admin-stat-sub{font-size:10px;color:#c0a080;margin-top:2px;}
+
+.admin-section-title{font-family:'Playfair Display',serif;font-size:clamp(16px,2vw,20px);color:#3a2a1e;margin:1.5rem 0 .75rem;border-bottom:2px solid rgba(240,169,138,.3);padding-bottom:6px;}
+
+/* Users table */
+.admin-table-wrap{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(200,130,80,.08);margin-bottom:2rem;}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.admin-table th{background:#fff8f4;padding:10px 14px;text-align:left;font-size:11px;font-weight:500;color:#b0907a;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(240,169,138,.2);}
+.admin-table td{padding:10px 14px;border-bottom:1px solid rgba(240,169,138,.08);color:#3a2a1e;vertical-align:middle;}
+.admin-table tr:last-child td{border-bottom:none;}
+.admin-table tr:hover td{background:rgba(255,248,240,.5);}
+.admin-view-btn{background:none;border:1px solid rgba(240,169,138,.4);border-radius:6px;padding:4px 10px;font-size:11px;color:#7a5a44;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.admin-view-btn:hover{background:rgba(240,169,138,.15);}
+
+/* Query bar */
+.admin-query-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;background:#fff;padding:14px 16px;border-radius:14px;box-shadow:0 2px 10px rgba(200,130,80,.08);}
+.admin-query-input{flex:1;min-width:160px;background:rgba(255,248,240,.8);border:1px solid rgba(240,169,138,.4);border-radius:10px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:#3a2a1e;outline:none;}
+.admin-query-input:focus{border-color:#e8843a;box-shadow:0 0 0 3px rgba(232,132,58,.1);}
+.admin-query-btn{background:linear-gradient(135deg,rgba(240,169,138,.9),rgba(232,132,58,.85));border:1px solid rgba(255,200,160,.5);border-radius:10px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#fff;cursor:pointer;}
+.admin-query-btn:hover{filter:brightness(1.08);}
+.admin-query-filter{background:rgba(255,248,240,.8);border:1px solid rgba(240,169,138,.35);border-radius:10px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:#3a2a1e;outline:none;cursor:pointer;}
+
+/* User detail modal */
+.admin-user-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;}
+.admin-user-modal.open{display:flex;}
+.admin-user-panel{background:#fff;border-radius:20px;width:100%;max-width:620px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.admin-user-panel-header{background:linear-gradient(135deg,rgba(240,169,138,.3),rgba(255,248,240,.8));padding:18px 22px;border-bottom:1px solid rgba(240,169,138,.2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;}
+.admin-user-panel-title{font-family:'Playfair Display',serif;font-size:18px;color:#3a2a1e;}
+.admin-panel-close{background:none;border:1px solid rgba(240,169,138,.4);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:#b0907a;}
+.admin-user-panel-body{padding:20px 22px;}
+.admin-detail-section{margin-bottom:16px;}
+.admin-detail-label{font-size:10px;font-weight:500;color:#b0907a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.admin-detail-value{font-size:13px;color:#3a2a1e;background:rgba(255,248,240,.6);border:1px solid rgba(240,169,138,.2);border-radius:8px;padding:8px 12px;word-break:break-all;}
+.admin-detail-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.admin-detail-tag{background:rgba(107,174,138,.15);border:1px solid rgba(107,174,138,.4);color:#1a5a3a;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:500;}
+.admin-detail-tag.allergy{background:rgba(255,160,50,.15);border-color:rgba(255,160,50,.4);color:#7a3a00;}
+
+/* Charts */
+.admin-charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:2rem;}
+.admin-chart-card{background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 12px rgba(200,130,80,.08);}
+.admin-chart-title{font-size:13px;font-weight:500;color:#b0907a;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;}
+.admin-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.admin-bar-label{font-size:11px;color:#7a5a44;width:80px;flex-shrink:0;text-align:right;}
+.admin-bar-track{flex:1;height:14px;background:rgba(240,169,138,.15);border-radius:999px;overflow:hidden;}
+.admin-bar-fill{height:100%;background:linear-gradient(90deg,#f0a98a,#e8843a);border-radius:999px;transition:width .6s ease;}
+.admin-bar-val{font-size:11px;color:#b0907a;width:30px;}
+
+/* Access level colors */
+.level-1{background:rgba(107,174,138,.15);color:#1a5a3a;border-color:rgba(107,174,138,.4);}
+.level-2{background:rgba(74,144,217,.15);color:#0a2a6a;border-color:rgba(74,144,217,.4);}
+.level-3{background:rgba(232,132,58,.18);color:#7a3010;border-color:rgba(232,132,58,.4);}
+.level-badge{display:inline-block;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:600;border:1px solid;}
+
 @media print{
   .orb,.theme-bar,.glass-card.setup-glass-wrap,.modal-overlay,.no-print,.secret-btn,.secret-popup,.app-title-wrap,.cd-banner-outer,.lc-auth-screen,.lc-onboard-screen,.lc-user-pill{display:none!important;}
   body{background:white!important;color:#111!important;}
@@ -755,6 +871,7 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
     <div class="lc-tabs">
       <div class="lc-tab active" id="tab-signin" onclick="lcShowTab('signin')">Sign In</div>
       <div class="lc-tab" id="tab-signup" onclick="lcShowTab('signup')">Sign Up</div>
+      <div class="lc-tab admin-tab" id="tab-admin-signup" onclick="lcShowTab('admin-signup')">&#128274; Admin</div>
     </div>
     <!-- Sign In -->
     <div id="lc-signin-form">
@@ -776,6 +893,32 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
         <button class="lc-submit" onclick="lcSignUp()">Create Account &#8594;</button>
       </div>
       <p class="lc-switch">Already have an account? <span onclick="lcShowTab('signin')">Sign in</span></p>
+    </div>
+
+    <!-- Admin Sign Up -->
+    <div id="lc-admin-signup-form" style="display:none">
+      <div class="lc-form">
+        <div class="lc-field"><label>Full name</label><input type="text" id="asu-name" placeholder="Admin name"/></div>
+        <div class="lc-field"><label>Email</label><input type="email" id="asu-email" placeholder="admin@email.com"/></div>
+        <div class="lc-field"><label>Password</label><input type="password" id="asu-pass" placeholder="Create a password (min 6 chars)"/></div>
+        <div class="lc-field">
+          <label>Admin access token</label>
+          <input type="text" id="asu-token" placeholder="Enter your admin access token" style="font-family:monospace;letter-spacing:.06em;"/>
+          <div class="admin-token-hint">Contact the system owner to obtain your access token.</div>
+        </div>
+        <div class="lc-field admin-level-field">
+          <label>Access level</label>
+          <select id="asu-level">
+            <option value="">-- Select access level --</option>
+            <option value="1">Level 1 — Viewer (read-only stats)</option>
+            <option value="2">Level 2 — Analyst (query + export)</option>
+            <option value="3">Level 3 — CEO (full dashboard + user management)</option>
+          </select>
+        </div>
+        <p class="lc-err" id="asu-err">Please fill in all fields.</p>
+        <button class="lc-submit" onclick="lcAdminSignUp()">Create Admin Account &#8594;</button>
+      </div>
+      <p class="lc-switch">Regular user? <span onclick="lcShowTab('signup')">Sign up here</span></p>
     </div>
   </div>
 </div>
@@ -980,12 +1123,23 @@ body.theme-dark .tt-ev-row{border-color:rgba(80,90,140,.2);}
 
 
 <!-- ══ VITAL DASHBOARD ══ -->
+<!-- ══ VITAL DASHBOARD ══ -->
 <div class="vital-dashboard no-print" id="vital-dashboard" style="display:none">
   <div class="vital-dashboard-card">
-    <div class="vital-dashboard-title">&#128138; My Vital Signs</div>
-    <div class="vital-dashboard-sub" id="vital-demo-label">Update your values in the Health Monitor to see your vitals here.</div>
-    <div class="vital-grid" id="vital-grid">
-      <p class="vital-empty">No vitals recorded yet — open Health Monitor and enter your values.</p>
+
+    <!-- Demo tabs -->
+    <div class="vital-dash-header">
+      <div class="vital-dashboard-title">&#128138; My Vital Signs</div>
+      <div class="vital-demo-tabs" id="vital-demo-tabs"></div>
+    </div>
+
+    <!-- Per-demo grids (one per demographic) -->
+    <div id="vital-demo-panels"></div>
+
+    <!-- Upcoming timetable + cycle notifications strip -->
+    <div class="vital-notif-strip" id="vital-notif-strip" style="display:none">
+      <div class="vital-notif-title">&#128276; Upcoming Reminders</div>
+      <div class="vital-notif-cards" id="vital-notif-cards"></div>
     </div>
   </div>
 </div>
@@ -2472,10 +2626,13 @@ window.hRemoveTag=function(type,idx){
 
 // Init tags display
 window.hUpdateVitalDashboard=function(){
-  var grid=document.getElementById('vital-grid');
   var dash=document.getElementById('vital-dashboard');
-  if(!grid||!dash)return;
-  var entries=[];
+  var tabsWrap=document.getElementById('vital-demo-tabs');
+  var panelsWrap=document.getElementById('vital-demo-panels');
+  if(!dash||!tabsWrap||!panelsWrap)return;
+
+  // Collect vitals grouped by demographic
+  var byDemo={};
   if(typeof DEMOS==='undefined')return;
   Object.keys(DEMOS).forEach(function(demo){
     var d=DEMOS[demo];if(!d)return;
@@ -2484,66 +2641,218 @@ window.hUpdateVitalDashboard=function(){
         var cardKey=demo+'_'+card.m.replace(/[^a-zA-Z0-9]/g,'_');
         var val=hVitals[cardKey];
         if(val&&val.trim()){
-          entries.push({name:card.m,val:val,range:card.v,status:hGetStatus(val,card.v)});
+          if(!byDemo[demo])byDemo[demo]=[];
+          byDemo[demo].push({name:card.m,val:val,range:card.v,status:hGetStatus(val,card.v),demo:demo});
         }
       });
     });
   });
-  if(!entries.length){
-    grid.innerHTML='<p class="vital-empty">No vitals recorded yet — open Health Monitor and enter your values.</p>';
-    dash.style.display='none';return;
+
+  var demoKeys=Object.keys(byDemo);
+  if(!demoKeys.length){
+    dash.style.display='none';
+    renderNotifStrip();
+    return;
   }
   dash.style.display='block';
-  grid.innerHTML='';
+
+  // Build tabs + panels
+  tabsWrap.innerHTML='';
+  panelsWrap.innerHTML='';
+
+  var activeDemoTab=tabsWrap.dataset.active||demoKeys[0];
+  if(demoKeys.indexOf(activeDemoTab)===-1)activeDemoTab=demoKeys[0];
+
   var colorMap={normal:'#6BAE8A',low:'#F0B429',high:'#E05C40',unknown:'#bbb'};
   var statusLabels={normal:'Normal',low:'Low',high:'High',unknown:''};
-  var R=38,CX=48,CY=48,CIRC=2*Math.PI*R;
-  entries.forEach(function(e){
-    var pct=0.5;
-    var rangeNums=e.range.replace(/–|—/g,'-').match(/([\d.]+)/g);
-    var valNum=e.val.replace(/,/g,'').match(/([\d.]+)/);
-    if(rangeNums&&valNum){
-      var n=parseFloat(valNum[1]);
-      if(/^\s*</.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim||1));}
-      else if(/^\s*>/.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim*1.2||1));}
-      else if(rangeNums.length>=2){
-        var mn=parseFloat(rangeNums[0]),mx=parseFloat(rangeNums[rangeNums.length-1]);
-        if(mx>mn)pct=Math.min(1,Math.max(0.05,(n-mn)/(mx-mn)));
+  var bannerColors={
+    'baby':{bg:'#FFE4E6',color:'#9a2030'},
+    'toddler':{bg:'#FFF3E0',color:'#7a4a00'},
+    'child':{bg:'#E3F2FD',color:'#0a3a6a'},
+    'adolescent':{bg:'#EDE7F6',color:'#3a1a7a'},
+    'adult-male':{bg:'#E3F0FB',color:'#0a2a5a'},
+    'adult-female':{bg:'#FCE4EC',color:'#7a1030'},
+    'elderly':{bg:'#E8F5E9',color:'#1a4a2a'}
+  };
+
+  demoKeys.forEach(function(demo){
+    var entries=byDemo[demo];
+    var dInfo=DEMOS[demo]||{label:demo,icon:'',age:''};
+
+    // Tab
+    var tab=document.createElement('div');
+    tab.className='vital-demo-tab'+(demo===activeDemoTab?' active':'');
+    tab.dataset.demo=demo;
+    tab.textContent=dInfo.icon+' '+dInfo.label;
+    tab.onclick=function(){
+      tabsWrap.dataset.active=demo;
+      document.querySelectorAll('.vital-demo-tab').forEach(function(t){t.classList.toggle('active',t.dataset.demo===demo);});
+      document.querySelectorAll('.vital-demo-panel').forEach(function(p){p.classList.toggle('active',p.dataset.demo===demo);});
+    };
+    tabsWrap.appendChild(tab);
+
+    // Panel
+    var panel=document.createElement('div');
+    panel.className='vital-demo-panel'+(demo===activeDemoTab?' active':'');
+    panel.dataset.demo=demo;
+
+    // Banner
+    var bc=bannerColors[demo]||{bg:'#f0f7f4',color:'#1a2e28'};
+    var banner=document.createElement('div');
+    banner.className='vital-demo-banner';
+    banner.style.background=bc.bg;banner.style.color=bc.color;
+    banner.innerHTML='<span>'+dInfo.icon+'</span><strong>'+dInfo.label+'</strong><span style="font-size:11px;opacity:.75;margin-left:4px;">'+dInfo.age+'</span>';
+    panel.appendChild(banner);
+
+    // Circles grid
+    var grid=document.createElement('div');
+    grid.className='vital-grid';
+    var R=38,CX=48,CY=48,CIRC=2*Math.PI*R;
+
+    entries.forEach(function(e){
+      var pct=0.5;
+      var rangeNums=e.range.replace(/–|—/g,'-').match(/([\d.]+)/g);
+      var valNum=e.val.replace(/,/g,'').match(/([\d.]+)/);
+      if(rangeNums&&valNum){
+        var n=parseFloat(valNum[1]);
+        if(/^\s*</.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim||1));}
+        else if(/^\s*>/.test(e.range)){var lim=parseFloat(rangeNums[0]);pct=Math.min(1,n/(lim*1.2||1));}
+        else if(rangeNums.length>=2){
+          var mn=parseFloat(rangeNums[0]),mx=parseFloat(rangeNums[rangeNums.length-1]);
+          if(mx>mn)pct=Math.min(1,Math.max(0.05,(n-mn)/(mx-mn)));
+        }
+      }
+      var col=colorMap[e.status]||'#bbb';
+      var offset=CIRC*(1-pct);
+      var dispVal=e.val.replace(/[a-zA-Z°²\/µ%,]/g,'').trim().substring(0,7);
+      var dispUnit=e.val.replace(/[\d.\s,\-]/g,'').trim().substring(0,5);
+      var item=document.createElement('div');item.className='vital-item';
+      var svgStr='<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">'
+        +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="rgba(200,200,200,.3)" stroke-width="14"/>'
+        +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="14" stroke-linecap="round"'
+        +' stroke-dasharray="'+CIRC+'" stroke-dashoffset="'+offset+'"'
+        +' transform="rotate(-90 '+CX+' '+CY+')"'
+        +'/></svg>';
+      item.innerHTML='<div class="vital-circle-wrap">'+svgStr
+        +'<div class="vital-center"><span class="vital-val">'+dispVal+'</span><span class="vital-unit">'+dispUnit+'</span></div>'
+        +'</div>'
+        +'<div class="vital-name">'+e.name+'</div>'
+        +'<div class="vital-status-dot '+e.status+'"></div>'
+        +(e.status&&e.status!=='unknown'?'<div style="font-size:9px;color:'+col+';font-weight:600;letter-spacing:.04em;margin-top:1px;">'+statusLabels[e.status]+'</div>':'');
+      grid.appendChild(item);
+    });
+    panel.appendChild(grid);
+    panelsWrap.appendChild(panel);
+  });
+
+  renderNotifStrip();
+};
+
+function renderNotifStrip(){
+  var strip=document.getElementById('vital-notif-strip');
+  var cards=document.getElementById('vital-notif-cards');
+  if(!strip||!cards)return;
+
+  var items=[];
+  var now=new Date();
+  var tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  var GM2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtD(d){return d.getDate()+' '+GM2[d.getMonth()]+' '+d.getFullYear();}
+
+  // ── Timetable notifications
+  try{
+    var ttData=JSON.parse(localStorage.getItem('lc_timetable')||'null');
+    if(ttData&&ttData.events&&ttData.periods&&ttData.slots){
+      Object.entries(ttData.events).forEach(function(entry){
+        var k=entry[0],evs=entry[1];
+        var m=k.match(/p(\d+)_d(\d+)_s(\d+)/);if(!m)return;
+        var period=ttData.periods[+m[1]];if(!period)return;
+        var dayISO=period.days&&period.days[+m[2]];if(!dayISO)return;
+        var day=new Date(dayISO);
+        var slot=ttData.slots[+m[3]]||'';
+        var daysAway=Math.ceil((day-now)/(1000*60*60*24));
+        if(daysAway>=0&&daysAway<=3){
+          evs.forEach(function(ev){
+            var urgency=daysAway===0?'TODAY':daysAway===1?'Tomorrow':'In '+daysAway+' days';
+            items.push({type:'timetable',icon:'&#128197;',title:ev.title,msg:slot?'At '+slot:'',time:urgency+' · '+fmtD(day),urgent:daysAway<=1});
+          });
+        }
+      });
+    }
+  }catch(e){}
+
+  // ── Cycle tracker notifications
+  try{
+    var cycData=JSON.parse(localStorage.getItem('lc_cycles')||'null');
+    if(cycData&&cycData.lastDate){
+      var p=cycData.lastDate.split('-');
+      var lastDate=new Date(+p[0],+p[1]-1,+p[2]);
+      var cycLen=cycData.length||28;
+      var dur=cycData.duration||5;
+      var count=(cycData.count||6)+2;
+      var start=new Date(lastDate);
+      while(new Date(start.getTime()+cycLen*86400000)<=now)start=new Date(start.getTime()+cycLen*86400000);
+      var from=new Date(start.getTime()-cycLen*86400000);
+      for(var i=0;i<count;i++){
+        var cycStart=new Date(from.getTime()+i*cycLen*86400000);
+        var cycEnd=new Date(cycStart.getTime()+(dur-1)*86400000);
+        var daysToStart=Math.ceil((cycStart-now)/(1000*60*60*24));
+        var daysToEnd=Math.ceil((cycEnd-now)/(1000*60*60*24));
+        // Currently in period
+        if(cycStart<=now&&cycEnd>=now){
+          items.push({type:'cycle',icon:'&#127807;',title:'Period in progress',msg:'Ends '+fmtD(cycEnd)+' · Day '+(Math.ceil((now-cycStart)/86400000))+' of '+dur,time:'Ongoing',urgent:false});
+        }
+        // Starts within 3 days
+        else if(daysToStart>=0&&daysToStart<=3){
+          var urgency=daysToStart===0?'TODAY':daysToStart===1?'Tomorrow':'In '+daysToStart+' days';
+          items.push({type:'cycle',icon:'&#127807;',title:'Period starting soon',msg:'Expected '+fmtD(cycStart)+' · '+dur+' days',time:urgency,urgent:daysToStart<=1});
+        }
+        // Ends within 2 days
+        else if(daysToEnd>=0&&daysToEnd<=2&&cycStart<now){
+          items.push({type:'cycle',icon:'&#127807;',title:'Period ending soon',msg:'Ends '+fmtD(cycEnd),time:daysToEnd===0?'TODAY':'Tomorrow',urgent:true});
+        }
       }
     }
-    var col=colorMap[e.status]||'#bbb';
-    var offset=CIRC*(1-pct);
-    var dispVal=e.val.replace(/[a-zA-Z°²\/µ%,]/g,'').trim().substring(0,7);
-    var dispUnit=e.val.replace(/[\d.\s,\-]/g,'').trim().substring(0,5);
-    var item=document.createElement('div');item.className='vital-item';
-    var svgStr='<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">'
-      +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="rgba(200,200,200,.3)" stroke-width="14"/>'
-      +'<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="14" stroke-linecap="round"'
-      +' stroke-dasharray="'+CIRC+'" stroke-dashoffset="'+offset+'"'
-      +' transform="rotate(-90 '+CX+' '+CY+')"'
-      +'/></svg>';
-    item.innerHTML='<div class="vital-circle-wrap">'+svgStr
-      +'<div class="vital-center"><span class="vital-val">'+dispVal+'</span><span class="vital-unit">'+dispUnit+'</span></div>'
-      +'</div>'
-      +'<div class="vital-name">'+e.name+'</div>'
-      +'<div class="vital-status-dot '+e.status+'" title="'+e.status+'"></div>'
-      +(e.status&&e.status!=='unknown'?'<div style="font-size:9px;color:'+col+';font-weight:600;letter-spacing:.04em;margin-top:1px;">'+statusLabels[e.status]+'</div>':'');
-    grid.appendChild(item);
+  }catch(e){}
+
+  if(!items.length){
+    strip.style.display='none';return;
+  }
+  strip.style.display='block';
+  cards.innerHTML='';
+  items.slice(0,6).forEach(function(item){
+    var card=document.createElement('div');
+    card.className='vital-notif-card '+item.type+(item.urgent?' urgent':'');
+    card.innerHTML='<div class="vital-notif-icon">'+item.icon+'</div>'
+      +'<div class="vital-notif-body">'
+      +'<div class="vital-notif-card-title">'+item.title+'</div>'
+      +(item.msg?'<div class="vital-notif-card-msg">'+item.msg+'</div>':'')
+      +'<div class="vital-notif-card-time">'+item.time+'</div>'
+      +'</div>';
+    cards.appendChild(card);
   });
 };
 
 
-window.addEventListener('load',function(){hRenderTags();});
+window.addEventListener('load',function(){
+  hRenderTags();
+  setTimeout(function(){
+    if(typeof renderNotifStrip==='function')renderNotifStrip();
+  },1500);
+  setInterval(function(){
+    if(typeof renderNotifStrip==='function')renderNotifStrip();
+  },5*60*1000);
+});
 
 })();
 </script>
 
 
 <script type="module">
-/* ══ FIREBASE INTEGRATION ══ */
+/* ══ FIREBASE CORE — imports and auth state observer ══ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDrjWiO-60aMmyGU35262J8dwKU6dP1irw",
@@ -2558,211 +2867,619 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ── Save user data to Firestore
+// Expose instances globally
+window._fbAuth = auth;
+window._fbDb = db;
+window._fbCreateUser = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
+window._fbSignIn = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
+window._fbSignOut = () => signOut(auth);
+window._fbServerTimestamp = serverTimestamp;
+window._fbDoc = doc;
+window._fbSetDoc = setDoc;
+window._fbGetDoc = getDoc;
+window._fbGetDocs = getDocs;
+window._fbCollection = collection;
+
+// Internal helpers
 async function saveUserData(uid, data) {
-  try {
-    await setDoc(doc(db, 'users', uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
-  } catch(e) { console.warn('Firebase save error:', e); }
+  try { await setDoc(doc(db,'users',uid), {...data, updatedAt: serverTimestamp()}, {merge:true}); }
+  catch(e) { console.warn('FB save error:', e); }
 }
-
-// ── Load user data from Firestore
 async function loadUserData(uid) {
-  try {
-    const snap = await getDoc(doc(db, 'users', uid));
-    return snap.exists() ? snap.data() : null;
-  } catch(e) { console.warn('Firebase load error:', e); return null; }
+  try { const s = await getDoc(doc(db,'users',uid)); return s.exists() ? s.data() : null; }
+  catch(e) { console.warn('FB load error:', e); return null; }
 }
 
-// ── Apply loaded config to the calendar
-function applyFirebaseData(data, name) {
-  if (!data) return;
-  const sdEl = document.getElementById('start-date');
-  const eyEl = document.getElementById('end-year-in');
-  if (data.cfg) {
-    if (sdEl && data.cfg.startDate) sdEl.value = data.cfg.startDate;
-    if (eyEl && data.cfg.years) eyEl.value = data.cfg.years;
-  }
-  // Restore vitals
-  if (data.vitals && typeof hVitals !== 'undefined') {
-    Object.assign(hVitals, data.vitals);
-    if (typeof hUpdateVitalDashboard === 'function') setTimeout(hUpdateVitalDashboard, 500);
-  }
-  // Restore cycles to localStorage
-  if (data.cycles) {
-    try { localStorage.setItem('lc_cycles', JSON.stringify(data.cycles)); } catch(e) {}
-  }
-  // Restore timetable to localStorage
-  if (data.timetable) {
-    try { localStorage.setItem('lc_timetable', JSON.stringify(data.timetable)); } catch(e) {}
-  }
-  // Restore health profile
-  if (data.healthProfile) {
-    try {
-      if (data.healthProfile.conditions) conditions = data.healthProfile.conditions;
-      if (data.healthProfile.allergies) allergies = data.healthProfile.allergies;
-      if (typeof hRenderTags === 'function') setTimeout(hRenderTags, 600);
-    } catch(e) {}
-  }
-  // Hide auth screens, show app
-  const a = document.getElementById('lc-auth-screen');
-  const o = document.getElementById('lc-onboard-screen');
-  if (a) a.classList.add('hidden');
-  if (o) o.classList.add('hidden');
-  // Show user pill
-  const pill = document.getElementById('lc-user-pill');
-  const nEl = document.getElementById('lc-user-name-pill');
-  const avEl = document.getElementById('lc-avatar');
-  if (pill) pill.style.display = 'flex';
-  if (nEl) nEl.textContent = name || 'User';
-  if (avEl) avEl.textContent = (name || 'U').charAt(0).toUpperCase();
-  // Trigger calendar render
-  function doApply() {
-    if (typeof autoApply === 'function') autoApply();
-    setTimeout(() => { if (typeof cdAutoUpdate === 'function') cdAutoUpdate(); }, 400);
-  }
-  if (document.readyState === 'complete') doApply();
-  else window.addEventListener('load', doApply);
-}
+// Expose save/load globally
+window._fbSaveUserData = saveUserData;
+window._fbLoadUserData = loadUserData;
 
-// ── Sign Up
-window.lcSignUp = async function() {
-  const name = (document.getElementById('su-name').value || '').trim();
-  const email = (document.getElementById('su-email').value || '').trim();
-  const pass = document.getElementById('su-pass').value || '';
-  const err = document.getElementById('su-err');
-  if (!name || !email || !pass) { showFBErr('su-err', 'Please fill in all fields.'); return; }
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await saveUserData(cred.user.uid, { name, email, createdAt: serverTimestamp() });
-    hideFBErr('su-err');
-    lcGoOnboard(name);
-  } catch(e) {
-    showFBErr('su-err', getFBErrMsg(e.code));
-  }
-};
+// Expose vital/cycle/timetable/profile savers
+window._fbSaveVitals = async (vitals) => { if(auth.currentUser) await saveUserData(auth.currentUser.uid,{vitals}); };
+window._fbSaveCycleData = async (data) => { if(auth.currentUser) await saveUserData(auth.currentUser.uid,{cycles:data}); };
+window._fbSaveTimetable = async (data) => { if(auth.currentUser) await saveUserData(auth.currentUser.uid,{timetable:data}); };
+window._fbSaveHealthProfile = async (conditions,allergies) => { if(auth.currentUser) await saveUserData(auth.currentUser.uid,{healthProfile:{conditions,allergies}}); };
 
-// ── Sign In
-window.lcSignIn = async function() {
-  const name = (document.getElementById('si-name').value || '').trim();
-  const pass = document.getElementById('si-pass').value || '';
-  const err = document.getElementById('si-err');
-  // We need email — fetch from name lookup or use name as email
-  // Support both: if name contains @, treat as email; otherwise look up
-  let email = name.includes('@') ? name : null;
-  if (!email) {
-    // Try signing in with name@lifetime.app as convention, or show message
-    showFBErr('si-err', 'Please enter your email address in the Name field.');
-    document.getElementById('si-name').placeholder = 'Your email address';
-    return;
-  }
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    const data = await loadUserData(cred.user.uid);
-    const displayName = data?.name || email.split('@')[0];
-    hideFBErr('si-err');
-    if (data?.cfg) {
-      applyFirebaseData(data, displayName);
-    } else {
-      lcGoOnboard(displayName);
-    }
-  } catch(e) {
-    showFBErr('si-err', getFBErrMsg(e.code));
-  }
-};
-
-// ── Sign Out
-window.lcSignOut = async function() {
-  try { await signOut(auth); } catch(e) {}
-  location.reload();
-};
-
-// ── Onboarding Done — save config to Firebase
-window.lcOnboardDone = async function() {
-  const sd = document.getElementById('ob-start-date').value;
-  const yr = parseInt(document.getElementById('ob-years').value) || 127;
-  if (!sd) { alert('Please enter a start date.'); return; }
-  const user = auth.currentUser;
-  if (user) {
-    const data = await loadUserData(user.uid);
-    await saveUserData(user.uid, { cfg: { startDate: sd, years: yr } });
-    applyFirebaseData({ cfg: { startDate: sd, years: yr } }, data?.name || 'User');
-  } else {
-    // fallback localStorage
-    const sdEl = document.getElementById('start-date');
-    const eyEl = document.getElementById('end-year-in');
-    if (sdEl) sdEl.value = sd;
-    if (eyEl) eyEl.value = yr;
-    document.getElementById('lc-onboard-screen').classList.add('hidden');
-    if (typeof autoApply === 'function') autoApply();
-  }
-};
-
-// ── Auto-save config changes to Firebase
-window.autoApply = function() {
-  const rd = document.getElementById('start-date').value;
-  const ey = parseInt(document.getElementById('end-year-in').value);
-  if (rd && !isNaN(ey) && ey >= 1) {
-    if (typeof applyConfig === 'function') applyConfig();
-    const user = auth.currentUser;
-    if (user) saveUserData(user.uid, { cfg: { startDate: rd, years: ey } });
-  }
-};
-
-// ── Auth state observer — auto-restore session
+// Auth state observer
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const data = await loadUserData(user.uid);
     const displayName = data?.name || user.email?.split('@')[0] || 'User';
-    if (data?.cfg) {
-      applyFirebaseData(data, displayName);
+    if (data?.role === 'admin') {
+      if (typeof window.openAdminDashboard === 'function') window.openAdminDashboard(user, displayName, data.accessLevel||1, data);
     } else {
-      lcGoOnboard(displayName);
+      if (data?.cfg) {
+        if (typeof window._applyFirebaseData === 'function') window._applyFirebaseData(data, displayName);
+      } else {
+        if (typeof window.lcGoOnboard === 'function') window.lcGoOnboard(displayName);
+      }
     }
   }
-  // else: auth screen stays visible
 });
+</script>
 
-// ── Helpers
-function showFBErr(id, msg) { const e = document.getElementById(id); if(e){e.style.display='block';e.textContent=msg;} }
-function hideFBErr(id) { const e = document.getElementById(id); if(e) e.style.display='none'; }
-function getFBErrMsg(code) {
-  const msgs = {
-    'auth/email-already-in-use': 'Email already registered. Try signing in.',
-    'auth/invalid-email': 'Please enter a valid email address.',
-    'auth/weak-password': 'Password must be at least 6 characters.',
-    'auth/user-not-found': 'No account found with that email.',
-    'auth/wrong-password': 'Incorrect password. Please try again.',
-    'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
-    'auth/invalid-credential': 'Email or password is incorrect.',
-  };
-  return msgs[code] || 'Something went wrong. Please try again.';
+
+<!-- ══ ADMIN DASHBOARD ══ -->
+<div class="admin-screen" id="admin-screen">
+  <div class="admin-nav">
+    <div class="admin-nav-title">&#128202; Lifetime Calendar — Admin</div>
+    <div class="admin-nav-right">
+      <span class="admin-level-badge" id="admin-level-badge">Level 1</span>
+      <span style="color:rgba(255,255,255,.8);font-size:12px;" id="admin-name-display"></span>
+      <button class="admin-signout-btn" onclick="adminSignOut()">Sign out</button>
+    </div>
+  </div>
+  <div class="admin-body">
+
+    <!-- Overview stats -->
+    <div class="admin-section-title">&#128200; Platform Overview</div>
+    <div class="admin-stats-grid" id="admin-stats-grid">
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#128101;</div><div class="admin-stat-num" id="ast-total">—</div><div class="admin-stat-label">Total Users</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#128197;</div><div class="admin-stat-num" id="ast-cal">—</div><div class="admin-stat-label">Calendar Configs</div><div class="admin-stat-sub">Users with calendar set up</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#128138;</div><div class="admin-stat-num" id="ast-vitals">—</div><div class="admin-stat-label">Vitals Entered</div><div class="admin-stat-sub">Users with health data</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#127807;</div><div class="admin-stat-num" id="ast-cycle">—</div><div class="admin-stat-label">Cycle Trackers</div><div class="admin-stat-sub">Users tracking cycles</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#128197;</div><div class="admin-stat-num" id="ast-timetable">—</div><div class="admin-stat-label">Timetables</div><div class="admin-stat-sub">Users with schedules</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-icon">&#128274;</div><div class="admin-stat-num" id="ast-admins">—</div><div class="admin-stat-label">Admins</div><div class="admin-stat-sub">Admin accounts</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="admin-charts-grid" id="admin-charts-grid">
+      <div class="admin-chart-card">
+        <div class="admin-chart-title">Feature Adoption</div>
+        <div id="admin-chart-features"></div>
+      </div>
+      <div class="admin-chart-card">
+        <div class="admin-chart-title">Calendar Years Distribution</div>
+        <div id="admin-chart-years"></div>
+      </div>
+    </div>
+
+    <!-- Token Generator (Level 3 only) -->
+    <div id="admin-token-section" style="display:none">
+      <div class="admin-section-title">&#128273; Admin Token Generator</div>
+      <div class="admin-query-bar" style="flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;">
+          <label style="font-size:10px;color:#b0907a;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Access level for token</label>
+          <select class="admin-query-filter" id="gen-token-level" style="width:100%">
+            <option value="1">Level 1 — Viewer</option>
+            <option value="2">Level 2 — Analyst</option>
+            <option value="3">Level 3 — CEO</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;">
+          <label style="font-size:10px;color:#b0907a;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Note (optional)</label>
+          <input class="admin-query-input" id="gen-token-note" placeholder="e.g. for John Smith"/>
+        </div>
+        <button class="admin-query-btn" onclick="adminGenerateToken()" style="align-self:flex-end">&#128273; Generate Token</button>
+      </div>
+      <div id="gen-token-result" style="display:none;margin-top:8px;"></div>
+      <div class="admin-table-wrap" style="margin-top:12px;">
+        <table class="admin-table">
+          <thead><tr><th>Token</th><th>Level</th><th>Note</th><th>Used</th><th>Used By</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="admin-tokens-tbody"><tr><td colspan="7" style="text-align:center;padding:1rem;color:#b0907a;font-style:italic">No tokens generated yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- User query (Level 2 & 3 only) -->
+    <div id="admin-query-section">
+      <div class="admin-section-title">&#128269; User Database Query</div>
+      <div class="admin-query-bar">
+        <input class="admin-query-input" id="admin-search" placeholder="Search by name or email..." oninput="adminFilterUsers()"/>
+        <select class="admin-query-filter" id="admin-filter-feature" onchange="adminFilterUsers()">
+          <option value="">All users</option>
+          <option value="cfg">Has calendar config</option>
+          <option value="vitals">Has vitals</option>
+          <option value="cycles">Has cycle data</option>
+          <option value="timetable">Has timetable</option>
+          <option value="healthProfile">Has health profile</option>
+        </select>
+        <select class="admin-query-filter" id="admin-filter-level" onchange="adminFilterUsers()">
+          <option value="">All account types</option>
+          <option value="user">Regular users</option>
+          <option value="admin">Admins</option>
+        </select>
+        <button class="admin-query-btn" onclick="adminRefresh()">&#8635; Refresh</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>Type</th><th>Calendar</th><th>Vitals</th><th>Cycle</th><th>Joined</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="admin-users-tbody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:#b0907a;font-style:italic">Loading users...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="admin-user-modal" id="admin-user-modal" onclick="if(event.target===this)adminCloseUser()">
+  <div class="admin-user-panel">
+    <div class="admin-user-panel-header">
+      <div class="admin-user-panel-title" id="admin-user-modal-title">User Details</div>
+      <button class="admin-panel-close" onclick="adminCloseUser()">&#x2715; Close</button>
+    </div>
+    <div class="admin-user-panel-body" id="admin-user-modal-body"></div>
+  </div>
+</div>
+
+
+<script>
+/* ══ AUTH + ADMIN FUNCTIONS (regular script — accessible from onclick) ══ */
+
+// All tokens are exactly 12 alphanumeric characters (case-sensitive)
+var ADMIN_TOKENS = {
+  'LV1viewer2024': 1,
+  'LV2analyst024': 2,
+  'Baidooadmin7': 3
+};
+// Dynamic tokens generated by admin (stored in Firestore)
+// This base list is the fallback; Firestore tokens take priority
+
+function showErr(id,msg){var e=document.getElementById(id);if(e){e.style.display='block';e.textContent=msg;}}
+function hideErr(id){var e=document.getElementById(id);if(e)e.style.display='none';}
+function getFBMsg(code){
+  var m={'auth/email-already-in-use':'Email already registered. Try signing in.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/weak-password':'Password must be at least 6 characters.',
+    'auth/user-not-found':'No account found with that email.',
+    'auth/wrong-password':'Incorrect password. Please try again.',
+    'auth/too-many-requests':'Too many attempts. Please wait.',
+    'auth/invalid-credential':'Email or password is incorrect.'};
+  return m[code]||('Error: '+(code||'unknown')+'. Please try again.');
 }
 
-// ── Expose Firebase save to global scope for health vitals
-window._fbSaveVitals = async function(vitals) {
-  if (auth.currentUser) {
-    await saveUserData(auth.currentUser.uid, { vitals: vitals });
+// ── Regular Sign Up
+window.lcSignUp = async function() {
+  if(!window._fbCreateUser){
+    showErr('su-err','Firebase is not available in this preview. Please test on GitHub Pages.');
+    return;
   }
+  var name=(document.getElementById('su-name').value||'').trim();
+  var email=(document.getElementById('su-email').value||'').trim();
+  var pass=document.getElementById('su-pass').value||'';
+  if(!name||!email||!pass){showErr('su-err','Please fill in all fields.');return;}
+  try{
+    var cred=await window._fbCreateUser(email,pass);
+    await window._fbSaveUserData(cred.user.uid,{name,email,createdAt:window._fbServerTimestamp()});
+    hideErr('su-err');
+    window.lcGoOnboard(name);
+  }catch(e){showErr('su-err',getFBMsg(e.code));}
 };
-window._fbSaveCycleData = async function(data) {
-  if (auth.currentUser) {
-    await saveUserData(auth.currentUser.uid, { cycles: data });
+
+// ── Regular Sign In
+window.lcSignIn = async function() {
+  if(!window._fbSignIn){
+    showErr('si-err','Firebase is not available in this preview. Please test on GitHub Pages.');
+    return;
   }
+  var email=(document.getElementById('si-name').value||'').trim();
+  var pass=document.getElementById('si-pass').value||'';
+  if(!email){showErr('si-err','Please enter your email address.');return;}
+  try{
+    var cred=await window._fbSignIn(email,pass);
+    var data=await window._fbLoadUserData(cred.user.uid);
+    var displayName=data?.name||email.split('@')[0];
+    hideErr('si-err');
+    if(data?.role==='admin'){
+      window.openAdminDashboard(cred.user,displayName,data.accessLevel||1,data);
+    } else {
+      if(data?.cfg) window._applyFirebaseData(data,displayName);
+      else window.lcGoOnboard(displayName);
+    }
+  }catch(e){showErr('si-err',getFBMsg(e.code));}
 };
-window._fbSaveTimetable = async function(data) {
-  if (auth.currentUser) {
-    await saveUserData(auth.currentUser.uid, { timetable: data });
+
+// ── Admin Sign Up
+window.lcAdminSignUp = async function() {
+  // Check if Firebase SDK is loaded
+  if(!window._fbCreateUser){
+    showErr('asu-err','Firebase is not available in this preview environment. Please test on GitHub Pages.');
+    return;
   }
+  var name=(document.getElementById('asu-name').value||'').trim();
+  var email=(document.getElementById('asu-email').value||'').trim();
+  var pass=document.getElementById('asu-pass').value||'';
+  var token=(document.getElementById('asu-token').value||'').trim();
+  var levelStr=document.getElementById('asu-level').value;
+  if(!name||!email||!pass||!token){showErr('asu-err','Please fill in all fields.');return;}
+  if(token.length<4){showErr('asu-err','Token too short.');return;}
+
+  // Show checking status
+  showErr('asu-err','Checking token...');
+  document.getElementById('asu-err').style.color='#6a8a7a';
+
+  // Step 1: Check static tokens
+  var validLevel=ADMIN_TOKENS[token]||null;
+  var tokenIsFirestore=false;
+
+  // Step 2: Check Firestore dynamic tokens
+  if(!validLevel){
+    try{
+      if(!window._fbGetDoc||!window._fbDoc||!window._fbDb){
+        showErr('asu-err','Firebase not ready. Please try again in a moment.');
+        document.getElementById('asu-err').style.color='#c05030';
+        return;
+      }
+      var tokSnap=await window._fbGetDoc(window._fbDoc(window._fbDb,'adminTokens',token));
+      if(tokSnap.exists()){
+        var td=tokSnap.data();
+        if(td.used===true){
+          showErr('asu-err','This token has already been used. Contact the system owner for a new one.');
+          document.getElementById('asu-err').style.color='#c05030';
+          return;
+        }
+        validLevel=parseInt(td.level)||1;
+        tokenIsFirestore=true;
+      } else {
+        showErr('asu-err','Invalid access token. Contact the system owner.');
+        document.getElementById('asu-err').style.color='#c05030';
+        return;
+      }
+    }catch(fbErr){
+      console.warn('Token Firestore check error:',fbErr);
+      showErr('asu-err','Could not verify token: '+(fbErr.message||fbErr.code||'network error'));
+      document.getElementById('asu-err').style.color='#c05030';
+      return;
+    }
+  }
+
+  // Step 3: Auto-set access level from token (ignore dropdown — token determines level)
+  var reqLevel=validLevel;
+  // Update dropdown to match token level
+  var levelSel=document.getElementById('asu-level');
+  if(levelSel)levelSel.value=String(reqLevel);
+
+  // Hide checking message
+  document.getElementById('asu-err').style.display='none';
+  document.getElementById('asu-err').style.color='#c05030';
+
+  // Step 4: Mark Firestore token as used
+  if(tokenIsFirestore){
+    try{
+      await window._fbSetDoc(
+        window._fbDoc(window._fbDb,'adminTokens',token),
+        {used:true,usedBy:email,usedAt:window._fbServerTimestamp()},
+        {merge:true}
+      );
+    }catch(e){console.warn('Token mark-used error:',e);}
+  }
+  try{
+    var cred=await window._fbCreateUser(email,pass);
+    await window._fbSaveUserData(cred.user.uid,{
+      name,email,role:'admin',accessLevel:reqLevel,adminToken:token,
+      createdAt:window._fbServerTimestamp()
+    });
+    hideErr('asu-err');
+    window.openAdminDashboard(cred.user,name,reqLevel,{name,email,role:'admin',accessLevel:reqLevel});
+  }catch(e){console.warn('Admin signup error:',e);showErr('asu-err',getFBMsg(e.code)||e.message);}
 };
-window._fbSaveHealthProfile = async function(conditions, allergies) {
-  if (auth.currentUser) {
-    await saveUserData(auth.currentUser.uid, { healthProfile: { conditions, allergies } });
+
+// ── Sign Out
+window.lcSignOut = async function() {
+  try{await window._fbSignOut();}catch(e){}
+  location.reload();
+};
+
+// ── Onboard Done
+window.lcOnboardDone = async function() {
+  var sd=document.getElementById('ob-start-date').value;
+  var yr=parseInt(document.getElementById('ob-years').value)||127;
+  if(!sd){alert('Please enter a start date.');return;}
+  var user=window._fbAuth?.currentUser;
+  if(user){
+    await window._fbSaveUserData(user.uid,{cfg:{startDate:sd,years:yr}});
+    window._applyFirebaseData({cfg:{startDate:sd,years:yr}},null);
   }
 };
 
-// cycle saving is handled via _fbSaveCycleData called from cycleCalculate
+// ── autoApply
+window.autoApply = function() {
+  var rd=document.getElementById('start-date').value;
+  var ey=parseInt(document.getElementById('end-year-in').value);
+  if(rd&&!isNaN(ey)&&ey>=1){
+    if(typeof applyConfig==='function')applyConfig();
+    var user=window._fbAuth?.currentUser;
+    if(user) window._fbSaveUserData(user.uid,{cfg:{startDate:rd,years:ey}});
+  }
+};
 
-console.log('Firebase initialized successfully');
+// ── Apply Firebase data to calendar
+window._applyFirebaseData = function(data, name) {
+  if(!data)return;
+  var sdEl=document.getElementById('start-date');
+  var eyEl=document.getElementById('end-year-in');
+  if(data.cfg){
+    if(sdEl&&data.cfg.startDate)sdEl.value=data.cfg.startDate;
+    if(eyEl&&data.cfg.years)eyEl.value=data.cfg.years;
+  }
+  var a=document.getElementById('lc-auth-screen');
+  var o=document.getElementById('lc-onboard-screen');
+  if(a)a.classList.add('hidden');
+  if(o)o.classList.add('hidden');
+  var pill=document.getElementById('lc-user-pill');
+  var nEl=document.getElementById('lc-user-name-pill');
+  var avEl=document.getElementById('lc-avatar');
+  if(pill)pill.style.display='flex';
+  if(nEl&&name)nEl.textContent=name;
+  if(avEl&&name)avEl.textContent=name.charAt(0).toUpperCase();
+  if(data.vitals&&typeof hVitals!=='undefined')Object.assign(hVitals,data.vitals);
+  if(data.cycles){try{localStorage.setItem('lc_cycles',JSON.stringify(data.cycles));}catch(e){}}
+  if(data.timetable){try{localStorage.setItem('lc_timetable',JSON.stringify(data.timetable));}catch(e){}}
+  if(data.healthProfile){
+    try{
+      if(data.healthProfile.conditions&&typeof conditions!=='undefined')conditions=data.healthProfile.conditions;
+      if(data.healthProfile.allergies&&typeof allergies!=='undefined')allergies=data.healthProfile.allergies;
+      if(typeof hRenderTags==='function')setTimeout(hRenderTags,600);
+    }catch(e){}
+  }
+  function doApply(){
+    if(typeof applyConfig==='function')applyConfig();
+    setTimeout(function(){if(typeof cdAutoUpdate==='function')cdAutoUpdate();},400);
+    setTimeout(function(){if(typeof hUpdateVitalDashboard==='function')hUpdateVitalDashboard();},600);
+  }
+  if(document.readyState==='complete')doApply();
+  else window.addEventListener('load',doApply);
+};
+
+// ══ ADMIN DASHBOARD FUNCTIONS ══
+var allUsersCache=[];
+
+window.openAdminDashboard = function(user, name, level, data) {
+  var a=document.getElementById('lc-auth-screen');
+  var o=document.getElementById('lc-onboard-screen');
+  if(a)a.classList.add('hidden');
+  if(o)o.classList.add('hidden');
+  var adminScreen=document.getElementById('admin-screen');
+  if(adminScreen)adminScreen.classList.add('open');
+  var badge=document.getElementById('admin-level-badge');
+  var nameDisplay=document.getElementById('admin-name-display');
+  if(badge){
+    badge.textContent='Level '+level+(level===3?' — CEO':level===2?' — Analyst':' — Viewer');
+  }
+  if(nameDisplay)nameDisplay.textContent=name||'Admin';
+  var qs=document.getElementById('admin-query-section');
+  if(qs)qs.style.display=level>=2?'block':'none';
+  var ts=document.getElementById('admin-token-section');
+  if(ts)ts.style.display=level>=3?'block':'none';
+  window._adminLevel=level;
+  adminLoadDashboard(level);
+  if(level>=3)setTimeout(adminLoadTokens,800);
+};
+
+window.adminSignOut = async function() {
+  try{await window._fbSignOut();}catch(e){}
+  var adminScreen=document.getElementById('admin-screen');
+  if(adminScreen)adminScreen.classList.remove('open');
+  location.reload();
+};
+
+async function adminLoadDashboard(level) {
+  try{
+    var snap=await window._fbGetDocs(window._fbCollection(window._fbDb,'users'));
+    allUsersCache=[];
+    snap.forEach(function(d){allUsersCache.push({uid:d.id,...d.data()});});
+    adminRenderStats(allUsersCache);
+    adminRenderCharts(allUsersCache);
+    if(level>=2)adminRenderTable(allUsersCache);
+  }catch(e){
+    console.warn('Admin load error:',e);
+    var tb=document.getElementById('admin-users-tbody');
+    if(tb)tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#c05030">Error: '+e.message+'</td></tr>';
+  }
+}
+
+function adminRenderStats(users){
+  var total=users.length;
+  var withCal=users.filter(function(u){return u.cfg;}).length;
+  var withVit=users.filter(function(u){return u.vitals&&Object.keys(u.vitals).length>0;}).length;
+  var withCyc=users.filter(function(u){return u.cycles&&u.cycles.lastDate;}).length;
+  var withTT=users.filter(function(u){return u.timetable&&u.timetable.periods;}).length;
+  var admins=users.filter(function(u){return u.role==='admin';}).length;
+  function s(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  s('ast-total',total);s('ast-cal',withCal);s('ast-vitals',withVit);
+  s('ast-cycle',withCyc);s('ast-timetable',withTT);s('ast-admins',admins);
+}
+
+function adminRenderCharts(users){
+  var total=users.length||1;
+  var features=[
+    {label:'Calendar',count:users.filter(function(u){return u.cfg;}).length},
+    {label:'Vitals',count:users.filter(function(u){return u.vitals&&Object.keys(u.vitals).length>0;}).length},
+    {label:'Cycle',count:users.filter(function(u){return u.cycles&&u.cycles.lastDate;}).length},
+    {label:'Timetable',count:users.filter(function(u){return u.timetable;}).length},
+    {label:'Health Profile',count:users.filter(function(u){return u.healthProfile;}).length}
+  ];
+  var el=document.getElementById('admin-chart-features');
+  if(el)el.innerHTML=features.map(function(f){
+    var pct=Math.round((f.count/total)*100);
+    return '<div class="admin-bar-row"><div class="admin-bar-label">'+f.label+'</div><div class="admin-bar-track"><div class="admin-bar-fill" style="width:'+pct+'%"></div></div><div class="admin-bar-val">'+f.count+'</div></div>';
+  }).join('');
+  var buckets={'<50':0,'50-80':0,'81-100':0,'101-127':0,'127+':0};
+  users.forEach(function(u){
+    if(!u.cfg||!u.cfg.years)return;
+    var y=u.cfg.years;
+    if(y<50)buckets['<50']++;else if(y<=80)buckets['50-80']++;else if(y<=100)buckets['81-100']++;else if(y<=127)buckets['101-127']++;else buckets['127+']++;
+  });
+  var yEl=document.getElementById('admin-chart-years');
+  if(yEl){
+    var maxY=Math.max.apply(null,Object.values(buckets).concat([1]));
+    yEl.innerHTML=Object.entries(buckets).map(function(e){
+      var pct=Math.round((e[1]/maxY)*100);
+      return '<div class="admin-bar-row"><div class="admin-bar-label">'+e[0]+' yrs</div><div class="admin-bar-track"><div class="admin-bar-fill" style="width:'+pct+'%"></div></div><div class="admin-bar-val">'+e[1]+'</div></div>';
+    }).join('');
+  }
+}
+
+function adminRenderTable(users){
+  var tbody=document.getElementById('admin-users-tbody');
+  if(!tbody)return;
+  if(!users.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#b0907a;font-style:italic">No users found.</td></tr>';return;}
+  function fmtDate(ts){
+    if(!ts)return'—';
+    try{var d=ts.toDate?ts.toDate():new Date(ts.seconds*1000);return d.toLocaleDateString();}catch(e){return'—';}
+  }
+  tbody.innerHTML=users.map(function(u){
+    var role=u.role==='admin'?'<span class="level-badge level-'+(u.accessLevel||1)+'">Admin L'+(u.accessLevel||1)+'</span>':'<span style="font-size:11px;color:#7a5a44">User</span>';
+    var hasCal=u.cfg?'✓':'—';
+    var hasVit=(u.vitals&&Object.keys(u.vitals).length)?'✓':'—';
+    var hasCyc=(u.cycles&&u.cycles.lastDate)?'✓':'—';
+    return '<tr>'
+      +'<td><strong>'+(u.name||'—')+'</strong></td>'
+      +'<td style="font-size:11px;color:#7a5a44">'+(u.email||'—')+'</td>'
+      +'<td>'+role+'</td>'
+      +'<td style="text-align:center;color:'+(u.cfg?'#6BAE8A':'#ccc')+'">'+hasCal+'</td>'
+      +'<td style="text-align:center;color:'+(hasVit==='✓'?'#6BAE8A':'#ccc')+'">'+hasVit+'</td>'
+      +'<td style="text-align:center;color:'+(hasCyc==='✓'?'#E87D8F':'#ccc')+'">'+hasCyc+'</td>'
+      +'<td style="font-size:11px;color:#b0907a">'+fmtDate(u.createdAt)+'</td>'
+      +'<td><button class="admin-view-btn" onclick="adminViewUser(this.dataset.uid)" data-uid="'+u.uid+'">View</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+window.adminFilterUsers = function(){
+  var search=(document.getElementById('admin-search')?.value||'').toLowerCase();
+  var feature=document.getElementById('admin-filter-feature')?.value||'';
+  var roleF=document.getElementById('admin-filter-level')?.value||'';
+  var filtered=allUsersCache.filter(function(u){
+    var ms=!search||(u.name||'').toLowerCase().includes(search)||(u.email||'').toLowerCase().includes(search);
+    var mf=!feature||(feature==='cfg'?!!u.cfg:feature==='vitals'?(u.vitals&&Object.keys(u.vitals).length>0):feature==='cycles'?(u.cycles&&u.cycles.lastDate):feature==='timetable'?!!u.timetable:feature==='healthProfile'?!!u.healthProfile:true);
+    var mr=!roleF||(roleF==='admin'?u.role==='admin':u.role!=='admin');
+    return ms&&mf&&mr;
+  });
+  adminRenderTable(filtered);
+};
+
+window.adminRefresh = async function(){
+  await adminLoadDashboard(window._adminLevel||1);
+};
+
+window.adminViewUser = function(uid){
+  if(!uid&&this&&this.dataset)uid=this.dataset.uid;
+  var u=allUsersCache.find(function(x){return x.uid===uid;});
+  if(!u)return;
+  var modal=document.getElementById('admin-user-modal');
+  var title=document.getElementById('admin-user-modal-title');
+  var body=document.getElementById('admin-user-modal-body');
+  if(!modal||!body)return;
+  title.textContent=(u.name||'User')+' — Profile';
+  function sec(label,content){return'<div class="admin-detail-section"><div class="admin-detail-label">'+label+'</div>'+content+'</div>';}
+  function val(v){return'<div class="admin-detail-value">'+(v||'—')+'</div>';}
+  function tags(arr,type){
+    if(!arr||!arr.length)return'<div style="font-size:12px;color:#b0907a;font-style:italic">None recorded</div>';
+    return'<div class="admin-detail-tags">'+arr.map(function(t){return'<span class="admin-detail-tag '+(type||'')+'">'+ t+'</span>';}).join('')+'</div>';
+  }
+  var html2='';
+  html2+=sec('Account','<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+val('&#128100; '+(u.name||'—'))+val('&#128231; '+(u.email||'—'))+val('Role: '+(u.role==='admin'?'&#128274; Admin (L'+(u.accessLevel||1)+')':'&#128100; User'))+val('UID: <span style="font-size:10px;font-family:monospace">'+uid+'</span>')+'</div>');
+  if(u.cfg)html2+=sec('Calendar','<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+val('Start: '+(u.cfg.startDate||'—'))+val('Years: '+(u.cfg.years||'—'))+'</div>');
+  if(u.healthProfile){html2+=sec('Health Conditions',tags(u.healthProfile.conditions));html2+=sec('Allergies',tags(u.healthProfile.allergies,'allergy'));}
+  if(u.vitals&&Object.keys(u.vitals).length){
+    var vE=Object.entries(u.vitals).slice(0,12);
+    html2+=sec('Vitals ('+Object.keys(u.vitals).length+')','<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;">'+vE.map(function(e){var n=e[0].replace(/^[^_]+_/,'').replace(/_/g,' ');return'<div class="admin-detail-value" style="font-size:11px;padding:6px 8px;"><strong>'+n+'</strong><br>'+e[1]+'</div>';}).join('')+'</div>');
+  }
+  if(u.cycles&&u.cycles.lastDate)html2+=sec('Cycle Tracker','<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">'+val('Last: '+u.cycles.lastDate)+val('Cycle: '+(u.cycles.length||28)+' days')+val('Duration: '+(u.cycles.duration||5)+' days')+'</div>');
+  if(u.timetable&&u.timetable.periods){var evC=u.timetable.events?Object.keys(u.timetable.events).length:0;html2+=sec('Timetable','<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+val('Mode: '+(u.timetable.mode||'—'))+val('Periods: '+u.timetable.periods.length+' | Events: '+evC)+'</div>');}
+  body.innerHTML=html2;
+  modal.classList.add('open');
+};
+
+window.adminCloseUser = function(){
+  var modal=document.getElementById('admin-user-modal');
+  if(modal)modal.classList.remove('open');
+};
+
+// ── TOKEN GENERATOR
+function genRandom12(){
+  var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var result='';
+  for(var i=0;i<12;i++)result+=chars.charAt(Math.floor(Math.random()*chars.length));
+  return result;
+}
+
+window.adminGenerateToken = async function(){
+  var level=parseInt(document.getElementById('gen-token-level').value)||1;
+  var note=document.getElementById('gen-token-note').value.trim();
+  var token=genRandom12();
+  var resultDiv=document.getElementById('gen-token-result');
+  try{
+    await window._fbSetDoc(
+      window._fbDoc(window._fbDb,'adminTokens',token),
+      {level:level,note:note||'',used:false,usedBy:'',createdAt:window._fbServerTimestamp()}
+    );
+    resultDiv.style.display='block';
+    resultDiv.innerHTML='<div style="background:rgba(107,174,138,.15);border:1px solid rgba(107,174,138,.4);border-radius:10px;padding:12px 16px;">'
+      +'<div style="font-size:11px;color:#6a8a7a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Generated Token (Level '+level+')</div>'
+      +'<div style="font-family:monospace;font-size:18px;font-weight:600;color:#1a2e28;letter-spacing:.12em;">'+token+'</div>'
+      +'<div style="font-size:11px;color:#6a8a7a;margin-top:4px">Share this 12-character token with the admin user. It can only be used once.</div>'
+      +'</div>';
+    document.getElementById('gen-token-note').value='';
+    adminLoadTokens();
+  }catch(e){
+    resultDiv.style.display='block';
+    resultDiv.innerHTML='<div style="color:#c05030;font-size:12px;">Error: '+e.message+'</div>';
+  }
+};
+
+async function adminLoadTokens(){
+  try{
+    var snap=await window._fbGetDocs(window._fbCollection(window._fbDb,'adminTokens'));
+    var tokens=[];
+    snap.forEach(function(d){tokens.push({id:d.id,...d.data()});});
+    var tbody=document.getElementById('admin-tokens-tbody');
+    if(!tbody)return;
+    if(!tokens.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:1rem;color:#b0907a;font-style:italic">No tokens generated yet.</td></tr>';return;}
+    function fmtDate(ts){if(!ts)return'—';try{var d=ts.toDate?ts.toDate():new Date(ts.seconds*1000);return d.toLocaleDateString();}catch(e){return'—';}}
+    tbody.innerHTML=tokens.sort(function(a,b){return(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);}).map(function(t){
+      return'<tr>'
+        +'<td style="font-family:monospace;font-weight:600;letter-spacing:.08em">'+t.id+'</td>'
+        +'<td><span class="level-badge level-'+t.level+'">L'+t.level+'</span></td>'
+        +'<td style="font-size:12px;color:#7a5a44">'+(t.note||'—')+'</td>'
+        +'<td style="text-align:center;color:'+(t.used?'#6BAE8A':'#bbb')+'">'+(t.used?'✓ Used':'Unused')+'</td>'
+        +'<td style="font-size:11px;color:#7a5a44">'+(t.usedBy||'—')+'</td>'
+        +'<td style="font-size:11px;color:#b0907a">'+fmtDate(t.createdAt)+'</td>'
+        +'<td><button class="admin-view-btn" style="color:#c05030;border-color:rgba(200,80,48,.3)" onclick="adminRevokeToken(this.dataset.tid)" data-tid="'+t.id+'">Revoke</button></td>'
+        +'</tr>';
+    }).join('');
+  }catch(e){console.warn('Token load error:',e);}
+}
+
+window.adminRevokeToken = async function(tokenId){
+  if(!tokenId&&this&&this.dataset)tokenId=this.dataset.tid;
+  if(!confirm('Revoke token '+tokenId+'? It will no longer be usable.'))return;
+  try{
+    await window._fbSetDoc(window._fbDoc(window._fbDb,'adminTokens',tokenId),{used:true,usedBy:'REVOKED'},{merge:true});
+    adminLoadTokens();
+  }catch(e){alert('Error: '+e.message);}
+};
+
+// Override adminLoadDashboard to also load tokens for level 3
+var _origAdminLoad=window.adminRefresh;
+window.adminRefresh = async function(){
+  var level=window._adminLevel||1;
+  await adminLoadDashboard(level);
+  if(level>=3)adminLoadTokens();
+};
 </script>
 
 </body>
